@@ -3,7 +3,6 @@ package EffectBox
 import chisel3._
 import chisel3.iotesters.PeekPokeTester
 import org.scalatest.{Matchers, FlatSpec}
-// import TestUtils._
 
 
 class BitCruchSpec extends FlatSpec with Matchers {
@@ -22,9 +21,13 @@ class BitCruchSpec extends FlatSpec with Matchers {
       new NotCrushesBits(b)
     } should be(true)
   }
+
+  it should "print from file" in {
+    chisel3.iotesters.Driver(() => new BitCrush) { b => 
+      new CrushBitsFromFile(b)
+    } should be(true)
+  }
 }
-
-
 
 object BitCrushTest {
   
@@ -62,11 +65,28 @@ object BitCrushTest {
       expect(b.io.dataOut, expectedOutput(ii))
       step(1)
     }
-
-
   }
 
+  class CrushBitsFromFile(b: BitCrush) extends PeekPokeTester(b) {
+      import scala.io.Source
+      import scala.math.abs
+   
+      poke(b.io.bypass, false.B)
+      poke(b.io.nCrushBits, 4)
 
+      val filename = "sound.txt"
+
+      for (line <- Source.fromFile(filename).getLines) {
+          val n: Short = line.toShort
+          println(n.toString)
+
+          poke(b.io.dataIn, abs(n))
+          expect(b.io.dataOut, abs(n) & 0xfff0)
+          step(1)
+
+      } 
+
+  }
 }
 
 
