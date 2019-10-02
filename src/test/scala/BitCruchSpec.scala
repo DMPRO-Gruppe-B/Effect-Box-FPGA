@@ -32,6 +32,7 @@ object BitCrushTest {
 
     for (ii <- 0 until inputs.length) {
       poke(b.io.dataIn, inputs(ii))
+      poke(b.io.bypass, false.B)
       poke(b.io.nCrushBits, 4)
       expect(b.io.dataOut, expectedOutput(ii))
       step(1)

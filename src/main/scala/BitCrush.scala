@@ -8,11 +8,16 @@ class BitCrush extends Module {
     new Bundle {
       val dataIn      = Input(UInt(16.W))
       val nCrushBits  = Input(UInt(4.W)) // Represens all possible bitcrushes on 16 bits: 2^4 = 16
-      // val enable      = Input(Bool(1.W)) // Donno if needed
+      val bypass      = Input(Bool()) 
 
       val dataOut     = Output(UInt(16.W))
     }
   )
-  val mask = "hffff".U << io.nCrushBits 
-  io.dataOut := io.dataIn & mask
+
+  when (io.bypass) {
+    io.dataOut := io.dataIn
+  } .otherwise {
+    val mask = "hffff".U << io.nCrushBits 
+    io.dataOut := io.dataIn & mask
+  }
 }
