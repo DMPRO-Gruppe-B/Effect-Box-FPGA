@@ -16,8 +16,9 @@ class BitCrush extends Module {
 
   when (io.bypass) {
     io.dataOut := io.dataIn
+
   } .otherwise {
-    val mask = "hffff".U << io.nCrushBits 
+    val mask = 0xffff.U << io.nCrushBits 
     io.dataOut := io.dataIn & mask
   }
 }

@@ -24,16 +24,17 @@ class BitCruchSpec extends FlatSpec with Matchers {
 object BitCrushTest {
   
   class CrushesBits(b: BitCrush) extends PeekPokeTester(b) {
-    val inputs = List(0x444f, 0x8218, 0xbeef, 0xcace)
-    val expectedOutput = inputs.map { in => in & 0xfff0 }
+    val inputs          = List(0x444f, 0x8218, 0xbeef, 0xcace)
+    val expectedOutput  = List(0x4440, 0x8210, 0xbee0, 0xcac0)
     println("Crush Bits...")
     println(inputs.mkString("[", "] [", "]"))
     println(expectedOutput.mkString("[", "] [", "]"))
 
+    poke(b.io.bypass, false.B)
+    poke(b.io.nCrushBits, 4)
+
     for (ii <- 0 until inputs.length) {
       poke(b.io.dataIn, inputs(ii))
-      poke(b.io.bypass, false.B)
-      poke(b.io.nCrushBits, 4)
       expect(b.io.dataOut, expectedOutput(ii))
       step(1)
     }
