@@ -17,6 +17,11 @@ class BitCruchSpec extends FlatSpec with Matchers {
     } should be(true)
   }
 
+  it should "Bypass signal" in {
+    chisel3.iotesters.Driver(() => new BitCrush) { b => 
+      new NotCrushesBits(b)
+    } should be(true)
+  }
 }
 
 
@@ -38,6 +43,27 @@ object BitCrushTest {
       expect(b.io.dataOut, expectedOutput(ii))
       step(1)
     }
+  }
+
+  class NotCrushesBits(b: BitCrush) extends PeekPokeTester(b) {
+    
+    val inputs          = List(0x444f, 0x8218, 0xbeef, 0xcace)
+    val expectedOutput  = List(0x444f, 0x8218, 0xbeef, 0xcace)
+    
+    println("Not Crush Bits...")
+    println(inputs.mkString("[", "] [", "]"))
+    println(expectedOutput.mkString("[", "] [", "]"))
+
+    poke(b.io.bypass, true.B)
+    poke(b.io.nCrushBits, 4)
+
+    for (ii <- 0 until inputs.length) {
+      poke(b.io.dataIn, inputs(ii))
+      expect(b.io.dataOut, expectedOutput(ii))
+      step(1)
+    }
+
+
   }
 
 
