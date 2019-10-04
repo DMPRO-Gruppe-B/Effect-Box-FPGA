@@ -15,16 +15,15 @@ class BitCruchSpec extends FlatSpec with Matchers {
       new CrushesBits(b)
     } should be(true)
   }
+  it should "Process file" in {
+    chisel3.iotesters.Driver(() => new BitCrush) { b => 
+      new CrushBitsFromFile(b)
+    } should be(true)
+  }
 
   it should "Bypass signal" in {
     chisel3.iotesters.Driver(() => new BitCrush) { b => 
       new NotCrushesBits(b)
-    } should be(true)
-  }
-
-  it should "print from file" in {
-    chisel3.iotesters.Driver(() => new BitCrush) { b => 
-      new CrushBitsFromFile(b)
     } should be(true)
   }
 }
@@ -32,8 +31,8 @@ class BitCruchSpec extends FlatSpec with Matchers {
 object BitCrushTest {
   
   class CrushesBits(b: BitCrush) extends PeekPokeTester(b) {
-    val inputs          = List(0x444f, 0x8218, 0xbeef, 0xcace)
-    val expectedOutput  = List(0x4440, 0x8210, 0xbee0, 0xcac0)
+    val inputs          = List(0x044f, 0x0218, 0x0eef, 0x5ace, -4)
+    val expectedOutput  = List(0x0440, 0x0210, 0x0ee0, 0x5ac0, -16)
     println("Crush Bits...")
     println(inputs.mkString("[", "] [", "]"))
     println(expectedOutput.mkString("[", "] [", "]"))
@@ -43,49 +42,57 @@ object BitCrushTest {
 
     for (ii <- 0 until inputs.length) {
       poke(b.io.dataIn, inputs(ii))
-      expect(b.io.dataOut, expectedOutput(ii))
       step(1)
-    }
-  }
-
-  class NotCrushesBits(b: BitCrush) extends PeekPokeTester(b) {
-    
-    val inputs          = List(0x444f, 0x8218, 0xbeef, 0xcace)
-    val expectedOutput  = List(0x444f, 0x8218, 0xbeef, 0xcace)
-    
-    println("Not Crush Bits...")
-    println(inputs.mkString("[", "] [", "]"))
-    println(expectedOutput.mkString("[", "] [", "]"))
-
-    poke(b.io.bypass, true.B)
-    poke(b.io.nCrushBits, 4)
-
-    for (ii <- 0 until inputs.length) {
-      poke(b.io.dataIn, inputs(ii))
       expect(b.io.dataOut, expectedOutput(ii))
-      step(1)
     }
   }
 
   class CrushBitsFromFile(b: BitCrush) extends PeekPokeTester(b) {
    
       import scala.math.abs
+      import java.io.PrintWriter
+      import scala.io.Source
+
+      println("Crush from file")
 
       poke(b.io.bypass, false.B)
       poke(b.io.nCrushBits, 4)
 
       val filename = "sound.txt"
+      // val pw = new PrintWriter("new_" ++ filename)
 
       for (line <- FileUtils.getLines(filename)) {
-          val n: Short = line.toShort
+          val n = line.toInt
 
-          poke(b.io.dataIn, abs(n))
-          expect(b.io.dataOut, abs(n) & 0xfff0)
+          poke(b.io.dataIn, n)
+          expect(b.io.dataOut, n)
+          
           step(1)
+          // val a = peek(b.io.dataOut)
+          // pw.write(s"$a\n")
 
       } 
-
+      // pw.close()
   }
+  
+  class NotCrushesBits(b: BitCrush) extends PeekPokeTester(b) {
+    
+    val inputs          = List(0x044f, 0x0218, 0x0eef, 0x0ace)
+    
+    println("Not Crush Bits...")
+    println(inputs.mkString("[", "] [", "]"))
+
+    poke(b.io.bypass, true.B)
+    poke(b.io.nCrushBits, 4)
+
+    for (ii <- 0 until inputs.length) {
+      poke(b.io.dataIn, inputs(ii))
+      expect(b.io.dataOut, inputs(ii))
+      step(1)
+    }
+  }
+
+
 }
 
 
