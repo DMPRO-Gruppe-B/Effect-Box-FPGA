@@ -68,17 +68,16 @@ object BitCrushTest {
   }
 
   class CrushBitsFromFile(b: BitCrush) extends PeekPokeTester(b) {
-      import scala.io.Source
-      import scala.math.abs
    
+      import scala.math.abs
+
       poke(b.io.bypass, false.B)
       poke(b.io.nCrushBits, 4)
 
       val filename = "sound.txt"
 
-      for (line <- Source.fromFile(filename).getLines) {
+      for (line <- FileUtils.getLines(filename)) {
           val n: Short = line.toShort
-          println(n.toString)
 
           poke(b.io.dataIn, abs(n))
           expect(b.io.dataOut, abs(n) & 0xfff0)
