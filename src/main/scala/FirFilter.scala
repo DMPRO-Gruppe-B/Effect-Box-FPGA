@@ -4,13 +4,13 @@ import chisel3._
 
 // https://www.chisel-lang.org/
 // Generalized FIR filter parameterized by the convolution coefficients
-class FirFilter(bitWidth: Int, coeffs: Seq[UInt]) extends Module {
+class FirFilter(bitWidth: Int, coeffs: Seq[SInt]) extends Module {
   val io = IO(new Bundle {
-    val in = Input(UInt(bitWidth.W))
-    val out = Output(UInt(bitWidth.W))
+    val in = Input(SInt(bitWidth.W))
+    val out = Output(SInt(bitWidth.W))
   })
   // Create the serial-in, parallel-out shift register
-  val zs = Reg(Vec(coeffs.length, UInt(bitWidth.W)))
+  val zs = Reg(Vec(coeffs.length, SInt(bitWidth.W)))
   zs(0) := io.in
   for (i <- 1 until coeffs.length) {
     zs(i) := zs(i-1)
