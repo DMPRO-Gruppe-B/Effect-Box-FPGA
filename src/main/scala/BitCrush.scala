@@ -17,10 +17,7 @@ class BitCrush extends Module {
     io.dataOut := io.dataIn
   } .otherwise {
 
-    val temp = VecInit(io.dataIn.toBools)
-    for (ii <- 0 until 4) {
-      temp(ii) := 0.U
-    }
-    io.dataOut := temp.asTypeOf(io.dataOut)
+    val mask = 0xffff.S << io.nCrushBits
+    io.dataOut := io.dataIn & mask.toSInt
   }
 }
