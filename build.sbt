@@ -30,7 +30,7 @@ name := "chisel-module-template"
 
 version := "3.1.1"
 
-scalaVersion := "2.11.12"
+scalaVersion := "2.13.1"
 
 crossScalaVersions := Seq("2.11.12", "2.12.4")
 
