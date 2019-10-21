@@ -1,5 +1,6 @@
 TOP_MODULE  := EffectBox
 TOP_MODULE  := FPGATest
+TOP_MODULE  := BRAMTest
 XILINX_PART := xc7a35ticsg324-1L# the arty 7 dev kit
 BUILD_DIR   := build
 SCALA_TARGETS    := $(shell find src/main/scala/             -type f -name '*.scala')
