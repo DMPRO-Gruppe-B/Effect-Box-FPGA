@@ -49,30 +49,14 @@ object BitCrushTest {
 
   class CrushBitsFromFile(b: BitCrush) extends PeekPokeTester(b) {
    
-      import scala.math.abs
-      import java.io.PrintWriter
-      import scala.io.Source
-
-      println("Crush from file")
-
       poke(b.io.bypass, false.B)
       poke(b.io.nCrushBits, 4)
 
-      val filename = "sound.txt"
-      // val pw = new PrintWriter("new_" ++ filename)
-
-      for (line <- FileUtils.getLines(filename)) {
-          val n = line.toInt
-
-          poke(b.io.dataIn, n)
-          expect(b.io.dataOut, n)
-          
-          step(1)
-          // val a = peek(b.io.dataOut)
-          // pw.write(s"$a\n")
-
-      } 
-      // pw.close()
+      FileUtils.readWrite("sound.txt", "new_sound.txt", 
+        poke(b.io.dataIn, _),
+        () => peek(b.io.dataOut),
+        step
+      )
   }
   
   class NotCrushesBits(b: BitCrush) extends PeekPokeTester(b) {
