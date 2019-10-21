@@ -4,7 +4,6 @@ import chisel3._
 
 
 class DelayFilter(bitWidth: Int) extends Module {
-  
   val io = IO(new Bundle {
     val in = Input(SInt(bitWidth.W))
     val out = Output(SInt(bitWidth.W))
@@ -13,6 +12,4 @@ class DelayFilter(bitWidth: Int) extends Module {
   val delayFilter = Module(new FirFilter(bitWidth, Seq(0.S, 1.S))).io
   delayFilter.in := io.in
   io.out := delayFilter.out
-
 }
-

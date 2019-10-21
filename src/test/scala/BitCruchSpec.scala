@@ -29,7 +29,6 @@ class BitCruchSpec extends FlatSpec with Matchers {
 }
 
 object BitCrushTest {
-  
   class CrushesBits(b: BitCrush) extends PeekPokeTester(b) {
     val inputs          = List(0x044f, 0x0218, 0x0eef, 0x5ace, -4)
     val expectedOutput  = List(0x0440, 0x0210, 0x0ee0, 0x5ac0, -16)
