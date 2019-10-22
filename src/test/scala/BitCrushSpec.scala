@@ -5,7 +5,7 @@ import chisel3.iotesters.PeekPokeTester
 import org.scalatest.{Matchers, FlatSpec}
 
 
-class BitCruchSpec extends FlatSpec with Matchers {
+class BitCrushSpec extends FlatSpec with Matchers {
   import BitCrushTest._
 
   behavior of "BitCrush"
