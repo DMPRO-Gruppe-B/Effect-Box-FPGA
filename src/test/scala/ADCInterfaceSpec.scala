@@ -28,25 +28,17 @@ object ADCTest{
 
     val filename = "sound.txt"
 
-    var CLK_counter = 0
     for (line <- FileUtils.getLines(filename)) {
         poke(b.io.LRCLK,true)
 
         for(bit <- TestUtils.toBinaryString(line.toInt,16)){
-
-            poke(b.io.bitIn,bit.toInt)
-
-            if((CLK_counter % 2) != 0)
-            {
-                poke(b.io.BCLK,true)
-            }
-            else{
-                poke(b.io.BCLK,false)
-                step(1)
-            }
+            poke(b.io.bitIn,0)
+            poke(b.io.BCLK,false)
             step(1)
 
-            CLK_counter = CLK_counter +1
+            poke(b.io.bitIn,bit.toInt)
+            poke(b.io.BCLK,true)
+            step(1)
         }
         poke(b.io.LRCLK,false)
         step(32)
