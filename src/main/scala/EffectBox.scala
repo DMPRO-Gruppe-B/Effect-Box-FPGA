@@ -8,10 +8,34 @@ import chisel3._
   * It takes input from the outside, puts it
   * through the effect modules, and outputs it.
   */
-class EffectBox extends Module {
+class EffectBox() extends Module {
   val io = IO(new Bundle {
+    val in = Input(SInt(32.W))
+    val fbNum = Input(UInt(8.W))
+    val fbDenom = Input(UInt(8.W))
 
+    val mixNum = Input(UInt(8.W))
+    val mixDenom = Input(UInt(8.W))
+
+    val emptyBuffer = Input(Bool())
+
+    val out = Output(SInt(32.W))
   })
+  val fbFraction = Wire(new Fraction)
+  val mixFraction = Wire(new Fraction)
 
-  // val effect = Module(new Effect)
+  fbFraction.numerator := io.fbNum
+  fbFraction.denominator := io.fbDenom
+
+  mixFraction.numerator := io.mixNum
+  mixFraction.denominator := io.mixDenom
+
+  val delay = Module(new Delay).io
+
+  delay.in := io.in
+  delay.fbFraction := fbFraction
+  delay.mixFraction := mixFraction
+  delay.emptyBuffer := io.emptyBuffer
+
+  io.out := delay.out
 }

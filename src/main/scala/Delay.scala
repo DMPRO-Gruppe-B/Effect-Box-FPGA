@@ -3,34 +3,32 @@ package EffectBox
 import chisel3._
 import chisel3.util._
 
-class Delay(bitWidth: Int) extends Module {
+class Delay() extends Module {
+
   val io = IO(new Bundle {
-    val in = Input(SInt(bitWidth.W))
-    val mixNum = Input(UInt(7.W))
-    val mixDenom = Input(UInt(7.W))
+    val in          = Input(SInt(32.W))
+    val fbFraction  = Input(new Fraction)
+    val mixFraction = Input(new Fraction)
 
-    val fbNum = Input(UInt(7.W))
-    val fbDenom  = Input(UInt(7.W))
-    val emptyBuffer = Input(Bool())
+    val emptyBuffer  = Input(Bool())
 
-    val out = Output(SInt(bitWidth.W))
+    val out = Output(SInt(32.W))
   })
-  val delayBuffer = Module(new DelayBuffer(bitWidth)).io
-  
-  val inDec = Wire(Flipped(Decoupled(SInt(bitWidth.W))))
-  val outDec = Wire(Decoupled(SInt(bitWidth.W)))
-  val delayedSignal = Wire(SInt(bitWidth.W))
+  val delayBuffer = Module(new DelayBuffer).io
+  val inDec = Wire(Flipped(Decoupled(SInt(32.W))))
+  val outDec = Wire(Decoupled(SInt(32.W)))
+  val delayedSignal = Wire(SInt(32.W))
 
   inDec.valid := true.B
   inDec.ready := true.B
-  inDec.bits  := io.in+(delayedSignal*io.fbNum.asSInt)/io.fbDenom.asSInt
-
-  io.out := 0.S
-  delayedSignal := 0.S
+  inDec.bits  := io.in+Multiply(io.fbFraction.numerator,io.fbFraction.denominator,delayedSignal)
 
   outDec.valid := true.B
   outDec.ready := false.B
   outDec.bits  := delayBuffer.out.bits
+
+  io.out := 0.S
+  delayedSignal := 0.S
 
   delayBuffer.in <> inDec
 
@@ -42,16 +40,17 @@ class Delay(bitWidth: Int) extends Module {
   }
 
   //Output = delayedSignal*mix + cleanSignal*(1-mix)
-  io.out := (delayedSignal*io.mixNum.asSInt)/io.mixDenom.asSInt + (io.in*(io.mixDenom-io.mixNum).asSInt)/io.mixDenom.asSInt
+  io.out := Multiply(io.mixFraction.numerator,io.mixFraction.denominator,delayedSignal) + 
+            OneMinusMultiply(io.mixFraction.numerator,io.mixFraction.denominator,io.in)
 }
 
-class DelayBuffer(bitWidth: Int) extends Module {
+class DelayBuffer() extends Module {
   
     val io = IO(new Bundle {
-      val in = Flipped(Decoupled(SInt(bitWidth.W)))
-      val out = Decoupled(SInt(bitWidth.W))
+      val in = Flipped(Decoupled(SInt(32.W)))
+      val out = Decoupled(SInt(32.W))
     })
-    val queue = Module(new Queue(SInt(bitWidth.W),2000))
+    val queue = Module(new Queue(SInt(32.W),2000))
   
     queue.io.enq <> io.in
     io.out <> queue.io.deq

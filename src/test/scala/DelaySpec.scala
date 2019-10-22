@@ -12,14 +12,14 @@ class DelaySpec extends FlatSpec with Matchers {
   behavior of "Delay"
 
   it should "Delay signal" in {
-    chisel3.iotesters.Driver.execute(Array("--backend-name","treadle"), () => new Delay(32)) { b => 
+    chisel3.iotesters.Driver.execute(Array("--backend-name","treadle"), () => new EffectBox) { b => 
       new DelaySignal(b)
     } should be(true)
   }
 }
 
 object DelayTest{
-  class DelaySignal(b: Delay) extends PeekPokeTester(b) {
+  class DelaySignal(b: EffectBox) extends PeekPokeTester(b) {
     import scala.math.abs
     import java.io.PrintWriter
     import scala.io.Source
@@ -30,17 +30,14 @@ object DelayTest{
     val delayTime = 0.5
     val bufferSize = sampleRate*delayTime
 
-    // Should be changed to something more sane
-    val mixNum = 1
-    val mixDenom = 2
+    val fbFractionReduce = new FractionReduce(0.9)
+    val mixFractionReduce = new FractionReduce(0.5)
 
-    val fbNum = 4
-    val fbDenom = 5
+    poke(b.io.fbNum,fbFractionReduce.numUInt)
+    poke(b.io.fbDenom,fbFractionReduce.denomUInt)
 
-    poke(b.io.mixNum,mixNum)
-    poke(b.io.mixDenom,mixDenom)
-    poke(b.io.fbNum,fbNum)
-    poke(b.io.fbDenom,fbDenom)
+    poke(b.io.mixNum,mixFractionReduce.numUInt)
+    poke(b.io.mixDenom,mixFractionReduce.denomUInt)
 
     val filename = "sound.txt"
     val pw = new PrintWriter("new_" ++ filename)
@@ -50,18 +47,19 @@ object DelayTest{
         val n = line.toInt
 
         poke(b.io.in, n)
-        
-        step(1)
-        val a = peek(b.io.out)
-        pw.write(s"$a\n")
 
-        if(i > bufferSize){
+        if(i >= bufferSize){
           poke(b.io.emptyBuffer, true.B)
         }
         else{
           poke(b.io.emptyBuffer,false.B)
           i = i+1
         }
+        
+        step(1)
+
+        val a = peek(b.io.out)
+        pw.write(s"$a\n")
     } 
     pw.close()
   }
