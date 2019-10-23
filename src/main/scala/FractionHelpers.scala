@@ -39,7 +39,7 @@ class Multiply extends Module{
         val out         = Output(SInt(32.W))
       })
     
-    io.out := (io.number.asSInt*io.numerator.asSInt)/io.denominator.asSInt
+    io.out := (io.number*io.numerator.asSInt)/io.denominator.asSInt
 }
 
 object OneMinusMultiply{

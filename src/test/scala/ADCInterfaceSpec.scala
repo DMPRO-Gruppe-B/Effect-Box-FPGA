@@ -4,6 +4,8 @@ import chisel3._
 import chisel3.iotesters.PeekPokeTester
 import org.scalatest.{Matchers, FlatSpec}
 import chisel3.util._
+import scala.util.control.Breaks._
+
 
 
 class ADCInterfaceSpec extends FlatSpec with Matchers {
@@ -24,26 +26,30 @@ object ADCTest{
     import java.io.PrintWriter
     import scala.io.Source
 
-    println("Processing input")
-
     val filename = "sound.txt"
 
+    breakable{
     for (line <- FileUtils.getLines(filename)) {
-        poke(b.io.LRCLK,true)
+        for(i <- 1 to 10){
+            poke(b.io.LRCLK,true)
+            for(bit <- (TestUtils.toBinaryString(line.toInt,16))){
+                poke(b.io.bitIn,0)
+                poke(b.io.BCLK,false)
+                step(1)
 
-        for(bit <- TestUtils.toBinaryString(line.toInt,16)){
-            poke(b.io.bitIn,0)
-            poke(b.io.BCLK,false)
-            step(1)
-
-            poke(b.io.bitIn,bit.toInt)
-            poke(b.io.BCLK,true)
-            step(1)
+                poke(b.io.bitIn,bit.toInt)
+                poke(b.io.BCLK,true)
+                step(1)
+                val a = peek(b.io.sampleOut)
+                //println(a.toString)
+            }
+            poke(b.io.LRCLK,false)
+            step(32)
         }
-        poke(b.io.LRCLK,false)
-        step(32)
+        break
     } 
   }
+}
 }
 
 
