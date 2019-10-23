@@ -22,7 +22,7 @@ object FileUtils {
           step(1)
 
           val a = peek()
-          pw.write(s"${a.toLong.toHexString}\n")
+          pw.write(s"$a\n")
 
       }
       pw.close()

@@ -26,11 +26,7 @@ class FirFilterSpec extends FlatSpec with Matchers {
       new CrushBitsFromFile(b, false, "bitcrush_sound.txt")
     } should be(true)
   }
-  it should "Should " in {
-    chisel3.iotesters.Driver(() => new BitCrush) { b =>
-      new CrushBitsFromFile(b, true, "hex_sound.txt")
-    } should be(true)
-  }
+
 }
 
 object FirFilerTest {
