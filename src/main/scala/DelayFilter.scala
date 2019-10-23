@@ -9,7 +9,7 @@ class DelayFilter(bitWidth: Int) extends Module {
     val out = Output(SInt(bitWidth.W))
   })
   
-  val delayFilter = Module(new FirFilter(bitWidth, Seq(0.S, 1.S))).io
+  val delayFilter = Module(new FirFilter(bitWidth, Seq(1.S, 2.S, 1.S))).io
   delayFilter.in := io.in
   io.out := delayFilter.out
 }

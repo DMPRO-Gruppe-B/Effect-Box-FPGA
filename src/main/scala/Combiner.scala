@@ -16,12 +16,12 @@ class Combiner(bitWidth: Int) extends Module {
   val delay = Module(new DelayFilter(bitWidth)).io
   bitCrush.bypass := false.B
   bitCrush.nCrushBits := 4.U
-  
+
+//  delay.in := io.in
+//  bitCrush.dataIn := delay.out
+//  io.out := bitCrush.dataOut
+
   bitCrush.dataIn := io.in
-
   delay.in := bitCrush.dataOut
-
   io.out := delay.out
-
-
 }
