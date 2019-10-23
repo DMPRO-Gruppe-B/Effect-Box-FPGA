@@ -21,7 +21,16 @@ class FirFilterSpec extends FlatSpec with Matchers {
       new CombinedFromFile(b)
     } should be(true)
   }
-
+  it should "Should write to file from bitcrush" in {
+    chisel3.iotesters.Driver(() => new BitCrush) { b =>
+      new CrushBitsFromFile(b, false, "bitcrush_sound.txt")
+    } should be(true)
+  }
+  it should "Should " in {
+    chisel3.iotesters.Driver(() => new BitCrush) { b =>
+      new CrushBitsFromFile(b, true, "hex_sound.txt")
+    } should be(true)
+  }
 }
 
 object FirFilerTest {
@@ -52,6 +61,18 @@ object FirFilerTest {
         poke(b.io.in, _),
         () => peek(b.io.out),
         step
+    )
+  }
+
+ class CrushBitsFromFile(b: BitCrush, bypass: Boolean, outname: String) extends PeekPokeTester(b) {
+
+    poke(b.io.bypass, bypass.B)
+    poke(b.io.nCrushBits, 4)
+
+    FileUtils.readWrite("sound.txt", outname,
+      poke(b.io.dataIn, _),
+      () => peek(b.io.dataOut),
+      step
     )
   }
 

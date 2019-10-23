@@ -1,6 +1,7 @@
 package EffectBox
 
 import chisel3._
+import chisel3.util.Counter
 
 // https://www.chisel-lang.org/
 // Generalized FIR filter parameterized by the convolution coefficients
@@ -9,6 +10,7 @@ class FirFilter(bitWidth: Int, coeffs: Seq[SInt]) extends Module {
     val in = Input(SInt(bitWidth.W))
     val out = Output(SInt(bitWidth.W))
   })
+//  val counter = Counter()
   // Create the serial-in, parallel-out shift register
   val zs = Reg(Vec(coeffs.length, SInt(bitWidth.W)))
   zs(0) := io.in
