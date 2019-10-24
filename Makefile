@@ -1,7 +1,8 @@
 TOP_MODULE  := EffectBox
-TOP_MODULE  := FPGATest
 TOP_MODULE  := BRAMTest
+TOP_MODULE  := FPGATest
 XILINX_PART := xc7a35ticsg324-1L# the arty 7 dev kit
+XILINX_PART := xc7a100t# the arty 7 dev kit
 BUILD_DIR   := build
 SCALA_TARGETS    := $(shell find src/main/scala/             -type f -name '*.scala')
 VERILOG_TARGETS  := $(shell find src/main/resources/verilog/ -type f -name '*.v')
