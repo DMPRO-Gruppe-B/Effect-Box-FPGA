@@ -8,10 +8,10 @@ import chisel3._
   */
 class FPGATest extends Module {
   val io = IO(new Bundle {
-    //val pinout = Output(UInt(16.W))
-    val test = Output(Bool())
+    val pinout = Output(UInt(16.W))
+    //val test = Output(Bool())
   })
 
-  //io.pinout := 0x5555.U
-  io.test := false.B
+  io.pinout := 0x5555.U
+  //io.test := true.B
 }
