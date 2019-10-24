@@ -2,6 +2,7 @@ package EffectBox
 
 import java.io.PrintWriter
 
+import EffectBox.TestUtils._
 import chisel3._
 import chisel3.iotesters.PeekPokeTester
 import org.scalatest.{FlatSpec, Matchers}
@@ -12,17 +13,18 @@ class FirFilterSpec extends FlatSpec with Matchers {
 
   behavior of "FirFilter"
 
-//  it should "Should write to file from delay" in {
-//    chisel3.iotesters.Driver(() => new DelayFilter(16)) { b =>
-//      new DelayFromFile(b)
-//    } should be(true)
-//  }
-//
-//  it should "Should write to file from combined" in {
-//    chisel3.iotesters.Driver(() => new Combiner(16)) { b =>
-//      new CombinedFromFile(b)
-//    } should be(true)
-//  }
+  it should "Should write to file from delay" in {
+    chisel3.iotesters.Driver(() => new DelayFilter(16)) { b =>
+      new DelayFromFile(b)
+    } should be(true)
+  }
+
+  it should "Should write to file from combined" in {
+    chisel3.iotesters.Driver(() => new Combiner(16)) { b =>
+      new CombinedFromFile(b)
+    } should be(true)
+  }
+
   it should "Should write to file from bitcrush" in {
     chisel3.iotesters.Driver(() => new BitCrush) { b =>
       new CrushBitsFromFile(b, false, "bitcrush_sound.txt")
@@ -39,6 +41,8 @@ class FirFilterSpec extends FlatSpec with Matchers {
 
 object FirFilerTest {
   class GeneratesSineWave(b: SineWave) extends PeekPokeTester(b) {
+//    val wav = "bi"
+//    val n = python("../software_prototype/music.py", "-p 1", )
     val pw = new PrintWriter("sine.txt")
     for (ii <- 0 until 720) {
       poke(b.io.inc, true.B)
@@ -49,7 +53,7 @@ object FirFilerTest {
       val sineVal = Math.sin(ii * Math.PI / 180)
       assert (Math.abs(value - sineVal) < 0.00163) // Max error with 16 bit should be 0.001629936871670068
       pw.write(f"$value\n")
-      println(f"Success!  ${value}")
+//      println(f"Success!  ${value}")
       step(1)
 
 
@@ -80,11 +84,18 @@ object FirFilerTest {
     )
   }
   class CombinedFromFile(b: Combiner) extends PeekPokeTester(b) {
-    FileUtils.readWrite("sound.txt", "combined_sound.txt",
+    val path = "../software_prototype"
+    val wav = "bicycle_bell.wav"
+    val soundFile = "bolle_sound.txt"
+    val newWav = "new_" ++ wav
+    val newSoundFile = "new_" ++ soundFile
+    thatShellScriptPart1(path, wav, soundFile)
+    FileUtils.readWrite(soundFile, newSoundFile,
         poke(b.io.in, _),
         () => peek(b.io.out),
         step
     )
+    thatShellScriptPart2(path, wav, soundFile, newWav, newSoundFile)
   }
 
  class CrushBitsFromFile(b: BitCrush, bypass: Boolean, outname: String) extends PeekPokeTester(b) {
