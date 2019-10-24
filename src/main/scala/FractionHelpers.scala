@@ -11,9 +11,9 @@ class Fraction extends Bundle(){
 }
 
 class SignedDoubleFraction extends Bundle() {
-    val numerator = UInt(16.W)
+    val numerator = SInt(16.W)
     val denominator = UInt(16.W)
-    val negative = Bool()
+//    val negative = Bool()
 }
 
 object Fraction {

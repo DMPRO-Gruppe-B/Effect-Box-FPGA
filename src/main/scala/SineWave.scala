@@ -20,8 +20,13 @@ class SineWave extends Module{
 
 
   io.signal.denominator := bot
-  io.signal.numerator := top
-  io.signal.negative := n
+  when (n === 0.U) {
+
+    io.signal.numerator := top.asSInt()
+  }.otherwise {
+    io.signal.numerator := (-top).asSInt()
+  }
+//  io.signal.negative := n
 
 
 }

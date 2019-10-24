@@ -44,16 +44,12 @@ object FirFilerTest {
       poke(b.io.inc, true.B)
       val top = peek(b.io.signal.numerator)
       val bot = peek(b.io.signal.denominator)
-      val neg = peek(b.io.signal.negative)
-      val sign = if (neg == 1) -1 else 1
-      val value = sign * top.toDouble / bot.toDouble
+      val value = top.toDouble / bot.toDouble
 
       val sineVal = Math.sin(ii * Math.PI / 180)
-      assert (Math.abs(value - sineVal) < 0.00162994) // Max error with 16 bit should be 0.001629936871670068
+      assert (Math.abs(value - sineVal) < 0.00163) // Max error with 16 bit should be 0.001629936871670068
       pw.write(f"$value\n")
       println(f"Success!  ${value}")
-
-
       step(1)
 
 
