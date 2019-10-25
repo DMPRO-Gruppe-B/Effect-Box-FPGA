@@ -51,6 +51,9 @@ colorize tee "$TMP" <<- EOT
 	# Optimizer: deduce a more optimal design
 	${SLOW}opt_design
 
+	# make implemented design possible to SPI flash. must be done before implementation.
+	set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [get_designs *]
+
 	# Placer: Physical placement of cells from netlist, minimizing total wire length and routing congestions
 	place_design
 
