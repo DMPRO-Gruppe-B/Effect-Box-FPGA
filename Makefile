@@ -1,12 +1,16 @@
-TOP_MODULE  := EffectBox
-TOP_MODULE  := BRAMTest
+#TOP_MODULE  := EffectBox
+#TOP_MODULE  := BRAMTest
 TOP_MODULE  := FPGATest
-XILINX_PART := xc7a35ticsg324-1L# the arty 7 dev kit
-XILINX_PART := xc7a100t# the arty 7 dev kit
+# arty 7 dev kit
+#XILINX_PART := xc7a35ticsg324-1
+#CONSTRAINTS_FILE := constraints-devkit.xdc
+# The Effect Box IV
+XILINX_PART := xc7a100t
+CONSTRAINTS_FILE := constraints.xdc
 BUILD_DIR   := build
 SCALA_TARGETS    := $(shell find src/main/scala/             -type f -name '*.scala')
 VERILOG_TARGETS  := $(shell find src/main/resources/verilog/ -type f -name '*.v')
-VHDL_TARGETS     := $(shell find src/main/resources/vhdl/ -mindepth 1 -maxdepth 1 -type d )
+VHDL_TARGETS     := $(shell find src/main/resources/vhdl/ -mindepth 1 -maxdepth 1 -type d)
 VHDL_DESTS       := $(patsubst src/main/resources/vhdl/%,$(BUILD_DIR)/include/%.v,$(VHDL_TARGETS))
 
 FLAGS := ""
@@ -24,7 +28,6 @@ TOP_MODULE_VERILOG_TARGET := $(BUILD_DIR)/$(TOP_MODULE).v
 TOP_MODULE_FIRRTL_TARGET  := $(BUILD_DIR)/$(TOP_MODULE).fir
 TOP_MODULE_NETLIST_TARGET := $(BUILD_DIR)/$(TOP_MODULE).$(NETLIST_FORMAT)
 TOP_MODULE_BITFILE_TARGET := $(BUILD_DIR)/$(TOP_MODULE).bit
-CONSTRAINTS_FILE := constraints-$(XILINX_PART).xdc
 
 
 .PHONY: all

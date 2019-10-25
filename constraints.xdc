@@ -1,4 +1,6 @@
 ## Arty-7 Constraints, with chisel 3.1 naming scheme
+## For The Effect Box IV
+## xc7a100t
 
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property CFGBVS VCCO [current_design]

@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
-OUTPUT="$1"
-TOP_MODULE="$2"
-shift
-shift
-
-if test -z "$1"; then
-	echo No vhdl files supplied!
-	exit 1
-fi
 
 source $(dirname $0)/common.sh
+
+OUTPUT="$1"; shift
+TOP_MODULE="$1"; shift
+
+if test -z "$1"; then
+	echo "No vhdl files supplied!" >&2
+	exit 1
+fi
 
 TMP="$(mktemp)"
 (

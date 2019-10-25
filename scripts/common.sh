@@ -1,6 +1,17 @@
+#!/usr/bin/env bash
 
 # denoting where Xilinx Vivado is installed:
 XILINX_TOP_DIR=/opt/Xilinx/Vivado/2019.1
+if [[ -d "/opt/Xilinx/Vivado" ]]; then
+	XILINX_TOP_DIR="$(ls -d /opt/Xilinx/Vivado/*/ | head -n 1)"
+elif [[ -d "/tools/Xilinx/Vivado" ]]; then
+	XILINX_TOP_DIR="$(ls -d /tools/Xilinx/Vivado/*/ | head -n 1)"
+fi
+if [[ -z $XILINX_TOP_DIR ]]; then
+	colorize echo "ERROR: Unable to locate vivado." >&2
+	exit 1
+fi
+
 #XILINX_DIR=$XILINX_TOP_DIR/ids_lite/ISE
 
 function colorize {
