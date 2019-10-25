@@ -38,8 +38,10 @@ class Multiply extends Module{
 
         val out         = Output(SInt(32.W))
       })
-    
-    io.out := (io.number.asSInt*io.numerator.asSInt)/io.denominator.asSInt
+    var pad = SInt(42.W)
+    pad = io.number.asSInt()
+    val result = (pad*io.numerator.asSInt)/io.denominator.asSInt
+    io.out := result
 }
 
 object OneMinusMultiply{
@@ -61,8 +63,10 @@ class OneMinusMultiply extends Module{
 
         val out         = Output(SInt(32.W))
       })
-
-    io.out := (io.number.asSInt*(io.denominator-io.numerator).asSInt)/io.denominator.asSInt
+    var pad = SInt(42.W)
+    pad = io.number.asSInt()
+    val result = (pad*(io.denominator-io.numerator).asSInt)/io.denominator.asSInt
+    io.out := result
 }
 
 class FractionReduce(fractionInput : Double) extends Bundle(){
