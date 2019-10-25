@@ -14,6 +14,7 @@ class Combiner(bitWidth: Int) extends Module {
   
   val bitCrush = Module(new BitCrush).io
   val delay = Module(new DelayFilter(bitWidth)).io
+  delay.bypass := false.B
   bitCrush.bypass := false.B
   bitCrush.nCrushBits := 4.U
 
