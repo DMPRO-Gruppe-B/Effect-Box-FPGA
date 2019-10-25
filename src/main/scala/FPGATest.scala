@@ -12,6 +12,7 @@ class FPGATest extends Module {
     //val test = Output(Bool())
   })
 
-  io.pinout := 0x5555.U
+  //io.pinout := 0x5555.U
+  io.pinout := 0xaaaa.U
   //io.test := true.B
 }

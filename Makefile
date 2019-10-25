@@ -2,10 +2,10 @@
 #TOP_MODULE  := BRAMTest
 TOP_MODULE  := FPGATest
 # arty 7 dev kit
-#XILINX_PART := xc7a35ticsg324-1
+#XILINX_PART := xc7a35ticsg324-1l
 #CONSTRAINTS_FILE := constraints-devkit.xdc
 # The Effect Box IV
-XILINX_PART := xc7a100t
+XILINX_PART := XC7A100TFTG256-1
 CONSTRAINTS_FILE := constraints.xdc
 BUILD_DIR   := build
 SCALA_TARGETS    := $(shell find src/main/scala/             -type f -name '*.scala')
