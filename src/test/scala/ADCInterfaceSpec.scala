@@ -28,29 +28,25 @@ object ADCTest {
 
     val filename = "sound.txt"
 
-    breakable {
-      for (line <- FileUtils.getLines(filename)) {
-        poke(b.io.LRCLK, true)
-        for (bit <- (TestUtils.toBinaryString(line.toInt, 16))) {
-          poke(b.io.bit, bit.toInt)
-          val sample = peek(b.io.sample)
-          val enable = peek(b.io.enable)
-          // println(sample.toString)
-          println(s"bit: $bit, sample: $sample, enable: $enable")
-          step(1)
-        }
-        poke(b.io.LRCLK, false)
-        val bit = 0
-        for (i <- 1 to 16) {
-          poke(b.io.bit, 0.U)
-          val sample = peek(b.io.sample)
-          val enable = peek(b.io.enable)
-          println(s"bit: $bit, sample: $sample, enable: $enable")
-          step(1)
-        }
-        expect(b.io.sample, line.toInt)
+    for (line <- FileUtils.getLines(filename)) {
+      poke(b.io.LRCLK, true)
+      for (bit <- (TestUtils.toBinaryString(line.toInt, 16))) {
+        poke(b.io.bit, bit.toInt)
+        val sample = peek(b.io.sample)
+        val enable = peek(b.io.enable)
+        println(s"bit: $bit, sample: $sample, enable: $enable")
+        step(1)
       }
-      break
+      poke(b.io.LRCLK, false)
+      val bit = 0
+      for (i <- 1 to 16) {
+        poke(b.io.bit, 0.U)
+        val sample = peek(b.io.sample)
+        val enable = peek(b.io.enable)
+        println(s"bit: $bit, sample: $sample, enable: $enable")
+        step(1)
+      }
+      expect(b.io.sample, line.toInt)
     }
   }
 }
