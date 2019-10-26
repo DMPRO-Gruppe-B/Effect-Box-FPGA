@@ -1,43 +1,29 @@
 package EffectBox
 
 import chisel3._
-import chisel3.util.{Counter,Cat}
-
+import chisel3.util.{Counter}
 
 class ADCInterface extends Module {
   val io = IO(
     new Bundle {
-      val bitIn       = Input(UInt(1.W))
-      val BCLK        = Input(Bool())
-      val LRCLK       = Input(Bool())
+      val bit = Input(UInt(1.W)) // ADC DOUT
+      val LRCLK = Input(Bool()) // ADC LRCIN (from FPGA)
 
-      val sampleOut     = Output(SInt(16.W))
+      val sample = Output(SInt(16.W))
+      val enable = Output(Bool())
     }
   )
-  
-  val counter = new Counter(16)
-  val sample_reg = RegInit(UInt(16.W),0.U)
-  io.sampleOut := 0.S
 
-  when(io.LRCLK === true.B && io.BCLK === true.B){
-      when(counter.value === 0.U){
-        io.sampleOut := 0.S
-        sample_reg := 0.U(1.W)
-      }
-      .otherwise    {sample_reg := sample_reg << 1}
-      printf("Sample before is %d\n",sample_reg)
-      sample_reg := sample_reg + io.bitIn
-      printf("%d\n",io.bitIn)
-      printf("Sample after is %d\n\n",sample_reg)
+  val accumulator = RegInit(UInt(16.W), 0.U)
 
-      when(counter.value === 15.U){
-          // do_asSInt reinterprets SInt without adding sign bit
-          //printf("\nSample_reg is %d\n",sample_reg.do_asSInt)
-          io.sampleOut := sample_reg.do_asSInt
-      }
-      counter.inc()
+  io.sample := accumulator.do_asSInt
+  io.enable := false.B
+
+  when(io.LRCLK) { // LRCLK high
+    // Left shift and add bit
+    accumulator := (accumulator << 1) + io.bit
+  }.elsewhen(RegNext(io.LRCLK)) { // LRCLK falling edge
+    io.enable := true.B
+  }.otherwise { // LRCLK low, was not previously high
   }
-  
-
-
 }
