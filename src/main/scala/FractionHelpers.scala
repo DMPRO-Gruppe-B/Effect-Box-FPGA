@@ -20,7 +20,7 @@ object Fraction {
   }
 
 object Multiply{
-    def apply(numerator: UInt,denominator: UInt, number: SInt) = {
+    def apply(numerator: UInt,denominator: UInt, number: SInt) : SInt = {
         val m = Module(new Multiply)
         m.io.numerator := numerator
         m.io.denominator := denominator
@@ -30,7 +30,7 @@ object Multiply{
     }
 }
 
-class Multiply extends Module{
+class Multiply extends Module {
     val io = IO(new Bundle {
         val numerator   = Input(UInt(8.W))
         val denominator = Input(UInt(8.W))
@@ -38,12 +38,21 @@ class Multiply extends Module{
 
         val out         = Output(SInt(32.W))
       })
-    
-    io.out := (io.number*io.numerator.asSInt)/io.denominator.asSInt
+
+
+    var pad = SInt(40.W)
+    pad = io.number.asSInt()
+    val result = (pad*io.numerator.asSInt)/io.denominator.asSInt
+
+    // Following running with DelaySpec shows that there are indeed 40 bits in the intermediate result
+    //print("\n Width of intermidiate result: " + result.getWidth + " bits\n")
+
+    io.out := result.asSInt()
+
 }
 
 object OneMinusMultiply{
-    def apply(numerator: UInt,denominator: UInt, number: SInt) = {
+    def apply(numerator: UInt,denominator: UInt, number: SInt) : SInt = {
         val m = Module(new OneMinusMultiply)
         m.io.numerator := numerator
         m.io.denominator := denominator
@@ -61,8 +70,14 @@ class OneMinusMultiply extends Module{
 
         val out         = Output(SInt(32.W))
       })
+    var pad = SInt(42.W)
+    pad = io.number.asSInt()
+    val result = (pad*(io.denominator-io.numerator).asSInt)/io.denominator.asSInt
 
-    io.out := (io.number.asSInt*(io.denominator-io.numerator).asSInt)/io.denominator.asSInt
+    // Following running with DelaySpec shows that there are indeed 40 bits in the intermediate result
+    //print("\n Width of intermidiate result: " + result.getWidth + " bits\n")
+
+    io.out := result.asSInt()
 }
 
 class FractionReduce(fractionInput : Double) extends Bundle(){

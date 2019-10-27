@@ -10,7 +10,7 @@ object FileUtils {
 
       val pw = new PrintWriter(to)
       val lines = FileUtils.getLines(from)
-      val sampleRate = lines(0)
+      val sampleRate = lines.head
 
       pw.write(s"$sampleRate\n")
 
@@ -18,12 +18,13 @@ object FileUtils {
           val n = line.toShort
 
           poke(n)
-          
+
+          step(1)
+
           val a = peek()
           pw.write(s"$a\n")
 
-          step(1)
-      } 
+      }
       pw.close()
   
   }

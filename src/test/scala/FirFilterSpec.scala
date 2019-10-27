@@ -21,6 +21,17 @@ class FirFilterSpec extends FlatSpec with Matchers {
       new CombinedFromFile(b)
     } should be(true)
   }
+  it should "Should write to file from bitcrush" in {
+    chisel3.iotesters.Driver(() => new BitCrush) { b =>
+      new CrushBitsFromFile(b, false, "bitcrush_sound.txt")
+    } should be(true)
+  }
+
+  it should "Bypass signal" in {
+    chisel3.iotesters.Driver(() => new DelayFilter(32)) { b =>
+      new BypassSignal(b)
+    } should be(true)
+  }
 
 }
 
@@ -35,12 +46,16 @@ object FirFilerTest {
 
 
     for (ii <- inputs.indices) {
+      poke(b.io.bypass, false.B)
       poke(b.io.in, inputs(ii))
       // expect(b.io.dataOut, expectedOutput(ii))
       step(1)
     }
   }
   class DelayFromFile(b: DelayFilter) extends PeekPokeTester(b) {
+
+    poke(b.io.bypass, false.B)
+
     FileUtils.readWrite("sound.txt", "fir_sound.txt",
         poke(b.io.in, _),
         () => peek(b.io.out),
@@ -48,11 +63,40 @@ object FirFilerTest {
     )
   }
   class CombinedFromFile(b: Combiner) extends PeekPokeTester(b) {
+
     FileUtils.readWrite("sound.txt", "combined_sound.txt",
         poke(b.io.in, _),
         () => peek(b.io.out),
         step
     )
+  }
+
+ class CrushBitsFromFile(b: BitCrush, bypass: Boolean, outname: String) extends PeekPokeTester(b) {
+
+    poke(b.io.bypass, bypass.B)
+    poke(b.io.nCrushBits, 4)
+
+    FileUtils.readWrite("sound.txt", outname,
+      poke(b.io.dataIn, _),
+      () => peek(b.io.dataOut),
+      step
+    )
+  }
+
+  class BypassSignal(b: DelayFilter) extends PeekPokeTester(b) {
+
+    val inputs = List(3244876, 362, 637288964, 725489652)
+
+    println("Not Delay...")
+    println(inputs.mkString("[", "] [", "]"))
+
+    poke(b.io.bypass, true.B)
+
+    for (ii <- 0 until inputs.length) {
+      poke(b.io.in, inputs(ii))
+      expect(b.io.out, inputs(ii))
+      step(1)
+    }
   }
 
 }
