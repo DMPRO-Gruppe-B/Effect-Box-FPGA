@@ -39,6 +39,7 @@ class Multiply extends Module {
         val out         = Output(SInt(32.W))
       })
 
+
     var pad = SInt(40.W)
     pad = io.number.asSInt()
     val result = (pad*io.numerator.asSInt)/io.denominator.asSInt
@@ -47,6 +48,7 @@ class Multiply extends Module {
     //print("\n Width of intermidiate result: " + result.getWidth + " bits\n")
 
     io.out := result.asSInt()
+
 }
 
 object OneMinusMultiply{
