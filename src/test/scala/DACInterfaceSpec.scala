@@ -33,16 +33,17 @@ object DACTest {
         poke(b.io.sample, line.toInt)
 
         for (bit <- (TestUtils.toBinaryString(line.toInt, 16))) {
-            // println(bit)
+            //println(bit.toInt.toString)
             step(1)
-            // expect(b.io.bit_left,bit.toInt)
+            expect(b.io.enable,true)
+            expect(b.io.bit_left,bit.toString.toInt)
         }
         
         poke(b.io.LRCLK, false)
         for (i <- 1 to 16) {
           poke(b.io.sample, 0.S)
           step(1)
-          // expect(b.io.enable,false)
+          expect(b.io.enable,false)
         }
     }
   }
