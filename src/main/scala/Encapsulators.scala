@@ -80,6 +80,42 @@ class OneMinusMultiply extends Module{
     io.out := result.asSInt()
 }
 
+object RisingEdge{
+    def apply(signal: Bool) : Bool = {
+        val m = Module(new RisingEdge)
+        m.io.signal := signal
+
+        m.io.out
+    }
+}
+
+class RisingEdge extends Module{
+    val io = IO(new Bundle {
+        val signal      = Input(Bool())
+
+        val out         = Output(Bool())
+      })
+    io.out := io.signal && !RegNext(io.signal)
+}
+
+object FallingEdge{
+    def apply(signal: Bool) : Bool = {
+        val m = Module(new FallingEdge)
+        m.io.signal := signal
+
+        m.io.out
+    }
+}
+
+class FallingEdge extends Module{
+    val io = IO(new Bundle {
+        val signal      = Input(Bool())
+
+        val out         = Output(Bool())
+      })
+    io.out := !io.signal && RegNext(io.signal)
+}
+
 class FractionReduce(fractionInput : Double) extends Bundle(){
     var localFraction = fractionInput
     var denom : Int = 1
