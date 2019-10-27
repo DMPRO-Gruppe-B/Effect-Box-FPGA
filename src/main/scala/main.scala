@@ -11,6 +11,7 @@ object main {
       chisel3.Driver.dumpFirrtl(args(0) match {
         case "EffectBox"       => chisel3.Driver.elaborate(() => new EffectBox)
         case "FPGATest"        => chisel3.Driver.elaborate(() => new FPGATest)
+        case "MultiClockTest"  => chisel3.Driver.elaborate(() => new MultiClockTest)
         case "BRAMTest"        => chisel3.Driver.elaborate(() => new BRAMTest)
       }, Option(f))
       println("Results written to " + out_path)
