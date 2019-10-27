@@ -5,7 +5,7 @@ import chisel3.iotesters.PeekPokeTester
 import org.scalatest.{Matchers, FlatSpec}
 
 
-class BitCruchSpec extends FlatSpec with Matchers {
+class BitCrushSpec extends FlatSpec with Matchers {
   import BitCrushTest._
 
   behavior of "BitCrush"
@@ -29,7 +29,6 @@ class BitCruchSpec extends FlatSpec with Matchers {
 }
 
 object BitCrushTest {
-  
   class CrushesBits(b: BitCrush) extends PeekPokeTester(b) {
     val inputs          = List(0x044f, 0x0218, 0x0eef, 0x5ace, -4)
     val expectedOutput  = List(0x0440, 0x0210, 0x0ee0, 0x5ac0, -16)
@@ -49,30 +48,14 @@ object BitCrushTest {
 
   class CrushBitsFromFile(b: BitCrush) extends PeekPokeTester(b) {
    
-      import scala.math.abs
-      import java.io.PrintWriter
-      import scala.io.Source
-
-      println("Crush from file")
-
       poke(b.io.bypass, false.B)
       poke(b.io.nCrushBits, 4)
 
-      val filename = "sound.txt"
-      // val pw = new PrintWriter("new_" ++ filename)
-
-      for (line <- FileUtils.getLines(filename)) {
-          val n = line.toInt
-
-          poke(b.io.dataIn, n)
-          expect(b.io.dataOut, n)
-          
-          step(1)
-          // val a = peek(b.io.dataOut)
-          // pw.write(s"$a\n")
-
-      } 
-      // pw.close()
+      FileUtils.readWrite("sound.txt", "new_sound.txt", 
+        poke(b.io.dataIn, _),
+        () => peek(b.io.dataOut),
+        step
+      )
   }
   
   class NotCrushesBits(b: BitCrush) extends PeekPokeTester(b) {

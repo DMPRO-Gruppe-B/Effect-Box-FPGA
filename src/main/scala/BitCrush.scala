@@ -13,19 +13,11 @@ class BitCrush extends Module {
       val dataOut     = Output(SInt(16.W))
     }
   )
-  // class InputSplitter extends Bundle {
-  //   val top = Uint(12.W)
-  //   val bot = Uint(4.W)
-  // }
-    // val mask = 0xffff.U << io.nCrushBits 
-    when (io.bypass) {
-      io.dataOut := io.dataIn
-    } .otherwise {
+  when (io.bypass) {
+    io.dataOut := io.dataIn
+  } .otherwise {
 
-      val temp = VecInit(io.dataIn.toBools)
-      for (ii <- 0 until 4) {
-        temp(ii) := 0.U
-      }
-      io.dataOut := temp.asTypeOf(io.dataOut)
-    }
+    val mask = 0xffff.S << io.nCrushBits
+    io.dataOut := io.dataIn & mask.toSInt
+  }
 }
