@@ -1,5 +1,5 @@
 package EffectBox
-import chisel3._
+
 import java.io.File
 
 object main {
@@ -12,6 +12,7 @@ object main {
         case "EffectBox"       => chisel3.Driver.elaborate(() => new EffectBox)
         case "FPGATest"        => chisel3.Driver.elaborate(() => new FPGATest)
         case "BRAMTest"        => chisel3.Driver.elaborate(() => new BRAMTest)
+        case "SPITest"         => chisel3.Driver.elaborate(() => new SPITest)
       }, Option(f))
       println("Results written to " + out_path)
     } else {
