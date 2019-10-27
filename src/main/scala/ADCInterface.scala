@@ -22,7 +22,7 @@ class ADCInterface extends Module {
   when(io.LRCLK) { // LRCLK high
     // Left shift and add bit
     accumulator := (accumulator << 1) + io.bit
-  }.elsewhen(RegNext(io.LRCLK)) { // LRCLK falling edge
+  }.elsewhen(FallingEdge(io.LRCLK)) { // LRCLK falling edge
     io.enable := true.B
   }.otherwise { // LRCLK low, was not previously high
   }

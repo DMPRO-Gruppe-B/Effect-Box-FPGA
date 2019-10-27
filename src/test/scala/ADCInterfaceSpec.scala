@@ -34,7 +34,7 @@ object ADCTest {
         poke(b.io.bit, bit.toInt)
         val sample = peek(b.io.sample)
         val enable = peek(b.io.enable)
-        println(s"bit: $bit, sample: $sample, enable: $enable")
+        //println(s"bit: $bit, sample: $sample, enable: $enable")
         step(1)
       }
       poke(b.io.LRCLK, false)
@@ -43,7 +43,7 @@ object ADCTest {
         poke(b.io.bit, 0.U)
         val sample = peek(b.io.sample)
         val enable = peek(b.io.enable)
-        println(s"bit: $bit, sample: $sample, enable: $enable")
+        //println(s"bit: $bit, sample: $sample, enable: $enable")
         step(1)
       }
       expect(b.io.sample, line.toInt)

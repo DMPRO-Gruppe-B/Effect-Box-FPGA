@@ -24,7 +24,7 @@ class DACInterface extends Module {
 
   when(io.LRCLK) { // LRCLK high
     io.enable := true.B
-    when(!RegNext(io.LRCLK)) { // LRCLK rising edge
+    when(RisingEdge(io.LRCLK)) { // LRCLK rising edge
       sample_reg := io.sample.do_asUInt
     }
     .otherwise{
