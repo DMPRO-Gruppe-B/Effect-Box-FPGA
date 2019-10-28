@@ -19,9 +19,9 @@ class SPITest extends Module {
   })
 
   //io.rgbled_0 := 7.U
-  io.rgbled_1 := 1.U
-  io.rgbled_2 := 2.U
-  io.rgbled_3 := 4.U
+  io.rgbled_1 := 0.U
+  io.rgbled_2 := 0.U
+  io.rgbled_3 := 0.U
 
   val effect_control = Module(new EffectControl)
   effect_control.spi.clk := io.spi_clk
@@ -36,9 +36,9 @@ class SPITest extends Module {
   bitCrush.io.dataIn := 0.S
 
   when(io.spi_cs_n) {
-    io.rgbled_0 := 7.U
-  }.otherwise {
     io.rgbled_0 := 0.U
+  }.otherwise {
+    io.rgbled_0 := 1.U
   }
 
   io.led := effect_control.bitcrush.nCrushBits
