@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 test "$1" = "" && (
 	echo please supply at least one verilog file
 	exit 1

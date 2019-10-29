@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
+
 source $(dirname $0)/common.sh
+
 if [ "$1" = "FAST" ]; then
 	SLOW="#"
 	shift

@@ -1,9 +1,47 @@
 package EffectBox
 
+import java.io.{PrintWriter, Writer}
+
 import scala.io.Source
+import scala.sys.process._
 
 object TestUtils {
-    def toBinaryString[A <: AnyVal](value: A, size: Int = 0): String = {
+  def python(path: String, args: String*): String = {
+    var a = ""
+    if (args.nonEmpty && args.exists(_.nonEmpty)) {
+      a = " ".concat(args.reduce(_ ++ " " ++ _))
+    }
+    ("python " ++ path ++ a).!!
+  }
+
+  def thatShellScriptPart1(path: String, wav: String, soundFile: String) = {
+    f"python $path/music.py -p 1 -i $path/$wav -t $soundFile".!!
+  }
+
+  def thatShellScriptPart2(path: String, wav: String, soundFile: String, newWav: String, newSoundFile: String) = {
+    val st = f"python $path/music.py -p 2 -i $path/$wav -n $newSoundFile -o $path/$newWav".lineStream_!
+    println(st.mkString("\n"))
+    Process(f"vlc --play-and-stop $path/$wav $path/$newWav").run()
+  }
+
+  def wrapInScript(path: String, wav: String, soundFile: String, newWav: String, newSoundFile: String, operation: (Source, Writer) => Unit) = {
+    thatShellScriptPart1(path, wav, soundFile)
+    val writer = new PrintWriter(newSoundFile)
+    val source = Source.fromFile(soundFile)
+    operation(source, writer)
+    writer.close()
+    source.close()
+    thatShellScriptPart2(path, wav, soundFile, newWav, newSoundFile)
+  }
+
+  def wrapInScript(operation: (Source, Writer) => Unit) {
+    val path = "../software_prototype"
+    val wav = "bicycle_bell.wav"
+    val filename = "sound.txt"
+    wrapInScript(path, wav, filename, "new_" ++ wav, "new_" ++ filename, operation)
+  }
+
+  def toBinaryString[A <: AnyVal](value: A, size: Int = 0): String = {
         val zerosX64: String = //maximum possible number of leading zeros
           "0" * 64
     
