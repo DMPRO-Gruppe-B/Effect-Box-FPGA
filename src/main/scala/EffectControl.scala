@@ -17,6 +17,9 @@ class EffectControl extends MultiIOModule {
     val cs_n = Input(Bool())
     val miso = Output(Bool())
   })
+  val debug = IO(new Bundle {
+    val addr = Output(UInt(8.W))
+  })
 
   val slave = Module(new SPISlaveReadonly()).io
   slave.spi_clk := spi.clk
@@ -34,6 +37,7 @@ class EffectControl extends MultiIOModule {
   val data = RegInit(0.U(16.W))
   val waiting :: hasReadAddr :: hasReadTwoBytes :: yeet = Enum(4)
   val state = RegInit(waiting)
+  debug.addr := addr
 
   when(slave.spi_cs_n) {
     state := waiting
