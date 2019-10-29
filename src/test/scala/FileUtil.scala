@@ -3,7 +3,12 @@ package EffectBox
 import scala.io.Source
 
 object FileUtils {
-  def getLines(source: String) = Source.fromFile(source).getLines.toList
+  def getLines(source: String): Seq[String] = {
+    val f = Source.fromFile(source)
+    val lines = f.getLines.toList
+    f.close()
+    lines
+  }
   
   def readWrite(from: String, to: String, poke: BigInt => Unit, peek: () => BigInt, step: Int => Unit) {
       import java.io.PrintWriter

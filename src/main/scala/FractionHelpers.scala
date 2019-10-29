@@ -7,6 +7,12 @@ class Fraction extends Bundle(){
     val denominator = UInt(8.W)
 }
 
+class SignedDoubleFraction extends Bundle() {
+    val numerator = SInt(16.W)
+    val denominator = UInt(16.W)
+//    val negative = Bool()
+}
+
 object Fraction {
     def nop: Fraction = {
       val b = Wire(new Fraction)
