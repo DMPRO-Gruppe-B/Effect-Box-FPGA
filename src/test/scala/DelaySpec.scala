@@ -26,18 +26,23 @@ object DelayTest{
 
     println("Delaying signal")
 
-    val sampleRate = 11865
-    val delayTime = 0.5
-    val bufferSize = sampleRate*delayTime
+    val sampleRate = 11865.asSInt()
+    val delayTime = new FractionReduce(0.5)
+    val delaySamples = Multiply(delayTime.numUInt, delayTime.denomUInt, sampleRate)
 
     val fbFractionReduce = new FractionReduce(0.9)
     val mixFractionReduce = new FractionReduce(0.5)
 
-    poke(b.io.fbNum,fbFractionReduce.numUInt)
-    poke(b.io.fbDenom,fbFractionReduce.denomUInt)
+    poke(b.io.fbNum, fbFractionReduce.numUInt)
+    poke(b.io.fbDenom, fbFractionReduce.denomUInt)
 
-    poke(b.io.mixNum,mixFractionReduce.numUInt)
-    poke(b.io.mixDenom,mixFractionReduce.denomUInt)
+    poke(b.io.mixNum, mixFractionReduce.numUInt)
+    poke(b.io.mixDenom, mixFractionReduce.denomUInt)
+
+    poke(b.io.sample_delay, delaySamples)
+
+    poke(b.io.bypass, false.B)
+    poke(b.io.write_enable, true.B)
 
     val filename = "sound.txt"
     val pw = new PrintWriter("new_" ++ filename)
@@ -47,14 +52,6 @@ object DelayTest{
         val n = line.toInt
 
         poke(b.io.in, n)
-
-        if(i >= bufferSize){
-          poke(b.io.emptyBuffer, true.B)
-        }
-        else{
-          poke(b.io.emptyBuffer,false.B)
-          i = i+1
-        }
         
         step(1)
 

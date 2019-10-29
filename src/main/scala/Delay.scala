@@ -7,8 +7,8 @@ import chisel3.util._
 class Delay() extends Module {
 
   // Alternatively let constructor set maxDelaySamples
-  val maxDelaySamples = 4096.U
-  val delay_bits = log2Ceil(Int(maxDelaySamples))
+  val maxDelaySamples = 8192
+  val delay_bits = log2Ceil(maxDelaySamples)
 
   val io = IO(new Bundle {
     val data_in      = Input(SInt(32.W))
@@ -49,10 +49,10 @@ class Delay() extends Module {
 
 // TODO: Delay-check is necessary?
 
-class DelayBuffer(maxSize : UInt) extends Module {
+class DelayBuffer(maxSize : Int) extends Module {
 
   // Find the number of bits needed to represent the address.
-  val delay_bits = log2Ceil(Int(maxSize))
+  val delay_bits = log2Ceil(maxSize)
 
   // Let the buffer use some logic, hiding read and write address.
   val io = IO ( new Bundle {
@@ -67,7 +67,7 @@ class DelayBuffer(maxSize : UInt) extends Module {
   // With a buffer of f.ex. 4096, max delay is 4095! Check legal delay?
 
   // Use bram black_box.
-  val bram = Module(new BRAM(SInt(32.W), Int(maxSize))).io
+  val bram = Module(new BRAM(SInt(32.W), maxSize)).io
 
   // Let head start at address 0.
   val head = RegInit(0.U(delay_bits.W))
@@ -77,7 +77,7 @@ class DelayBuffer(maxSize : UInt) extends Module {
 
   // Read delayed sample. If out of bounds, wrap around.
   when (head-io.sample_delay < 0.U) {
-    bram.read_addr := (head-io.sample_delay) + maxSize
+    bram.read_addr := (head-io.sample_delay) + maxSize.U
   } .otherwise {
     bram.read_addr := head-io.sample_delay
   }
@@ -87,7 +87,7 @@ class DelayBuffer(maxSize : UInt) extends Module {
 
   // If it is written to head, let head increment with wraparound.
   when (io.write_enable) {
-    head := (head + 1.U) % maxSize
+    head := (head + 1.U) % maxSize.U
   }
 
   // Wire data in and out between bram and this module
