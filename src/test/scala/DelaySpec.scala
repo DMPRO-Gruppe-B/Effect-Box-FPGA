@@ -44,6 +44,7 @@ object DelayTest{
 
     poke(b.io.bypass, false.B)
     poke(b.io.write_enable, true.B)
+    poke(b.io.reset_buffer, false.B)
 
     val filename = "sound.txt"
     val pw = new PrintWriter("new_" ++ filename)

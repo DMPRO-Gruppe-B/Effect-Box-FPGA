@@ -16,6 +16,7 @@ class EffectBox() extends Module {
     val write_enable = Input(Bool())
     val bypass =  Input(Bool())
     val sample_delay = Input(UInt(13.W))
+    val reset_buffer = Input(Bool())
 
     val mixNum = Input(UInt(8.W))
     val mixDenom = Input(UInt(8.W))
@@ -41,6 +42,7 @@ class EffectBox() extends Module {
   delay.bypass:= io.bypass
   delay.write_enable := io.write_enable
   delay.sample_delay :=  io.sample_delay
+  delay.reset_buffer := io.reset_buffer
 
   io.out := delay.data_out
 }

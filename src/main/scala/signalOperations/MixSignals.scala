@@ -4,7 +4,7 @@ import Chisel.Module
 import chisel3._
 
 // This module will take in two operands, and the numerator and denominator
-// representing the mix ratio of signal 1. (This is done to be able to keep best presicion).
+// representing the mix ratio of signal 1. (This is done to be able to keep best precision).
 // Important that denominator1 never is 0, and that numerator1<denominator1
 class MixSignals extends Module{
   val io = IO(new Bundle() {
