@@ -26,9 +26,10 @@ object DelayTest{
 
     println("Delaying signal")
 
-    val sampleRate = 11865.asSInt()
-    val delayTime = new FractionReduce(0.5)
-    val delaySamples = Multiply(delayTime.numUInt, delayTime.denomUInt, sampleRate)
+    //val sampleRate = 11865.asSInt()
+    //val delayTime = new FractionReduce(0.5)
+    //val delaySamples = Multiply(delayTime.numUInt, delayTime.denomUInt, sampleRate)
+    val delaySamples = 5000
 
     val fbFractionReduce = new FractionReduce(0.9)
     val mixFractionReduce = new FractionReduce(0.5)

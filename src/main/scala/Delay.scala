@@ -67,7 +67,7 @@ class DelayBuffer(maxSize : Int) extends Module {
   // With a buffer of f.ex. 4096, max delay is 4095! Check legal delay?
 
   // Use bram black_box.
-  val bram = Module(new BRAM(SInt(32.W), maxSize)).io
+  val bram = Module(new BRAM(UInt(32.W), maxSize)).io
 
   // Let head start at address 0.
   val head = RegInit(0.U(delay_bits.W))
@@ -91,7 +91,8 @@ class DelayBuffer(maxSize : Int) extends Module {
   }
 
   // Wire data in and out between bram and this module
-  bram.data_in := io.data_in
-  io.data_out := bram.data_out
+  // TODO: Some do_ thingy here?
+  bram.data_in := io.data_in.asUInt()
+  io.data_out := bram.data_out.asSInt()
 
 }
