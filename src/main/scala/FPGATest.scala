@@ -8,14 +8,11 @@ import chisel3._
   */
 class FPGATest extends Module {
   val io = IO(new Bundle {
-    val rgbled_0 = Output(UInt(3.W))
-    val rgbled_1 = Output(UInt(3.W))
-    val rgbled_2 = Output(UInt(3.W))
-    val rgbled_3 = Output(UInt(3.W))
+    val pinout = Output(UInt(16.W))
+    //val test = Output(Bool())
   })
 
-  io.rgbled_0 := 7.U
-  io.rgbled_1 := 1.U
-  io.rgbled_2 := 2.U
-  io.rgbled_3 := 4.U
+  //io.pinout := 0x5555.U
+  io.pinout := 0xaaaa.U
+  //io.test := true.B
 }

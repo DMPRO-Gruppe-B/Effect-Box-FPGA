@@ -1,4 +1,6 @@
 ## Arty-7 Constraints, with chisel 3.1 naming scheme
+## For dev kit
+## xc7a35ticsg324-1L
 
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property CFGBVS VCCO [current_design]

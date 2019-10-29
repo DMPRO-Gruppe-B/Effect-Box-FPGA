@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 source $(dirname $0)/common.sh
 
 BITFILE="$1"; shift
@@ -18,7 +19,7 @@ colorize tee "$TMP" <<- EOT
 
 	# Connect to the Digilent Cable on localhost:3121
 	connect_hw_server -url localhost:3121
-	#current_hw_target [get_hw_targets */xilinx_tcf/Digilent/210319A28ED8A]
+	current_hw_target [get_hw_targets *]
 	open_hw_target
 
 	# Program and Refresh the xc7a35t_0 Device

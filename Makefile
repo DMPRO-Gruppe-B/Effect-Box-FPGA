@@ -1,12 +1,20 @@
-TOP_MODULE  := EffectBox
+#TOP_MODULE  := EffectBox
+#TOP_MODULE  := BRAMTest
 TOP_MODULE  := FPGATest
-TOP_MODULE  := BRAMTest
-XILINX_PART := xc7a35ticsg324-1L# the arty 7 dev kit
+XILINX_PART := xc7a100tftg256-1# the arty 7 dev kit
+CFGMEM_PART := s25fl128sxxxxxx0-spi-x1_x2_x4
+CONSTRAINTS_FILE := constraints.xdc
 BUILD_DIR   := build
 SCALA_TARGETS    := $(shell find src/main/scala/             -type f -name '*.scala')
 VERILOG_TARGETS  := $(shell find src/main/resources/verilog/ -type f -name '*.v')
-VHDL_TARGETS     := $(shell find src/main/resources/vhdl/ -mindepth 1 -maxdepth 1 -type d )
+VHDL_TARGETS     := $(shell find src/main/resources/vhdl/ -mindepth 1 -maxdepth 1 -type d)
 VHDL_DESTS       := $(patsubst src/main/resources/vhdl/%,$(BUILD_DIR)/include/%.v,$(VHDL_TARGETS))
+
+ifdef DEVKIT
+	CFGMEM_PART := mt25ql128-spi-x1_x2_x4
+	XILINX_PART := xc7a35ticsg324-1L# the arty 7 dev kit
+	CONSTRAINTS_FILE := constraints-devkit.xdc
+endif
 
 FLAGS := ""
 ifdef FAST
@@ -23,7 +31,6 @@ TOP_MODULE_VERILOG_TARGET := $(BUILD_DIR)/$(TOP_MODULE).v
 TOP_MODULE_FIRRTL_TARGET  := $(BUILD_DIR)/$(TOP_MODULE).fir
 TOP_MODULE_NETLIST_TARGET := $(BUILD_DIR)/$(TOP_MODULE).$(NETLIST_FORMAT)
 TOP_MODULE_BITFILE_TARGET := $(BUILD_DIR)/$(TOP_MODULE).bit
-CONSTRAINTS_FILE := constraints-$(XILINX_PART).xdc
 
 
 .PHONY: all
@@ -35,6 +42,10 @@ bitfile: $(VHDL_DESTS) $(TOP_MODULE_BITFILE_TARGET)
 .PHONY: upload
 upload:
 	cd $(BUILD_DIR); ../scripts/upload_bitfile.sh ../$(TOP_MODULE_BITFILE_TARGET)
+
+.PHONY: flash
+flash:
+	cd $(BUILD_DIR); ../scripts/flash_bitfile.sh ../$(TOP_MODULE_BITFILE_TARGET) $(CFGMEM_PART)
 
 .PHONY: graphs graphs_yosys graphs_diagrammer
 graphs: graphs_yosys graphs_diagrammer
