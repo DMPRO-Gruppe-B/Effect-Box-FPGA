@@ -1,57 +1,97 @@
 package EffectBox
 
+import blackboxes.BRAM
 import chisel3._
 import chisel3.util._
 
 class Delay() extends Module {
 
+  // Alternatively let constructor set maxDelaySamples
+  val maxDelaySamples = 4096.U
+  val delay_bits = log2Ceil(Int(maxDelaySamples))
+
   val io = IO(new Bundle {
-    val in          = Input(SInt(32.W))
-    val fbFraction  = Input(new Fraction)
-    val mixFraction = Input(new Fraction)
+    val data_in      = Input(SInt(32.W))
+    val sample_delay = Input(UInt(delay_bits.W))
+    val fbFraction   = Input(new Fraction)
+    val mixFraction  = Input(new Fraction)
+    val write_enable = Input(Bool())
+    val bypass       = Input(Bool())
 
-    val emptyBuffer  = Input(Bool())
+    //val emptyBuffer  = Input(Bool())
 
-    val out = Output(SInt(32.W))
+    val data_out = Output(SInt(32.W))
   })
-  val delayBuffer = Module(new DelayBuffer).io
-  val inDec = Wire(Flipped(Decoupled(SInt(32.W))))
-  val outDec = Wire(Decoupled(SInt(32.W)))
-  val delayedSignal = Wire(SInt(32.W))
 
-  inDec.valid := true.B
-  inDec.ready := true.B
-  inDec.bits  := io.in+Multiply(io.fbFraction.numerator,io.fbFraction.denominator,delayedSignal)
+  val delayBuffer = Module(new DelayBuffer(maxDelaySamples)).io
 
-  outDec.valid := true.B
-  outDec.ready := false.B
-  outDec.bits  := delayBuffer.out.bits
+  // Wire up the easy stuff
+  delayBuffer.write_enable := io.write_enable
+  delayBuffer.sample_delay := io.sample_delay
 
-  io.out := 0.S
-  delayedSignal := 0.S
+  // Get the feedback as output of buffer mixed with the input signal
+  val feedback = Multiply(io.fbFraction.numerator, io.fbFraction.denominator, delayBuffer.data_out) + OneMinusMultiply(io.fbFraction.numerator, io.fbFraction.denominator, io.data_in)
 
-  delayBuffer.in <> inDec
+  // Write feedback to buffer
+  delayBuffer.data_in := feedback
 
-  outDec <> delayBuffer.out
+  // Get the mix of input and output of buffer
+  val mix = Multiply(io.mixFraction.numerator, io.mixFraction.denominator, delayBuffer.data_out) + OneMinusMultiply(io.mixFraction.numerator, io.mixFraction.denominator, io.data_in)
 
-  when(io.emptyBuffer){
-      outDec.ready := true.B
-      delayedSignal := outDec.bits
+  // Send mix out whenever bypass is false
+  when(io.bypass) {
+    io.data_out := io.data_in
+  } .otherwise {
+    io.data_out := mix
   }
 
-  //Output = delayedSignal*mix + cleanSignal*(1-mix)
-  io.out := Multiply(io.mixFraction.numerator,io.mixFraction.denominator,delayedSignal) + 
-            OneMinusMultiply(io.mixFraction.numerator,io.mixFraction.denominator,io.in)
 }
 
-class DelayBuffer() extends Module {
-  
-    val io = IO(new Bundle {
-      val in = Flipped(Decoupled(SInt(32.W)))
-      val out = Decoupled(SInt(32.W))
-    })
-    val queue = Module(new Queue(SInt(32.W),2000))
-  
-    queue.io.enq <> io.in
-    io.out <> queue.io.deq
+// TODO: Delay-check is necessary?
+
+class DelayBuffer(maxSize : UInt) extends Module {
+
+  // Find the number of bits needed to represent the address.
+  val delay_bits = log2Ceil(Int(maxSize))
+
+  // Let the buffer use some logic, hiding read and write address.
+  val io = IO ( new Bundle {
+    val sample_delay = Input(UInt(delay_bits.W))
+    // Use write enable only on correct ADC/DAC frequency:
+    val write_enable = Input(Bool())
+    val data_in = Input(SInt(32.W))
+
+    val data_out = Output(SInt(32.W))
+  })
+
+  // With a buffer of f.ex. 4096, max delay is 4095! Check legal delay?
+
+  // Use bram black_box.
+  val bram = Module(new BRAM(SInt(32.W), Int(maxSize))).io
+
+  // Let head start at address 0.
+  val head = RegInit(0.U(delay_bits.W))
+
+  // Wire write_enable in accordance to module input.
+  bram.write_enable := io.write_enable
+
+  // Read delayed sample. If out of bounds, wrap around.
+  when (head-io.sample_delay < 0.U) {
+    bram.read_addr := (head-io.sample_delay) + maxSize
+  } .otherwise {
+    bram.read_addr := head-io.sample_delay
   }
+
+  // Let write address be at head.
+  bram.write_addr := head
+
+  // If it is written to head, let head increment with wraparound.
+  when (io.write_enable) {
+    head := (head + 1.U) % maxSize
+  }
+
+  // Wire data in and out between bram and this module
+  bram.data_in := io.data_in
+  io.data_out := bram.data_out
+
+}
