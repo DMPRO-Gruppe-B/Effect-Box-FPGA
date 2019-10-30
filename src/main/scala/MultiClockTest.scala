@@ -10,9 +10,9 @@ import blackboxes.{MMCME2, ClockConfig, BRAM}
   */
 class MultiClockTest extends Module {
   val io = IO(new Bundle {
-    val sysClk = Output(Clock())
-    val bitClk = Output(Clock())
-    val testOut = Output(Bool())
+    val pinout0 = Output(Clock())
+    val pinout1 = Output(Clock())
+    val pinout2 = Output(Bool())
   })
 
   // Normally we use the base mult and divide to get the frequency
@@ -32,7 +32,8 @@ class MultiClockTest extends Module {
   )
   // The period of a 16 MHz clock is 62.5 nanoseconds
   // We have to multiply be 37.888 to get over the required 600 MHz
-  val mmcm = Module(new MMCME2(10.0, 6.062, 1, 1.0, clockConfig, true))
+  //val mmcm = Module(new MMCME2(10.0, 6.062, 1, 1.0, clockConfig, true))
+  val mmcm = Module(new MMCME2(62.5, 37.888, 1, 1.0, clockConfig, true))
 
   mmcm.CLKIN1   := clock
   mmcm.RST      := !reset.asBool()
@@ -42,8 +43,8 @@ class MultiClockTest extends Module {
   val sysClk = mmcm.CLKOUT6
   val bitClk = mmcm.CLKOUT4
 
-  io.sysClk     := sysClk
-  io.bitClk     := bitClk
+  io.pinout0 := sysClk
+  io.pinout1 := bitClk
 
   withClock(bitClk) {
     //val (bitCount, sampleEdge) = Counter(true.B, 32)
@@ -52,7 +53,7 @@ class MultiClockTest extends Module {
 
     sampleClk := sampleClk
     bitCount := bitCount + 1.U
-    io.testOut := sampleClk
+    io.pinout2 := sampleClk
 
     when (bitCount === 31.U) {
       sampleClk := !sampleClk
