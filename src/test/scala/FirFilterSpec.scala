@@ -51,17 +51,12 @@ object FirFilerTest {
       val bot = peek(b.io.signal.denominator)
       val value = top.toDouble / bot.toDouble
 
-      val sineVal = Math.sin(ii * Math.PI / 180)
-//      assert (Math.abs(value - sineVal) < 0.00163) // Max error with 16 bit should be 0.001629936871670068
       pw.write(f"$value\n")
-//      println(f"Success!  ${value}")
       step(1)
-
-
     }
     pw.close()
 
-    "python plotsine.py".!!
+    "python3 plotsine.py".!!
     Process("xdg-open sine.png").run()
 
 

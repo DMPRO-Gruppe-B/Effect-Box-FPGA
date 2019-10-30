@@ -7,7 +7,7 @@ import chisel3.util._
 class SineWave extends Module{
 
   val io = IO(new Bundle {
-    val inc = Input(Bool())
+    val inc = Input(Bool()) // use inc to reduce frequency
     val signal = Output(new SignedDoubleFraction)
   })
   val (x, wrap) = Counter(io.inc, 180)
