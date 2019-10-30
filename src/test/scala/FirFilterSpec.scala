@@ -31,9 +31,15 @@ class FirFilterSpec extends FlatSpec with Matchers {
 //    } should be(true)
 //  }
 
-  it should "Should generate sine wave" in {
-    chisel3.iotesters.Driver(() => new SineWave) { b =>
-      new GeneratesSineWave(b)
+//  it should "Should generate sine wave" in {
+//    chisel3.iotesters.Driver(() => new SineWave) { b =>
+//      new GeneratesSineWave(b)
+//    } should be(true)
+//  }
+
+  it should "Do tremolo" in {
+    chisel3.iotesters.Driver(() => new Tremolo) { b =>
+      new TremoloTest(b)
     } should be(true)
   }
 
@@ -56,11 +62,28 @@ object FirFilerTest {
     }
     pw.close()
 
-    "python3 plotsine.py".!!
-    Process("xdg-open sine.png").run()
-
-
+    Process("python3 plotsine.py").run()
+//    Process("open sine.png").run()
   }
+
+  class TremoloTest(b: Tremolo) extends PeekPokeTester(b) {
+
+    TestUtils.wrapInScript((source, pw) => {
+      for (line <- source.getLines()) {
+        val sample = line.toInt
+
+        poke(b.io.in, sample)
+
+        step(1)
+        val out = peek(b.io.out)
+        pw.write(f"$out\n")
+
+
+      }
+
+    })
+  }
+
   class Delay(b: DelayFilter) extends PeekPokeTester(b) {
     val inputs          = List(0x444f, 0x8218, 0xbeef, 0xcace)
     val expectedOutput  = List(0x4440, 0x8210, 0xbee0, 0xcac0)

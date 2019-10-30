@@ -7,5 +7,5 @@ with open("sine.txt", "r") as f:
     
 
 plt.plot(nums)
-
-plt.savefig(f"sine.png")
+plt.show()
+# plt.savefig(f"sine.png")
