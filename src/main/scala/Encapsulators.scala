@@ -86,16 +86,21 @@ class WeightedSum extends Module {
       })
 
 
-    val pad = Wire(SInt(40.W))
-    val padInverse = Wire(SInt(40.W))
+    val mul = Module(new Multiply)
+    val invMul = Module(new OneMinusMultiply)
 
-    pad := io.number.asSInt()
-    padInverse := io.numberInverse.asSInt()
+    mul.io.numerator := io.numerator
+    mul.io.denominator := io.denominator
+    mul.io.number := io.number
+
+    invMul.io.numerator := io.numerator
+    invMul.io.denominator := io.denominator
+    invMul.io.number := io.numberInverse
 
     // Following running with DelaySpec shows that there are indeed 40 bits in the intermediate result
     //print("\n Width of intermidiate result: " + result.getWidth + " bits\n")
 
-    io.out := ((pad*io.numerator.asSInt)/io.denominator.asSInt) + ((padInverse*(io.denominator-io.numerator).asSInt)/io.denominator.asSInt)
+    io.out := mul.io.out + invMul.io.out
 }
 
 object RisingEdge{
