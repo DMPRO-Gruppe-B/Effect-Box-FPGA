@@ -11,15 +11,15 @@ object TestUtils {
     if (args.nonEmpty && args.exists(_.nonEmpty)) {
       a = " ".concat(args.reduce(_ ++ " " ++ _))
     }
-    ("python " ++ path ++ a).!!
+    ("python3 " ++ path ++ a).!!
   }
 
   def thatShellScriptPart1(path: String, wav: String, soundFile: String) = {
-    f"python $path/music.py -p 1 -i $path/$wav -t $soundFile".!!
+    f"python3 $path/music.py -p 1 -i $path/$wav -t $soundFile".!!
   }
 
   def thatShellScriptPart2(path: String, wav: String, soundFile: String, newWav: String, newSoundFile: String) = {
-    val st = f"python $path/music.py -p 2 -i $path/$wav -n $newSoundFile -o $path/$newWav".lineStream_!
+    val st = f"python3 $path/music.py -p 2 -i $path/$wav -n $newSoundFile -o $path/$newWav".lineStream_!
     println(st.mkString("\n"))
     Process(f"vlc --play-and-stop $path/$wav $path/$newWav").run()
   }
