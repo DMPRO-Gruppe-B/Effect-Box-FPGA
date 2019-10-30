@@ -17,11 +17,7 @@ class SPISlaveReadonly extends Module {
     val recv_data = Output(UInt(8.W))
     val data_valid = Output(Bool())
 
-    // SPI wires
-    val spi_clk = Input(Bool())
-    val spi_mosi = Input(Bool())
-    val spi_cs_n = Input(Bool())
-    val spi_miso = Output(Bool())
+    val spi = new SPIBus
   })
 
   val ext_spi = Module(new SPI_Slave_External())
@@ -34,10 +30,10 @@ class SPISlaveReadonly extends Module {
   io.recv_data := ext_spi.o_RX_Byte
   io.data_valid := ext_spi.o_RX_DV
 
-  ext_spi.i_SPI_Clk := io.spi_clk
-  ext_spi.i_SPI_MOSI := io.spi_mosi
-  ext_spi.i_SPI_CS_n := io.spi_cs_n
-  io.spi_miso := ext_spi.o_SPI_MISO
+  ext_spi.i_SPI_Clk := io.spi.clk
+  ext_spi.i_SPI_MOSI := io.spi.mosi
+  ext_spi.i_SPI_CS_n := io.spi.cs_n
+  io.spi.miso := ext_spi.o_SPI_MISO
 }
 
 class SPI_Slave_External extends ExtModule(Map("SPI_MODE" -> IntParam(0))) {
