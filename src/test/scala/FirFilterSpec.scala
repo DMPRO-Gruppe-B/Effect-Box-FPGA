@@ -41,13 +41,12 @@ class FirFilterSpec extends FlatSpec with Matchers {
 
 object FirFilerTest {
   class GeneratesSineWave(b: SineWave) extends PeekPokeTester(b) {
+    import scala.sys.process._
 //    val wav = "bi"
 //    val n = python("../software_prototype/music.py", "-p 1", )
     val pw = new PrintWriter("sine.txt")
-    for (ii <- 0 until 720) {
-      poke(b.io.inc, true.B)
-      poke(b.io.w.numerator, 1.U)
-      poke(b.io.w.denominator, 180.U)
+    for (ii <- 0 until 6480) {
+      poke(b.io.inc, (ii % 18 == 0).B)
       val top = peek(b.io.signal.numerator)
       val bot = peek(b.io.signal.denominator)
       val value = top.toDouble / bot.toDouble
@@ -61,6 +60,9 @@ object FirFilerTest {
 
     }
     pw.close()
+
+    "python plotsine.py".!!
+    Process("xdg-open sine.png").run()
 
 
   }
