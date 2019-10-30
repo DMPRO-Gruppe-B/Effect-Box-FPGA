@@ -42,7 +42,6 @@ class FirFilterSpec extends FlatSpec with Matchers {
       new BypassSignal(b)
     } should be(true)
   }
-
 }
 
 object FirFilerTest {

@@ -19,9 +19,9 @@ class Delay() extends Module {
   val outDec = Wire(Decoupled(SInt(32.W)))
   val delayedSignal = Wire(SInt(32.W))
 
-  inDec.valid := true.B
-  inDec.ready := true.B
-  inDec.bits  := io.in+Multiply(io.fbFraction.numerator,io.fbFraction.denominator,delayedSignal)
+  inDec.valid  := true.B
+  inDec.ready  := true.B
+  inDec.bits   := WeightedSum(io.fbFraction.numerator, io.fbFraction.denominator, delayedSignal, io.in)
 
   outDec.valid := true.B
   outDec.ready := false.B
@@ -40,8 +40,7 @@ class Delay() extends Module {
   }
 
   //Output = delayedSignal*mix + cleanSignal*(1-mix)
-  io.out := Multiply(io.mixFraction.numerator,io.mixFraction.denominator,delayedSignal) + 
-            OneMinusMultiply(io.mixFraction.numerator,io.mixFraction.denominator,io.in)
+  io.out := WeightedSum(io.mixFraction.numerator, io.mixFraction.denominator, delayedSignal, io.in)
 }
 
 class DelayBuffer() extends Module {

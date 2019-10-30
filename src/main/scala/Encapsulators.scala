@@ -11,7 +11,6 @@ object Multiply{
         m.io.denominator := denominator
         m.io.number    := number
         m.io.out
-
     }
 }
 
@@ -33,7 +32,6 @@ class Multiply extends Module {
     //print("\n Width of intermidiate result: " + result.getWidth + " bits\n")
 
     io.out := result.asSInt()
-
 }
 
 object OneMinusMultiply{
@@ -63,6 +61,41 @@ class OneMinusMultiply extends Module{
     //print("\n Width of intermidiate result: " + result.getWidth + " bits\n")
 
     io.out := result.asSInt()
+}
+
+object WeightedSum{
+    def apply(numerator: UInt,denominator: UInt, number: SInt, numberInverse: SInt) : SInt = {
+        val m = Module(new WeightedSum)
+        m.io.numerator := numerator
+        m.io.denominator := denominator
+        m.io.number    := number
+        m.io.numberInverse := numberInverse
+
+        m.io.out
+    }
+}
+
+class WeightedSum extends Module {
+    val io = IO(new Bundle {
+        val numerator     = Input(UInt(8.W))
+        val denominator   = Input(UInt(8.W))
+        val number        = Input(SInt(32.W))
+        val numberInverse = Input(SInt(32.W))
+
+        val out         = Output(SInt(32.W))
+      })
+
+
+    val pad = Wire(SInt(40.W))
+    val padInverse = Wire(SInt(40.W))
+
+    pad := io.number.asSInt()
+    padInverse := io.numberInverse.asSInt()
+
+    // Following running with DelaySpec shows that there are indeed 40 bits in the intermediate result
+    //print("\n Width of intermidiate result: " + result.getWidth + " bits\n")
+
+    io.out := ((pad*io.numerator.asSInt)/io.denominator.asSInt) + ((padInverse*(io.denominator-io.numerator).asSInt)/io.denominator.asSInt)
 }
 
 object RisingEdge{
