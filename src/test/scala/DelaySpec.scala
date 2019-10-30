@@ -30,7 +30,7 @@ object DelayTest{
     val delayTime = 0.5
     val bufferSize = sampleRate*delayTime
 
-    val fbFractionReduce = new FractionReduce(0.9)
+    val fbFractionReduce = new FractionReduce(0.5)
     val mixFractionReduce = new FractionReduce(0.5)
 
     poke(b.io.fbNum,fbFractionReduce.numUInt)
@@ -39,11 +39,10 @@ object DelayTest{
     poke(b.io.mixNum,mixFractionReduce.numUInt)
     poke(b.io.mixDenom,mixFractionReduce.denomUInt)
 
-    val filename = "sound.txt"
-    val pw = new PrintWriter("new_" ++ filename)
+    TestUtils.wrapInScript((source, pw) => {
 
-    var i = 0
-    for (line <- FileUtils.getLines(filename)) {
+      var i = 0
+      for (line <- source.getLines()) {
         val n = line.toInt
 
         poke(b.io.in, n)
@@ -60,8 +59,8 @@ object DelayTest{
 
         val a = peek(b.io.out)
         pw.write(s"$a\n")
-    } 
-    pw.close()
+      }
+    })
   }
 }
 
