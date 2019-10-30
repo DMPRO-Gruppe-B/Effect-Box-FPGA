@@ -22,7 +22,7 @@ class Tremolo extends Module{
   bot := sine.signal.denominator.asSInt()
   val input = Wire(SInt(40.W))
   input := io.in
-  val mult = input.asSInt() * ((top >> 2).asSInt() + bot) / bot
+  val mult = input.asSInt() * (top.asSInt() + (3.S*bot)) / (4.S*bot)
   io.out := mult
 
 }
