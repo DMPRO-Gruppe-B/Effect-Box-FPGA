@@ -15,8 +15,8 @@ class Top extends Module {
     val pinout1     = Output(Clock())
     val pinout2     = Output(UInt(1.W))
     val pinout3     = Output(UInt(1.W))
-    val pinout4     = Output(UInt(1.W))
-    val pinout5     = Output(UInt(1.W))
+    //val pinout4     = Output(UInt(1.W))
+    //val pinout5     = Output(UInt(1.W))
     val pinout6     = Output(UInt(1.W))
     val pinout7     = Output(UInt(1.W))
     val pinout8     = Output(UInt(1.W))
@@ -79,24 +79,28 @@ class Top extends Module {
 
   val dacMapHigh: Array[(UInt, UInt)] = Array(
     0.U  -> 0.U,
-    1.U  -> 0.U,
-    2.U  -> 0.U,
-    3.U  -> 0.U,
-    4.U  -> 0.U,
-    5.U  -> 0.U,
-    6.U  -> 0.U,
-    7.U  -> 0.U,
-    8.U  -> 0.U,
-    9.U  -> 0.U,
-    10.U -> 0.U,
-    11.U -> 0.U,
-    12.U -> 0.U,
-    13.U -> 0.U,
-    14.U -> 0.U,
-    15.U -> 0.U)
+    1.U  -> 1.U,
+    2.U  -> 1.U,
+    3.U  -> 1.U,
+    4.U  -> 1.U,
+    5.U  -> 1.U,
+    6.U  -> 1.U,
+    7.U  -> 1.U,
+    8.U  -> 1.U,
+    9.U  -> 1.U,
+    10.U -> 1.U,
+    11.U -> 1.U,
+    12.U -> 1.U,
+    13.U -> 1.U,
+    14.U -> 1.U,
+    15.U -> 1.U,
+    16.U -> 1.U,
+    17.U -> 1.U,
+    18.U -> 1.U,
+    19.U -> 1.U)
 
   val dacMapLow: Array[(UInt, UInt)] = Array(
-    0.U  -> 0.U,
+    0.U  -> 1.U,
     1.U  -> 0.U,
     2.U  -> 0.U,
     3.U  -> 0.U,
@@ -111,24 +115,34 @@ class Top extends Module {
     12.U -> 0.U,
     13.U -> 0.U,
     14.U -> 0.U,
-    15.U -> 0.U)
+    15.U -> 0.U,
+    16.U -> 0.U,
+    17.U -> 0.U,
+    18.U -> 0.U,
+    19.U -> 0.U)
 
   withClock(bitClock) {
-    val bit_count = counter(15.U, 4.W)
+    //val bit_count = counter(15.U, 6.W)
+    val bit_count = RegNext(0.U(6.W))
     val LRCLK = RegNext(false.B)
-    val wave_count = RegInit(UInt(16.W), 0.U)
+    val wave_count = RegNext(0.U(16.W))
     val reg = RegNext(true.B)
     reg := reg
+    wave_count := wave_count
 
     LRCLK := LRCLK
     io.sampleClock := LRCLK
 
+    bit_count := bit_count + 1.U
+
     // Half sample period
-    when (bit_count === 15.U) {
+
+    when (bit_count === 19.U) {
+      bit_count := 0.U
       LRCLK := !LRCLK
 
       wave_count := wave_count + 1.U
-      when (wave_count === 80.U) {
+      when (wave_count === 159.U) {
         wave_count := 0.U
         reg := !reg
       }
@@ -136,11 +150,14 @@ class Top extends Module {
       // TODO: write sample_buffer based on value of reg
     }
 
+    
     when (LRCLK) { // LEFT
-      io.dacOut := Mux(reg, MuxLookup(bit_count, 0.U(1.W), dacMapHigh), MuxLookup(bit_count, 0.U(1.W), dacMapLow))   
+      io.dacOut := Mux(reg, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))   
     }.otherwise { // RIGHT
-      io.dacOut := 0.U(1.W)
+      io.dacOut := 1.U(1.W)
     }
+
+    //io.dacOut := Mux(reg && bit_count === 4.U, 0.U, 1.U)
 
     // val adc = Module(new ADCInterface).io
     // val dac = Module(new DACInterface).io
