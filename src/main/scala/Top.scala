@@ -114,7 +114,6 @@ class Top extends Module {
     15.U -> 0.U)
 
   withClock(bitClock) {
-    //val bit_count = counter(15.U, 6.W)
     val bit_count = RegNext(0.U(6.W))
     val LRCLK = RegNext(false.B)
     val wave_count = RegNext(0.U(16.W))
@@ -128,13 +127,12 @@ class Top extends Module {
     bit_count := bit_count + 1.U
 
     // Half sample period
-
     when (bit_count === 15.U) {
       bit_count := 0.U
       LRCLK := !LRCLK
 
       wave_count := wave_count + 1.U
-      when (wave_count === 159.U) {
+      when (wave_count === 79.U) {
         wave_count := 0.U
         reg := !reg
       }
@@ -143,39 +141,37 @@ class Top extends Module {
     }
 
     
-    when (LRCLK) { // LEFT
-      io.dacOut := Mux(reg, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))   
-    }.otherwise { // RIGHT
-      io.dacOut := 1.U(1.W)
-    }
+    // when (LRCLK) { // LEFT
+    //   io.dacOut := Mux(reg, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))   
+    // }.otherwise { // RIGHT
+    //   io.dacOut := 1.U(1.W)
+    // }
 
     //io.dacOut := Mux(reg && bit_count === 4.U, 0.U, 1.U)
 
-    // val adc = Module(new ADCInterface).io
-    // val dac = Module(new DACInterface).io
+    val adc = Module(new ADCInterface).io
+    val dac = Module(new DACInterface).io
 
-    // adc.bit := io.adcIn
-    // adc.LRCLK := LRCLK
+    adc.bit := io.adcIn
+    adc.LRCLK := LRCLK
 
-    // io.dacOut := dac.bit_left
-    // dac.LRCLK := LRCLK
+    io.dacOut := dac.bit_left
+    dac.LRCLK := LRCLK
 
-    // val sample_buffer = RegInit(SInt(16.W), 0.U)
+    val sample_buffer = RegInit(SInt(16.W), 0.U)
 
     // Overwrite stored sample when ADC is ready
-    // when (adc.enable) {
-    //   sample_buffer := adc.sample // Store sample for left channel
-    //   dac.sample := adc.sample // Write sample to right channel immediately
-    // }
+    when (adc.enable) {
+      sample_buffer := adc.sample // Store sample for left channel
+      dac.sample := adc.sample // Write sample to right channel immediately
+    }
 
     // Drive DAC sample input with stored sample
-    // dac.sample := sample_buffer
+    dac.sample := sample_buffer
 
     // when (dac.enable) {
     //   dac.sample := sample_buffer
     // }
-
-    // val testBit = Mux(reg && bit_count === 4.U, 0.U, 1.U)
 
     io.pinout2 := LRCLK
     // io.pinout4 := adc.enable
