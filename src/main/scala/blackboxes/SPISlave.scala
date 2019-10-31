@@ -11,7 +11,7 @@ class SPIBus extends Bundle {
   val cs_n = Input(Bool()) // SPI chip select
 }
 
-
+/*
 class SPISlaveReadonly extends Module {
   val io = IO(new Bundle {
     val recv_data = Output(UInt(8.W))
@@ -35,6 +35,7 @@ class SPISlaveReadonly extends Module {
   ext_spi.i_SPI_CS_n := io.spi.cs_n
   io.spi.miso := ext_spi.o_SPI_MISO
 }
+*/
 
 class SPI_Slave_External extends ExtModule(Map("SPI_MODE" -> IntParam(0))) {
   override def desiredName: String = "SPI_Slave"

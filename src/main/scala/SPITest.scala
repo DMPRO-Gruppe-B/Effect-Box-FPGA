@@ -1,6 +1,6 @@
 package EffectBox
 
-import blackboxes.{SPIBus, SPISlaveReadonly}
+import blackboxes._
 import chisel3._
 import chisel3.util._
 
@@ -24,8 +24,18 @@ class SPITest extends Module {
   io.rgbled_2 := 0.U
   io.rgbled_3 := 0.U
   */
-  val slave = Module(new SPISlaveReadonly()).io
-  slave.spi <> io.spi
+  val slave = Module(new SPI_Slave_External())
+  //slave.spi <> io.spi
+  val s = io.spi
+  slave.i_SPI_CS_n := s.cs_n
+  slave.i_SPI_MOSI := s.mosi
+  slave.i_SPI_Clk := s.clk
+  slave.i_TX_Byte := 0.U
+  slave.i_TX_DV := false.B
+  s.miso := false.B
+
+  slave.i_Rst_L := !reset.asBool()
+  slave.i_Clk := clock
 
   val config = RegInit(VecInit(Seq.fill(2)(0xA.U(16.W))))
 
@@ -40,31 +50,33 @@ class SPITest extends Module {
   val state = RegInit(0.U(2.W))
   io.pinout := addr
 
-  when(io.spi.cs_n) {
-    state := 0.U
-  }.otherwise {
+
+  //when(io.spi.cs_n) {
+  //  state := 0.U
+  //}.otherwise {
     switch(state) {
       is(0.U) {
-        when(slave.data_valid) {
-          addr := slave.recv_data
+        when(slave.o_RX_DV) {
+          addr := slave.o_RX_Byte
           state := 1.U
         }
       }
       is(1.U) {
-        when(slave.data_valid) {
-          data := slave.recv_data << 8
+        when(slave.o_RX_DV) {
+          data := slave.o_RX_Byte << 8
           state := 2.U
         }
       }
       is(2.U) {
-        when(slave.data_valid) {
-          data := data | slave.recv_data
+        when(slave.o_RX_DV) {
+          data := data | slave.o_RX_Byte
           state := 0.U
           //config(addr) := data // TODO wtf
         }
       }
     }
-  }
+  //}
+
 
   /*
   when(io.spi_cs_n) {
