@@ -19,7 +19,6 @@ class DACInterface extends Module {
 
   io.enable := false.B
 
-  io.bit_left := sample_reg(15)
 
   // Disable right channel (for now)
   io.bit_right := 0.U
@@ -30,9 +29,13 @@ class DACInterface extends Module {
     when(RisingEdge(io.LRCLK)) { // LRCLK rising edge
       io.enable := true.B
       sample_reg := io.sample.do_asUInt
-    }
-    .otherwise{
+      io.bit_left := io.sample.do_asUInt // bit left must be driven immediately, or previous sample bit will be used
+    } // TODO: read in sample for right channel on LRCLK falling edge (must happen on cycle before falling edge)
+    .otherwise {
+        io.bit_left := sample_reg(15)
         sample_reg := sample_reg << 1
     }
+  }.otherwise {
+    io.bit_left := sample_reg(15)
   }
 }
