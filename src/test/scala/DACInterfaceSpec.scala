@@ -32,10 +32,19 @@ object DACTest {
         poke(b.io.LRCLK, true)
         poke(b.io.sample, line.toInt)
 
+        var first = true
         for (bit <- (TestUtils.toBinaryString(line.toInt, 16))) {
-            //println(bit.toInt.toString)
+          
+            if(first == true){
+              expect(b.io.enable,true)
+              first = !first
+            }
+            else{
+              expect(b.io.enable,false)
+            }
+
             step(1)
-            expect(b.io.enable,true)
+            
             expect(b.io.bit_left,bit.toString.toInt)
         }
         

@@ -17,6 +17,8 @@ class DACInterface extends Module {
 
   val sample_reg = RegInit(UInt(16.W), 0.U)
 
+  io.enable := false.B
+
   io.bit_left := sample_reg(15)
 
   // Disable right channel (for now)
@@ -32,7 +34,5 @@ class DACInterface extends Module {
     .otherwise{
         sample_reg := sample_reg << 1
     }
-  }
-  .otherwise{
   }
 }
