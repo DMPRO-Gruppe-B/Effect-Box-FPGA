@@ -74,10 +74,10 @@ class Top extends Module {
   withClock(bitClock) {
     val bitCount = RegNext(0.U(6.W))
     val LRCLK = RegNext(false.B)
-    val reg = RegNext(true.B)
-    val counter = RegNext(0.U(16.W))
-    counter := counter
-    reg := reg
+    // val reg = RegNext(true.B)
+    // val counter = RegNext(0.U(16.W))
+    // counter := counter 
+    // reg := reg
 
     LRCLK := LRCLK
     bitCount := bitCount + 1.U
@@ -87,11 +87,11 @@ class Top extends Module {
       LRCLK := !LRCLK
       bitCount := 0.U
 
-      counter := counter + 1.U
-      when (counter === 80.U) {
-        counter := 0.U
-        reg := !reg
-      }
+      // counter := counter + 1.U
+      // when (counter === 80.U) {
+      //   counter := 0.U
+      //   reg := !reg
+      // }
     }
 
     val adc = Module(new ADCInterface).io
@@ -103,12 +103,14 @@ class Top extends Module {
     io.dacLeft := dac.bit_left
     dac.LRCLK := LRCLK
 
-    val sample_buffer = RegInit(UInt(16.W), 0.U)
+    val sample_buffer = RegInit(SInt(16.W), 0.U)
 
+    // Overwrite stored sample when ADC is ready
     when (adc.enable) {
       sample_buffer := adc.sample
     }
 
+    // Drive DAC sample input with stored sample
     dac.sample := sample_buffer
 
     // when (dac.enable) {
@@ -116,16 +118,13 @@ class Top extends Module {
     // }
 
     // val testBit = Mux(reg && bitCount === 4.U, 0.U, 1.U)
-    // io.dacLeft := testBit //dac.bit_left
-
-    dac.sample := 0.S
 
     io.pinout2 := LRCLK
     io.pinout4 := adc.enable
     io.pinout5 := dac.enable
     io.pinout6 := io.adcIn
-    // io.pinout7 := io.dacLeft
+    io.pinout7 := io.dacLeft
     io.pinout8 := io.adcIn
-    // io.pinout9 := io.dacLeft
+    io.pinout9 := io.dacLeft
   }
 }

@@ -24,6 +24,5 @@ class ADCInterface extends Module {
     accumulator := (accumulator << 1) + io.bit
   }.elsewhen(FallingEdge(io.LRCLK)) { // LRCLK falling edge
     io.enable := true.B
-  }.otherwise { // LRCLK low, was not previously high
   }
 }
