@@ -96,6 +96,8 @@ class Top extends Module {
         wave_count := 0.U
         reg := !reg
       }
+
+      // TODO: write sample_buffer based on value of reg
     }
 
     val adc = Module(new ADCInterface).io
@@ -110,9 +112,10 @@ class Top extends Module {
     val sample_buffer = RegInit(SInt(16.W), 0.U)
 
     // Overwrite stored sample when ADC is ready
-    when (adc.enable) {
-      sample_buffer := adc.sample
-    }
+    // when (adc.enable) {
+    //   sample_buffer := adc.sample // Store sample for left channel
+    //   dac.sample := adc.sample // Write sample to right channel immediately
+    // }
 
     // Drive DAC sample input with stored sample
     dac.sample := sample_buffer
