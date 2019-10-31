@@ -1,9 +1,9 @@
 package EffectBox
 
 import chisel3._
-import chisel3.util.Counter
 import chisel3.core.withClock
 import blackboxes.{MMCME2, ClockConfig, BRAM}
+import chisel3.internal.firrtl.Width
 
 
 /**
@@ -71,27 +71,31 @@ class Top extends Module {
    * SETUP DAC/ADC
    */
 
+  def counter(max: UInt, width: Width) = {
+    val x = RegInit(UInt(width), 0.U)
+    x := Mux(x === max, 0.U, x + 1.U)
+    x
+  }
+
   withClock(bitClock) {
-    val bitCount = RegNext(0.U(6.W))
+    val bit_count = counter(15.U, 4.W)
     val LRCLK = RegNext(false.B)
-    // val reg = RegNext(true.B)
-    // val counter = RegNext(0.U(16.W))
-    // counter := counter 
-    // reg := reg
+    val wave_count = RegInit(UInt(16.W), 0.U)
+    val reg = RegNext(true.B)
+    reg := reg
 
     LRCLK := LRCLK
-    bitCount := bitCount + 1.U
     io.sampleClock := LRCLK
 
-    when (bitCount === 15.U) {
+    // Half sample period
+    when (bit_count === 15.U) {
       LRCLK := !LRCLK
-      bitCount := 0.U
 
-      // counter := counter + 1.U
-      // when (counter === 80.U) {
-      //   counter := 0.U
-      //   reg := !reg
-      // }
+      wave_count := wave_count + 1.U
+      when (wave_count === 80.U) {
+        wave_count := 0.U
+        reg := !reg
+      }
     }
 
     val adc = Module(new ADCInterface).io
@@ -117,7 +121,7 @@ class Top extends Module {
     //   dac.sample := sample_buffer
     // }
 
-    // val testBit = Mux(reg && bitCount === 4.U, 0.U, 1.U)
+    // val testBit = Mux(reg && bit_count === 4.U, 0.U, 1.U)
 
     io.pinout2 := LRCLK
     io.pinout4 := adc.enable
