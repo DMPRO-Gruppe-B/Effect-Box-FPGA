@@ -93,11 +93,7 @@ class Top extends Module {
     12.U -> 1.U,
     13.U -> 1.U,
     14.U -> 1.U,
-    15.U -> 1.U,
-    16.U -> 1.U,
-    17.U -> 1.U,
-    18.U -> 1.U,
-    19.U -> 1.U)
+    15.U -> 1.U)
 
   val dacMapLow: Array[(UInt, UInt)] = Array(
     0.U  -> 1.U,
@@ -115,11 +111,7 @@ class Top extends Module {
     12.U -> 0.U,
     13.U -> 0.U,
     14.U -> 0.U,
-    15.U -> 0.U,
-    16.U -> 0.U,
-    17.U -> 0.U,
-    18.U -> 0.U,
-    19.U -> 0.U)
+    15.U -> 0.U)
 
   withClock(bitClock) {
     //val bit_count = counter(15.U, 6.W)
@@ -137,7 +129,7 @@ class Top extends Module {
 
     // Half sample period
 
-    when (bit_count === 19.U) {
+    when (bit_count === 15.U) {
       bit_count := 0.U
       LRCLK := !LRCLK
 
