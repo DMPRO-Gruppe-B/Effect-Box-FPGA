@@ -33,7 +33,7 @@ set_property DRIVE 8 [get_ports { reset }];
 
 set_property -dict {PACKAGE_PIN M14 IOSTANDARD LVCMOS33} [get_ports { io_adcIn }];
 
-set_property -dict {PACKAGE_PIN K13 IOSTANDARD LVCMOS33} [get_ports { io_dacLeft }];
+set_property -dict {PACKAGE_PIN K13 IOSTANDARD LVCMOS33} [get_ports { io_dacOut }];
 
 
 ## Pinout
