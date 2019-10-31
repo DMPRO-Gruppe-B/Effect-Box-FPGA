@@ -100,10 +100,23 @@ class Top extends Module {
     adc.bit := io.adcIn
     adc.LRCLK := LRCLK
 
+    io.dacLeft := dac.bit_left
     dac.LRCLK := LRCLK
 
-    val testBit = Mux(reg && bitCount === 4.U, 0.U, 1.U)
-    io.dacLeft := testBit //dac.bit_left
+    val sample_buffer = RegInit(UInt(16.W), 0.U)
+
+    when (adc.enable) {
+      sample_buffer := adc.sample
+    }
+
+    dac.sample := sample_buffer
+
+    // when (dac.enable) {
+    //   dac.sample := sample_buffer
+    // }
+
+    // val testBit = Mux(reg && bitCount === 4.U, 0.U, 1.U)
+    // io.dacLeft := testBit //dac.bit_left
 
     dac.sample := 0.S
 
@@ -111,8 +124,8 @@ class Top extends Module {
     io.pinout4 := adc.enable
     io.pinout5 := dac.enable
     io.pinout6 := io.adcIn
-    io.pinout7 := testBit
+    // io.pinout7 := io.dacLeft
     io.pinout8 := io.adcIn
-    io.pinout9 := testBit
+    // io.pinout9 := io.dacLeft
   }
 }
