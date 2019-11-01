@@ -1,8 +1,6 @@
 package blackboxes
 
 import chisel3._
-import chisel3.core.IntParam
-import chisel3.experimental.ExtModule
 
 class SPIBus extends Bundle {
   val mosi = Input(Bool()) // SPI Master out slave in
@@ -11,47 +9,44 @@ class SPIBus extends Bundle {
   val cs_n = Input(Bool()) // SPI chip select
 }
 
-/*
-class SPISlaveReadonly extends Module {
+class SPISlave extends Module {
   val io = IO(new Bundle {
-    val recv_data = Output(UInt(8.W))
-    val data_valid = Output(Bool())
-
     val spi = new SPIBus
+
+    val output = Output(UInt(8.W))
+    val output_valid = Output(Bool())
+
+    val debug = Output(UInt(4.W))
   })
+  io.spi.miso := 0.U
 
-  val ext_spi = Module(new SPI_Slave_External())
-  ext_spi.i_Clk := clock
-  ext_spi.i_Rst_L := !reset.asBool()
+  val buf = RegInit(0.U(8.W))
+  val bits_read = RegInit(0.U(5.W))
+  val prev_clk = RegInit(false.B)
 
-  ext_spi.i_TX_DV := false.B
-  ext_spi.i_TX_Byte := 0.U(8)
+  io.debug := bits_read | (prev_clk << 5).asUInt()
 
-  io.recv_data := ext_spi.o_RX_Byte
-  io.data_valid := ext_spi.o_RX_DV
+  when(!io.spi.cs_n) {
+    when(io.spi.clk && !prev_clk) {
+      // Rising edge
+      prev_clk := true.B
+      buf := buf | (io.spi.mosi.asUInt() << bits_read).asUInt()
+      bits_read := bits_read + 1.U
+    }.elsewhen(prev_clk && !io.spi.clk) {
+      prev_clk := false.B
+    }
+  }.otherwise {
+    bits_read := 0.U
+    prev_clk := false.B
+  }
 
-  ext_spi.i_SPI_Clk := io.spi.clk
-  ext_spi.i_SPI_MOSI := io.spi.mosi
-  ext_spi.i_SPI_CS_n := io.spi.cs_n
-  io.spi.miso := ext_spi.o_SPI_MISO
-}
-*/
+  when(bits_read === 8.U) {
+    bits_read := 0.U
+    io.output_valid := true.B
+  }.otherwise {
+    io.output_valid := false.B
+  }
 
-class SPI_Slave_External extends ExtModule(Map("SPI_MODE" -> IntParam(0))) {
-  override def desiredName: String = "SPI_Slave"
+  io.output := buf
 
-  // IO from SPI_Slave.v
-  // Control/Data Signals
-  val i_Clk: Clock = IO(Input(Clock())) //       FPGA Clock
-  val i_Rst_L: Bool = IO(Input(Bool())) //       FPGA Reset
-  val i_TX_DV: Bool = IO(Input(Bool())) //       Data Valid pulse to register i_TX_Byte
-  val i_TX_Byte: UInt = IO(Input(UInt(8.W))) //  Byte to serialize to MISO.
-  val o_RX_DV: Bool = IO(Output(Bool())) //      Data Valid pulse (1 clock cycle)
-  val o_RX_Byte: UInt = IO(Output(UInt(8.W))) // Byte received on MOSI
-
-  // SPI Interface
-  val i_SPI_Clk: Bool = IO(Input(Bool()))
-  val i_SPI_MOSI: Bool = IO(Input(Bool()))
-  val i_SPI_CS_n: Bool = IO(Input(Bool()))
-  val o_SPI_MISO: Bool = IO(Output(Bool()))
 }

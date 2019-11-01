@@ -11,8 +11,9 @@ class SPITest extends Module {
     val rgbled_1 = Output(UInt(3.W))
     val rgbled_2 = Output(UInt(3.W))
     val rgbled_3 = Output(UInt(3.W))
+    */
 
-    val led = Output(UInt(4.W))*/
+    val led = Output(UInt(4.W))
     val pinout = Output(UInt(16.W))
 
     val spi = new SPIBus
@@ -24,18 +25,9 @@ class SPITest extends Module {
   io.rgbled_2 := 0.U
   io.rgbled_3 := 0.U
   */
-  val slave = Module(new SPI_Slave_External())
-  //slave.spi <> io.spi
-  val s = io.spi
-  slave.i_SPI_CS_n := s.cs_n
-  slave.i_SPI_MOSI := s.mosi
-  slave.i_SPI_Clk := s.clk
-  slave.i_TX_Byte := 0.U
-  slave.i_TX_DV := false.B
-  s.miso := false.B
 
-  slave.i_Rst_L := !reset.asBool()
-  slave.i_Clk := clock
+  val slave = Module(new SPISlave)
+  slave.io.spi <> io.spi
 
   val config = RegInit(VecInit(Seq.fill(2)(0xA.U(16.W))))
 
@@ -46,47 +38,52 @@ class SPITest extends Module {
 
   val addr = RegInit(0.U(8.W))
   val data = RegInit(0.U(16.W))
-  //val waiting :: hasReadAddr :: hasReadTwoBytes :: yeet = Enum(4)
-  val state = RegInit(0.U(2.W))
-  io.pinout := addr
+  val state = RegInit(0.U(4.W))
+
+  //io.pinout := data// | 1.U
+  io.pinout := slave.io.debug
+  //io.led := state
+  io.led := io.spi.cs_n.asUInt() | (io.spi.mosi << 1).asUInt() | (slave.io.output_valid << 2).asUInt() | (io.spi.clk << 3).asUInt()
 
 
-  //when(io.spi.cs_n) {
-  //  state := 0.U
-  //}.otherwise {
+  when(io.spi.cs_n) {
+    state := 0.U
+  }.otherwise {
     switch(state) {
       is(0.U) {
-        when(slave.o_RX_DV) {
-          addr := slave.o_RX_Byte
+        when(slave.io.output_valid) {
+          addr := slave.io.output
           state := 1.U
         }
       }
       is(1.U) {
-        when(slave.o_RX_DV) {
-          data := slave.o_RX_Byte << 8
+        when(!slave.io.output_valid) {
           state := 2.U
         }
       }
       is(2.U) {
-        when(slave.o_RX_DV) {
-          data := data | slave.o_RX_Byte
+        when(slave.io.output_valid) {
+          data := slave.io.output << 8
+          state := 3.U
+        }
+      }
+      is(3.U) {
+        when(!slave.io.output_valid) {
+          state := 4.U
+        }
+      }
+      is(4.U) {
+        when(slave.io.output_valid) {
+          data := data | slave.io.output
+          state := 5.U
+        }
+      }
+      is(5.U) {
+        when(!slave.io.output_valid) {
           state := 0.U
           //config(addr) := data // TODO wtf
         }
       }
     }
-  //}
-
-
-  /*
-  when(io.spi_cs_n) {
-    io.rgbled_0 := 0.U
-  }.otherwise {
-    io.rgbled_0 := 1.U
   }
-
-  //io.led := effect_control.bitcrush.nCrushBits
-  io.led := (effect_control.debug.addr & 0xF.U)
-  */
-
 }
