@@ -6,8 +6,9 @@ import chisel3.util.{Counter}
 class ADCInterface extends Module {
   val io = IO(
     new Bundle {
-      val bit = Input(UInt(1.W)) // ADC DOUT
+      val BCLK = Input(Bool())  // DAC BCIN
       val LRCLK = Input(Bool()) // ADC LRCIN (from FPGA)
+      val bit = Input(UInt(1.W)) // ADC DOUT
 
       val sample = Output(SInt(16.W))
       val enable = Output(Bool())
