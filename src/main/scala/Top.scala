@@ -11,18 +11,18 @@ import chisel3.util.MuxLookup
   */
 class Top extends Module {
   val io = IO(new Bundle {
-    val pinout0     = Output(Clock())
-    val pinout1     = Output(Clock())
-    val pinout2     = Output(UInt(1.W))
-    val pinout3     = Output(UInt(1.W))
+    //val pinout0     = Output(Clock())
+    //val pinout1     = Output(Clock())
+    //val pinout2     = Output(UInt(1.W))
+    //val pinout3     = Output(UInt(1.W))
     //val pinout4     = Output(UInt(1.W))
     //val pinout5     = Output(UInt(1.W))
-    val pinout6     = Output(UInt(1.W))
-    val pinout7     = Output(UInt(1.W))
-    val pinout8     = Output(UInt(1.W))
-    val pinout9     = Output(UInt(1.W))
+    //val pinout6     = Output(UInt(1.W))
+    //val pinout7     = Output(UInt(1.W))
+    //val pinout8     = Output(UInt(1.W))
+    //val pinout9     = Output(UInt(1.W))
     val sysClock    = Output(Clock())
-    val bitClock    = Output(Clock())
+    val bitClock    = Output(Bool())
     val sampleClock = Output(Bool())
     val adcIn       = Input(UInt(1.W))
     val dacOut     = Output(UInt(1.W))
@@ -44,7 +44,7 @@ class Top extends Module {
     ClockConfig.default,
     ClockConfig.default,
     ClockConfig.default,
-    ClockConfig(4, 0.5, 0.0), // comClock, divided from the system clock
+    ClockConfig(4, 0.5, 0.0),  // comClock, divided from the system clock
     ClockConfig.default,
     ClockConfig(74, 0.5, 0.0) // System clock
   )
@@ -64,8 +64,8 @@ class Top extends Module {
 
   // Bits to write manually to DAC
   val dacMapHigh: Array[(UInt, UInt)] = Array(
-    0.U  -> 0.U,
-    1.U  -> 1.U,
+    0.U  -> 1.U,
+    1.U  -> 0.U,
     2.U  -> 1.U,
     3.U  -> 1.U,
     4.U  -> 1.U,
@@ -83,21 +83,21 @@ class Top extends Module {
 
   val dacMapLow: Array[(UInt, UInt)] = Array(
     0.U  -> 1.U,
-    1.U  -> 0.U,
-    2.U  -> 0.U,
-    3.U  -> 0.U,
-    4.U  -> 0.U,
-    5.U  -> 0.U,
-    6.U  -> 0.U,
-    7.U  -> 0.U,
-    8.U  -> 0.U,
-    9.U  -> 0.U,
-    10.U -> 0.U,
-    11.U -> 0.U,
-    12.U -> 0.U,
-    13.U -> 0.U,
-    14.U -> 0.U,
-    15.U -> 0.U)
+    1.U  -> 1.U,
+    2.U  -> 1.U,
+    3.U  -> 1.U,
+    4.U  -> 1.U,
+    5.U  -> 1.U,
+    6.U  -> 1.U,
+    7.U  -> 1.U,
+    8.U  -> 1.U,
+    9.U  -> 1.U,
+    10.U -> 1.U,
+    11.U -> 1.U,
+    12.U -> 1.U,
+    13.U -> 1.U,
+    14.U -> 1.U,
+    15.U -> 1.U)
 
    /*
     * Clock domain comClock = 2 x bitClock
@@ -112,6 +112,7 @@ class Top extends Module {
     
     BCLK := !BCLK
     LRCLK := LRCLK
+
     
     // Only necessary for testing DAC with square wave
     val wave_count = RegNext(0.U(16.W)) // Every half sample
@@ -125,7 +126,7 @@ class Top extends Module {
       when(bit_count === 0.U) {
         LRCLK := !LRCLK
         // Only for square wave
-        when(wave_count === 79.U) { // 400 Hz
+        when(wave_count === 159.U) { // 400 Hz
           square_wave := !square_wave
           wave_count := 0.U
         }.otherwise {
@@ -140,20 +141,24 @@ class Top extends Module {
       }
     }
 
-    // Clock outputs to codec
     io.sampleClock := LRCLK
     io.bitClock := BCLK
 
+    // Clock outputs to codec
+
     // Either write bitmaps to dacOut
+    /*
     when(LRCLK) { // LEFT
       io.dacOut := Mux(square_wave, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))   
     }.otherwise { // RIGHT
       io.dacOut := Mux(square_wave, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))
     }
+    */
 
     // Or use a Mux
     //io.dacOut := Mux(square_wave && bit_count === 4.U, 0.U, 1.U)
 
+    /*
     val adc = Module(new ADCInterface).io
     val dac = Module(new DACInterface).io
 
@@ -165,31 +170,32 @@ class Top extends Module {
     dac.LRCLK := LRCLK
     dac.BCLK := BCLK
 
-    val sample_buffer = RegInit(SInt(16.W), 0.U)
+    val sample_buffer = RegInit(UInt(16.W), 0.U)
 
-    // Overwrite stored sample when ADC is ready
-    // when(adc.enable) {
-    //   sample_buffer := adc.sample // Store sample for left channel
-    //   dac.sample := adc.sample    // Write sample to right channel immediately
-    // }
+    //Overwrite stored sample when ADC is ready
+    when(adc.enable) {
+      sample_buffer := adc.sample // Store sample for left channel
+      dac.sample := adc.sample    // Write sample to right channel immediately
+    }
 
-    // Either drive DAC sample input with stored sample
-    // dac.sample := sample_buffer
+     //Either drive DAC sample input with stored sample
+    dac.sample := sample_buffer
 
     // Or drive DAC sample input only on DAC enable signal
-    // when(dac.enable) {
-    //   dac.sample := sample_buffer
-    // }
+    when(dac.enable) {
+       dac.sample := sample_buffer
+    }
+    */
 
-    io.pinout0 := sysClock
-    io.pinout1 := BCLK
-    io.pinout3 := reset.asBool()
-    io.pinout2 := LRCLK
+    //io.pinout0 := sysClock
+    //io.pinout1 := BCLK
+    //io.pinout3 := reset.asBool()
+    //io.pinout2 := LRCLK
     // io.pinout4 := adc.enable
     // io.pinout5 := dac.enable
-    io.pinout6 := io.adcIn
-    io.pinout7 := io.dacOut
-    io.pinout8 := io.adcIn
-    io.pinout9 := io.dacOut
+    //io.pinout6 := io.adcIn
+    //io.pinout7 := io.dacOut
+    //io.pinout8 := io.adcIn
+    //io.pinout9 := io.dacOut
   }
 }

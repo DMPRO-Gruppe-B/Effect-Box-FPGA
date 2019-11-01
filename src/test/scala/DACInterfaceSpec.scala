@@ -45,7 +45,7 @@ object DACTest {
 
             step(1)
             
-            expect(b.io.bit_left,bit.toString.toInt)
+            expect(b.io.bit,bit.toString.toInt)
         }
         
         poke(b.io.LRCLK, false)

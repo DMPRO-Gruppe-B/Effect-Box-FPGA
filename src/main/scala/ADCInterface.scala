@@ -10,14 +10,14 @@ class ADCInterface extends Module {
       val LRCLK = Input(Bool()) // ADC LRCIN (from FPGA)
       val bit = Input(UInt(1.W)) // ADC DOUT
 
-      val sample = Output(SInt(16.W))
+      val sample = Output(UInt(16.W))
       val enable = Output(Bool())
     }
   )
 
   val accumulator = RegInit(UInt(16.W), 0.U)
 
-  io.sample := accumulator.do_asSInt
+  io.sample := accumulator
   io.enable := false.B
 
   when(io.LRCLK) { // LRCLK high
