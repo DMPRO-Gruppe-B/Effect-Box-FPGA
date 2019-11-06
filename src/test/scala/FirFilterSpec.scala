@@ -69,6 +69,7 @@ object FirFilerTest {
   class TremoloTest(b: Tremolo) extends PeekPokeTester(b) {
 
     TestUtils.wrapInScript((source, pw) => {
+      poke(b.io.periodMultiplier, 18.U)
       for (line <- source.getLines()) {
         val sample = line.toInt
 
