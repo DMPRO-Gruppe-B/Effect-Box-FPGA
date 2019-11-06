@@ -64,8 +64,8 @@ class Top extends Module {
 
   // Bits to write manually to DAC
   val dacMapHigh: Array[(UInt, UInt)] = Array(
-    0.U  -> 1.U,
-    1.U  -> 0.U,
+    0.U  -> 0.U,
+    1.U  -> 1.U,
     2.U  -> 1.U,
     3.U  -> 1.U,
     4.U  -> 1.U,
@@ -82,21 +82,21 @@ class Top extends Module {
     15.U -> 1.U)
 
   val dacMapLow: Array[(UInt, UInt)] = Array(
-    0.U  -> 1.U,
-    1.U  -> 1.U,
-    2.U  -> 1.U,
-    3.U  -> 1.U,
-    4.U  -> 1.U,
-    5.U  -> 1.U,
-    6.U  -> 1.U,
-    7.U  -> 1.U,
-    8.U  -> 1.U,
-    9.U  -> 1.U,
-    10.U -> 1.U,
-    11.U -> 1.U,
-    12.U -> 1.U,
-    13.U -> 1.U,
-    14.U -> 1.U,
+    0.U  -> 0.U,
+    1.U  -> 0.U,
+    2.U  -> 0.U,
+    3.U  -> 0.U,
+    4.U  -> 0.U,
+    5.U  -> 0.U,
+    6.U  -> 0.U,
+    7.U  -> 0.U,
+    8.U  -> 0.U,
+    9.U  -> 0.U,
+    10.U -> 0.U,
+    11.U -> 0.U,
+    12.U -> 0.U,
+    13.U -> 0.U,
+    14.U -> 0.U,
     15.U -> 1.U)
 
    /*
@@ -122,9 +122,11 @@ class Top extends Module {
     square_wave := square_wave
     bit_count := bit_count
 
+    io.pinout4 := false.B
 
-    when(BCLK) { // BCLK falling edge
-      when(bit_count === 0.U) {
+    when(BCLK) { // BCLK rising edge
+        bit_count := bit_count + 1.U 
+        when(bit_count === 0.U) {
         LRCLK := !LRCLK
         // Only for square wave
         when(wave_count === 79.U) { // 400 Hz
@@ -134,23 +136,28 @@ class Top extends Module {
           wave_count := wave_count + 1.U
         }
       }
-    }.otherwise { // BCLK rising edge
-      when(bit_count === 15.U) {
+      .elsewhen(bit_count === 15.U){
         bit_count := 0.U
-      }.otherwise {
-        bit_count := bit_count + 1.U
       }
-    }
+      .otherwise {
+    }}
 
 
     // Clock outputs to codec
 
     // Either write bitmaps to dacOut
-    /*
+    
     val value = Wire(UInt(1.W))
-    value := Mux(square_wave, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))
+  
+    when(bit_count === 0.U) {
+      value := Mux(square_wave, MuxLookup(15.U, 1.U(1.W), dacMapHigh), MuxLookup(15.U, 1.U(1.W), dacMapLow))
+    }.otherwise {
+      value := Mux(square_wave, MuxLookup(bit_count-1.U, 1.U(1.W), dacMapHigh), MuxLookup(bit_count-1.U, 1.U(1.W), dacMapLow))
+    }
+
+    //value := Mux(square_wave, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))
     io.dacOut := value
-    */
+    
 
     // Or use a Mux
     //io.dacOut := Mux(square_wave && bit_count === 4.U, 0.U, 1.U)
@@ -193,7 +200,7 @@ class Top extends Module {
     io.pinout1 := BCLK
     io.pinout2 := LRCLK
     io.pinout3 := comClock
-    io.pinout4 := LRCLK
+    //io.pinout4 := LRCLK
     // io.pinout5 := dac.enable
     io.pinout6 := io.adcIn
     io.pinout7 := value
