@@ -11,14 +11,14 @@ import chisel3.util.MuxLookup
   */
 class Top extends Module {
   val io = IO(new Bundle {
-    //val pinout0     = Output(Clock())
-    //val pinout1     = Output(Clock())
-    //val pinout2     = Output(UInt(1.W))
-    //val pinout3     = Output(UInt(1.W))
-    //val pinout4     = Output(UInt(1.W))
+    val pinout0     = Output(Clock())
+    val pinout1     = Output(Bool())
+    val pinout2     = Output(Bool())
+    val pinout3     = Output(Clock())
+    val pinout4     = Output(Bool())
     //val pinout5     = Output(UInt(1.W))
-    //val pinout6     = Output(UInt(1.W))
-    //val pinout7     = Output(UInt(1.W))
+    val pinout6     = Output(UInt(1.W))
+    val pinout7     = Output(UInt(1.W))
     //val pinout8     = Output(UInt(1.W))
     //val pinout9     = Output(UInt(1.W))
     val sysClock    = Output(Clock())
@@ -120,13 +120,14 @@ class Top extends Module {
     
     wave_count := wave_count
     square_wave := square_wave
+    bit_count := bit_count
 
 
     when(BCLK) { // BCLK falling edge
       when(bit_count === 0.U) {
         LRCLK := !LRCLK
         // Only for square wave
-        when(wave_count === 159.U) { // 400 Hz
+        when(wave_count === 79.U) { // 400 Hz
           square_wave := !square_wave
           wave_count := 0.U
         }.otherwise {
@@ -141,18 +142,14 @@ class Top extends Module {
       }
     }
 
-    io.sampleClock := LRCLK
-    io.bitClock := BCLK
 
     // Clock outputs to codec
 
     // Either write bitmaps to dacOut
     /*
-    when(LRCLK) { // LEFT
-      io.dacOut := Mux(square_wave, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))   
-    }.otherwise { // RIGHT
-      io.dacOut := Mux(square_wave, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))
-    }
+    val value = Wire(UInt(1.W))
+    value := Mux(square_wave, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))
+    io.dacOut := value
     */
 
     // Or use a Mux
@@ -187,14 +184,19 @@ class Top extends Module {
     }
     */
 
-    //io.pinout0 := sysClock
-    //io.pinout1 := BCLK
-    //io.pinout3 := reset.asBool()
-    //io.pinout2 := LRCLK
-    // io.pinout4 := adc.enable
+    io.sampleClock := LRCLK
+    io.bitClock := BCLK
+    
+    
+
+    io.pinout0 := sysClock
+    io.pinout1 := BCLK
+    io.pinout2 := LRCLK
+    io.pinout3 := comClock
+    io.pinout4 := LRCLK
     // io.pinout5 := dac.enable
-    //io.pinout6 := io.adcIn
-    //io.pinout7 := io.dacOut
+    io.pinout6 := io.adcIn
+    io.pinout7 := value
     //io.pinout8 := io.adcIn
     //io.pinout9 := io.dacOut
   }

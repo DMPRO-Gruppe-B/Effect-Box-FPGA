@@ -34,4 +34,7 @@ class DACInterface extends Module {
       io.bit := sample_reg(15)
     }
   }
+  .otherwise{
+    io.bit := sample_reg(15)
+  }
 }
