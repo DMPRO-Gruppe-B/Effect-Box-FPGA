@@ -3,7 +3,7 @@ package EffectBox
 import chisel3._
 import chisel3.util.Counter
 
-class FirFilerControl extends Bundle {
+class FirFilterControl extends Bundle {
   val bypass = Input(Bool())
 }
 
@@ -14,7 +14,7 @@ class FirFilter(bitWidth: Int, coeffs: Seq[SInt]) extends Module {
     val in = Input(SInt(bitWidth.W))
     val out = Output(SInt(bitWidth.W))
   })
-  val ctrl = IO(new FirFilerControl)
+  val ctrl = IO(new FirFilterControl)
 
   when (ctrl.bypass){
     io.out := io.in

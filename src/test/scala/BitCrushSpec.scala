@@ -20,7 +20,6 @@ class BitCrushSpec extends FlatSpec with Matchers {
       new CrushBitsFromFile(b)
     } should be(true)
   }
-
   it should "Bypass signal" in {
     chisel3.iotesters.Driver(() => new BitCrush) { b => 
       new NotCrushesBits(b)
@@ -36,8 +35,8 @@ object BitCrushTest {
     println(inputs.mkString("[", "] [", "]"))
     println(expectedOutput.mkString("[", "] [", "]"))
 
-    poke(b.io.bypass, false.B)
-    poke(b.io.nCrushBits, 4)
+    poke(b.ctrl.bypass, false.B)
+    poke(b.ctrl.nCrushBits, 4)
 
     for (ii <- 0 until inputs.length) {
       poke(b.io.dataIn, inputs(ii))
@@ -48,8 +47,8 @@ object BitCrushTest {
 
   class CrushBitsFromFile(b: BitCrush) extends PeekPokeTester(b) {
    
-      poke(b.io.bypass, false.B)
-      poke(b.io.nCrushBits, 4)
+      poke(b.ctrl.bypass, false.B)
+      poke(b.ctrl.nCrushBits, 4)
 
       FileUtils.readWrite("sound.txt", "new_sound.txt", 
         poke(b.io.dataIn, _),
@@ -65,8 +64,8 @@ object BitCrushTest {
     println("Not Crush Bits...")
     println(inputs.mkString("[", "] [", "]"))
 
-    poke(b.io.bypass, true.B)
-    poke(b.io.nCrushBits, 4)
+    poke(b.ctrl.bypass, true.B)
+    poke(b.ctrl.nCrushBits, 4)
 
     for (ii <- 0 until inputs.length) {
       poke(b.io.dataIn, inputs(ii))
@@ -74,8 +73,6 @@ object BitCrushTest {
       step(1)
     }
   }
-
-
 }
 
 
