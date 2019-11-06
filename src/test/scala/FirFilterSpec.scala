@@ -74,7 +74,7 @@ object FirFilerTest {
   class TremoloTest(b: Tremolo) extends PeekPokeTester(b) {
 
     TestUtils.wrapInScript((source, pw) => {
-      poke(b.io.periodMultiplier, 18.U)
+      poke(b.ctrl.periodMultiplier, 18.U)
       for (line <- source.getLines()) {
         val sample = line.toInt
 
@@ -99,7 +99,7 @@ object FirFilerTest {
 
 
     for (ii <- inputs.indices) {
-      poke(b.io.bypass, false.B)
+      poke(b.ctrl.bypass, false.B)
       poke(b.io.in, inputs(ii))
       // expect(b.io.dataOut, expectedOutput(ii))
       step(1)
@@ -107,7 +107,7 @@ object FirFilerTest {
   }
   class DelayFromFile(b: DelayFilter) extends PeekPokeTester(b) {
 
-    poke(b.io.bypass, false.B)
+    poke(b.ctrl.bypass, false.B)
 
     FileUtils.readWrite("sound.txt", "fir_sound.txt",
         poke(b.io.in, _),
@@ -126,8 +126,8 @@ object FirFilerTest {
 
  class CrushBitsFromFile(b: BitCrush, bypass: Boolean, outname: String) extends PeekPokeTester(b) {
 
-    poke(b.io.bypass, bypass.B)
-    poke(b.io.nCrushBits, 4)
+    poke(b.ctrl.bypass, bypass.B)
+    poke(b.ctrl.nCrushBits, 4)
 
     FileUtils.readWrite("sound.txt", outname,
       poke(b.io.dataIn, _),
@@ -143,7 +143,7 @@ object FirFilerTest {
     println("Not Delay...")
     println(inputs.mkString("[", "] [", "]"))
 
-    poke(b.io.bypass, true.B)
+    poke(b.ctrl.bypass, true.B)
 
     for (ii <- 0 until inputs.length) {
       poke(b.io.in, inputs(ii))

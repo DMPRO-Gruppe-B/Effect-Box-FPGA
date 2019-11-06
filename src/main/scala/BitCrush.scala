@@ -2,6 +2,10 @@ package EffectBox
 
 import chisel3._
 
+class BitCrushControl extends Bundle {
+  val nCrushBits = Input(UInt(4.W))
+  val bypass = Input(Bool())
+}
 
 class BitCrush extends Module {
   val io = IO(
@@ -13,11 +17,13 @@ class BitCrush extends Module {
       val dataOut     = Output(SInt(16.W))
     }
   )
-  when (io.bypass) {
+  val ctrl = IO(new BitCrushControl)
+
+  when (ctrl.bypass) {
     io.dataOut := io.dataIn
   } .otherwise {
 
-    val mask = 0xffff.S << io.nCrushBits
+    val mask = 0xffff.S << ctrl.nCrushBits
     io.dataOut := io.dataIn & mask.toSInt
   }
 }

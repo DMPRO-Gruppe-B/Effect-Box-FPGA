@@ -3,16 +3,20 @@ package EffectBox
 import chisel3._
 import chisel3.util.Counter
 
+class FirFilerControl extends Bundle {
+  val bypass = Input(Bool())
+}
+
 // https://www.chisel-lang.org/
 // Generalized FIR filter parameterized by the convolution coefficients
 class FirFilter(bitWidth: Int, coeffs: Seq[SInt]) extends Module {
   val io = IO(new Bundle {
-    val bypass = Input(Bool())
     val in = Input(SInt(bitWidth.W))
     val out = Output(SInt(bitWidth.W))
   })
+  val ctrl = IO(new FirFilerControl)
 
-  when (io.bypass){
+  when (ctrl.bypass){
     io.out := io.in
   } .otherwise {
 
