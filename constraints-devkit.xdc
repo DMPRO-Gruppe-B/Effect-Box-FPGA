@@ -7,9 +7,29 @@ set_property CFGBVS VCCO [current_design]
 
 ## Clock
 
+# Main clock
 set_property -dict {PACKAGE_PIN E3  IOSTANDARD LVCMOS33} [get_ports { clock }];
-create_clock -add -name sys_clk_pin -period 10.00 \
-    -waveform {0 5} [get_ports {clock }];
+create_clock -add -name sys_clk_pin -period 10.0 \
+    -waveform {0 5} [get_ports { clock }];
+
+## Derived clocks
+
+## Sysclock IO41
+#set_property -dict {PACKAGE_PIN N17  IOSTANDARD LVCMOS33} [get_ports { io_sysClk }];
+#create_clock -add -name dac_sys_clk_pin -period 122.1 \
+#    -waveform {0 5} [get_ports { io_sysClk }];
+#
+## BitClock IO40
+#set_property -dict {PACKAGE_PIN P18  IOSTANDARD LVCMOS33} [get_ports { io_bitClk }];
+##create_clock -add -name dac_bit_clk_pin -period 976.56 \
+##    -waveform {0 5} [get_ports { io_bitClk }];
+#create_generated_clock -add -name dac_bit_clk_pin -divide_by 8 \
+#    -source [get_ports {io_sysClk}] [get_ports { io_bitClk }];
+#
+#
+## Test output IO39
+#set_property -dict {PACKAGE_PIN R18  IOSTANDARD LVCMOS33} [get_ports { io_testOut }];
+
 
 
 ## Reset (use the one that works for you)
