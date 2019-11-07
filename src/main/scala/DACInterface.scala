@@ -21,6 +21,9 @@ class DACInterface extends Module {
 
   when(!io.BCLK) {
     io.bit := sample_reg(15)
+
+    // Need to use temp variable, because accumulator of type RegNext can't infer width when shifting
+    // This should be changed to make the accumulator have explicit width
     val temp = Wire(UInt(16.W))
     temp := sample_reg << 1
 
