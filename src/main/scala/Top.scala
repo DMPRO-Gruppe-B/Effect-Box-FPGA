@@ -145,26 +145,33 @@ class Top extends Module {
     //io.dacOut := Mux(square_wave && bit_count === 4.U, 0.U, 1.U)
 
     // Or try ADC -> DAC
-    val codec = Module(new Codec).io
-
-    codec.BCLK := BCLK
-    codec.LRCLK := LRCLK
-    codec.bit_count := bit_count
-    codec.adc_in := io.adcIn
-    codec.dac_out := io.dacOut
+    // val codec = Module(new Codec).io
+    // codec.BCLK := BCLK
+    // codec.LRCLK := LRCLK
+    // codec.bit_count := bit_count
+    // codec.adc_in := io.adcIn
+    // codec.dac_out := io.dacOut
     
-    /* OLD STUFF
+    // /* ADC -> DAC without Codec module
     val adc = Module(new ADCInterface).io
     val dac = Module(new DACInterface).io
 
-    adc.bit := io.adcIn
-    adc.LRCLK := LRCLK
+    val enable = Wire(Bool())
+    enable := Mux(bit_count === 0.U, true.B, false.B)
+    // when(bit_count === 0.U) { enable := true.B }.otherwise{ enable := false.B }
+
     adc.BCLK := BCLK
-
-    io.dacOut := dac.bit
-    dac.LRCLK := LRCLK
+    adc.LRCLK := LRCLK
+    adc.bit := io.adcIn
+  
     dac.BCLK := BCLK
+    dac.enable := enable
+    io.dacOut := dac.bit
+  
+    dac.sample := adc.sample
 
+
+    /* OLD STUFF
     val sample_buffer = RegInit(UInt(16.W), 0.U)
 
     // Overwrite stored sample when ADC is ready
