@@ -66,11 +66,22 @@ class Top extends Module {
     * Clock domain comClock = 2 x bitClock
     */
 
+  val bitCrush = Module(new BitCrush).io
+
+
+  val codec = withClock(comClock){Module(new Codec).io}
+
+  bitCrush.dataIn := codec.adc_out.do_asSInt
+  bitCrush.nCrushBits := 8.U
+  bitCrush.bypass := false.B
+  
   withClock(comClock) {
 
-    val codec = Module(new Codec).io
     codec.adc_in := io.adcIn
+    codec.dac_in := bitCrush.dataOut.do_asUInt
     io.dacOut := codec.dac_out
+
+    
 
     // Clock outputs to codec
     io.sampleClock := codec.LRCLK
@@ -84,8 +95,10 @@ class Top extends Module {
     //io.pinout4 := dac.debug
     //io.pinout5 := adc.debug
     io.pinout6 := io.adcIn
-    io.pinout7 := io.dacOut
+    io.pinout7 := codec.dac_out
     //io.pinout8 := io.adcIn
     //io.pinout9 := io.dacOut
   }
+
+  
 }

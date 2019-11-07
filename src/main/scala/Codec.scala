@@ -6,10 +6,13 @@ class Codec extends Module {
   val io = IO(
     new Bundle {
       val adc_in = Input(UInt(1.W))
+      val dac_in  = Input(UInt(16.W))
 
       val BCLK    = Output(Bool())
       val LRCLK   = Output(Bool())
+      val adc_out = Output(UInt(16.W))
       val dac_out = Output(UInt(1.W))
+      val ready   = Output(Bool())
     }
   )
 
@@ -17,7 +20,7 @@ class Codec extends Module {
   val LRCLK = RegNext(true.B)
 
   // Bør være 4.W, men whatever, tør ikke endre uten å teste
-  val bit_count = RegNext(0.U(6.W))   // Every other clock cycle = bit index in sample from MSB
+  val bit_count = RegNext(0.U(4.W))   // Every other clock cycle = bit index in sample from MSB
   
   BCLK := !BCLK
   LRCLK := LRCLK
@@ -44,9 +47,12 @@ class Codec extends Module {
 
   dac.BCLK := BCLK
   dac.enable := enable
-  io.dac_out := dac.bit
+  dac.sample := io.dac_in
 
-  dac.sample := adc.sample
+  io.dac_out := dac.bit
+  io.adc_out := adc.sample
+  io.ready := dac.ready
+
 
   io.BCLK := BCLK
   io.LRCLK := LRCLK

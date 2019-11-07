@@ -10,6 +10,7 @@ class DACInterface extends Module {
       val sample = Input(UInt(16.W))
 
       val bit = Output(UInt(1.W))
+      val ready = Output(Bool())
     }
   )
 
@@ -18,6 +19,7 @@ class DACInterface extends Module {
   io.bit := prev_bit
 
   sample_reg := sample_reg
+  io.ready := false.B
 
   when(!io.BCLK) {
     io.bit := sample_reg(15)
@@ -30,6 +32,7 @@ class DACInterface extends Module {
     sample_reg := temp
     
     when(io.enable) {
+      io.ready := true.B
       io.bit := io.sample(15)
       sample_reg := io.sample << 1
     }
