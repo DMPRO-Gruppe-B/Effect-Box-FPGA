@@ -15,7 +15,7 @@ class Top extends Module {
     val pinout1     = Output(Bool())
     val pinout2     = Output(Bool())
     val pinout3     = Output(Clock())
-    val pinout4     = Output(Bool())
+    // val pinout4     = Output(Bool())
     //val pinout5     = Output(UInt(1.W))
     val pinout6     = Output(UInt(1.W))
     val pinout7     = Output(UInt(1.W))
@@ -105,14 +105,14 @@ class Top extends Module {
 
   withClock(comClock) {
 
-    val BCLK = RegNext(true.B)
+    val BCLK = RegNext(false.B)
     val LRCLK = RegNext(true.B)
 
     val bit_count = RegNext(0.U(6.W))   // Every other clock cycle = bit index in sample from MSB
     
     BCLK := !BCLK
     LRCLK := LRCLK
-
+    bit_count := bit_count
     
     // Only necessary for testing DAC with square wave
     val wave_count = RegNext(0.U(16.W)) // Every half sample
@@ -120,44 +120,25 @@ class Top extends Module {
     
     wave_count := wave_count
     square_wave := square_wave
-    bit_count := bit_count
 
-    io.pinout4 := false.B
-
-    when(BCLK) { // BCLK rising edge
-        bit_count := bit_count + 1.U 
-        when(bit_count === 0.U) {
+    when(BCLK) {
+      bit_count := bit_count + 1.U
+      when(bit_count === 15.U) {
         LRCLK := !LRCLK
-        // Only for square wave
+        bit_count := 0.U
+        // Square wave
+        wave_count := wave_count + 1.U // sjekk at dette funker uten otherwise...
         when(wave_count === 79.U) { // 400 Hz
           square_wave := !square_wave
           wave_count := 0.U
-        }.otherwise {
-          wave_count := wave_count + 1.U
         }
       }
-      .elsewhen(bit_count === 15.U){
-        bit_count := 0.U
-      }
-      .otherwise {
-    }}
-
-
-    // Clock outputs to codec
-
-    // Either write bitmaps to dacOut
-    
-    val value = Wire(UInt(1.W))
-  
-    when(bit_count === 0.U) {
-      value := Mux(square_wave, MuxLookup(15.U, 1.U(1.W), dacMapHigh), MuxLookup(15.U, 1.U(1.W), dacMapLow))
-    }.otherwise {
-      value := Mux(square_wave, MuxLookup(bit_count-1.U, 1.U(1.W), dacMapHigh), MuxLookup(bit_count-1.U, 1.U(1.W), dacMapLow))
     }
 
-    //value := Mux(square_wave, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))
+    // Either write bitmaps to dacOut
+    val value = Wire(UInt(1.W))
+    value := Mux(square_wave, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))
     io.dacOut := value
-    
 
     // Or use a Mux
     //io.dacOut := Mux(square_wave && bit_count === 4.U, 0.U, 1.U)
@@ -176,13 +157,13 @@ class Top extends Module {
 
     val sample_buffer = RegInit(UInt(16.W), 0.U)
 
-    //Overwrite stored sample when ADC is ready
+    // Overwrite stored sample when ADC is ready
     when(adc.enable) {
       sample_buffer := adc.sample // Store sample for left channel
       dac.sample := adc.sample    // Write sample to right channel immediately
     }
 
-     //Either drive DAC sample input with stored sample
+     // Either drive DAC sample input with stored sample
     dac.sample := sample_buffer
 
     // Or drive DAC sample input only on DAC enable signal
@@ -191,16 +172,16 @@ class Top extends Module {
     }
     */
 
+    // Clock outputs to codec
     io.sampleClock := LRCLK
     io.bitClock := BCLK
     
-    
-
+    // Pinouts
     io.pinout0 := sysClock
     io.pinout1 := BCLK
     io.pinout2 := LRCLK
     io.pinout3 := comClock
-    //io.pinout4 := LRCLK
+    // io.pinout4 := false.B
     // io.pinout5 := dac.enable
     io.pinout6 := io.adcIn
     io.pinout7 := value
