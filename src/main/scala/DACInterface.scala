@@ -14,6 +14,9 @@ class DACInterface extends Module {
   )
 
   val sample_reg = RegInit(UInt(16.W), 0.U)
+  val prev_bit = RegNext(io.bit)
+
+  io.bit := prev_bit
 
   when(!io.BCLK) {
     io.bit := sample_reg(15)
