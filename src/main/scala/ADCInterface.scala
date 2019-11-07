@@ -13,11 +13,15 @@ class ADCInterface extends Module {
     }
   )
 
-  val accumulator = RegInit(UInt(16.W), 0.U)
+  val accumulator = RegNext(0.U(16.W))
+  accumulator := accumulator
 
   io.sample := accumulator
 
   when(io.LRCLK && io.BCLK) {
-    accumulator := (accumulator << 1) + io.bit
+    val temp = Wire(UInt(16.W))
+    temp := accumulator << 1
+    accumulator := temp + io.bit
   }
+  
 }

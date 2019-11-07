@@ -15,8 +15,8 @@ class Top extends Module {
     val pinout1     = Output(Bool())
     val pinout2     = Output(Bool())
     val pinout3     = Output(Clock())
-    // val pinout4     = Output(Bool())
-    //val pinout5     = Output(UInt(1.W))
+    val pinout4     = Output(UInt(1.W))
+    val pinout5     = Output(UInt(1.W))
     val pinout6     = Output(UInt(1.W))
     val pinout7     = Output(UInt(1.W))
     //val pinout8     = Output(UInt(1.W))
@@ -198,8 +198,8 @@ class Top extends Module {
     io.pinout1 := BCLK
     io.pinout2 := LRCLK
     io.pinout3 := comClock
-    // io.pinout4 := false.B
-    // io.pinout5 := dac.enable
+    //io.pinout4 := dac.debug
+    //io.pinout5 := adc.debug
     io.pinout6 := io.adcIn
     io.pinout7 := io.dacOut
     //io.pinout8 := io.adcIn
