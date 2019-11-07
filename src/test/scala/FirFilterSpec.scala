@@ -91,8 +91,8 @@ object FirFilerTest {
 
  class CrushBitsFromFile(b: BitCrush, bypass: Boolean, outname: String) extends PeekPokeTester(b) {
 
-    poke(b.ctrl.bypass, bypass.B)
-    poke(b.ctrl.nCrushBits, 4)
+    poke(b.io.ctrl.bypass, bypass.B)
+    poke(b.io.ctrl.nCrushBits, 4)
 
     FileUtils.readWrite("sound.txt", outname,
       poke(b.io.dataIn, _),

@@ -35,8 +35,8 @@ object BitCrushTest {
     println(inputs.mkString("[", "] [", "]"))
     println(expectedOutput.mkString("[", "] [", "]"))
 
-    poke(b.ctrl.bypass, false.B)
-    poke(b.ctrl.nCrushBits, 4)
+    poke(b.io.ctrl.bypass, false.B)
+    poke(b.io.ctrl.nCrushBits, 4)
 
     for (ii <- 0 until inputs.length) {
       poke(b.io.dataIn, inputs(ii))
@@ -47,8 +47,8 @@ object BitCrushTest {
 
   class CrushBitsFromFile(b: BitCrush) extends PeekPokeTester(b) {
    
-      poke(b.ctrl.bypass, false.B)
-      poke(b.ctrl.nCrushBits, 4)
+      poke(b.io.ctrl.bypass, false.B)
+      poke(b.io.ctrl.nCrushBits, 4)
 
       FileUtils.readWrite("sound.txt", "new_sound.txt", 
         poke(b.io.dataIn, _),
@@ -58,14 +58,14 @@ object BitCrushTest {
   }
   
   class NotCrushesBits(b: BitCrush) extends PeekPokeTester(b) {
-    
+
     val inputs          = List(0x044f, 0x0218, 0x0eef, 0x0ace)
     
     println("Not Crush Bits...")
     println(inputs.mkString("[", "] [", "]"))
 
-    poke(b.ctrl.bypass, true.B)
-    poke(b.ctrl.nCrushBits, 4)
+    poke(b.io.ctrl.bypass, true.B)
+    poke(b.io.ctrl.nCrushBits, 4)
 
     for (ii <- 0 until inputs.length) {
       poke(b.io.dataIn, inputs(ii))
