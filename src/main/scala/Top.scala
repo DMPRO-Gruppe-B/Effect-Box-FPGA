@@ -108,6 +108,7 @@ class Top extends Module {
     val BCLK = RegNext(false.B)
     val LRCLK = RegNext(true.B)
 
+    // Bør være 4.W, men whatever, tør ikke endre uten å teste
     val bit_count = RegNext(0.U(6.W))   // Every other clock cycle = bit index in sample from MSB
     
     BCLK := !BCLK
@@ -136,14 +137,23 @@ class Top extends Module {
     }
 
     // Either write bitmaps to dacOut
-    val value = Wire(UInt(1.W))
-    value := Mux(square_wave, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))
-    io.dacOut := value
+    // val value = Wire(UInt(1.W))
+    // value := Mux(square_wave, MuxLookup(bit_count, 1.U(1.W), dacMapHigh), MuxLookup(bit_count, 1.U(1.W), dacMapLow))
+    // io.dacOut := value
 
     // Or use a Mux
     //io.dacOut := Mux(square_wave && bit_count === 4.U, 0.U, 1.U)
 
-    /*
+    // Or try ADC -> DAC
+    val codec = Module(new Codec).io
+
+    codec.BCLK := BCLK
+    codec.LRCLK := LRCLK
+    codec.bit_count := bit_count
+    codec.adc_in := io.adcIn
+    codec.dac_out := io.dacOut
+    
+    /* OLD STUFF
     val adc = Module(new ADCInterface).io
     val dac = Module(new DACInterface).io
 
@@ -184,7 +194,7 @@ class Top extends Module {
     // io.pinout4 := false.B
     // io.pinout5 := dac.enable
     io.pinout6 := io.adcIn
-    io.pinout7 := value
+    io.pinout7 := io.dacOut
     //io.pinout8 := io.adcIn
     //io.pinout9 := io.dacOut
   }
