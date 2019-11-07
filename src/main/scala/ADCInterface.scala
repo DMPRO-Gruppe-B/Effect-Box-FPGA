@@ -19,6 +19,8 @@ class ADCInterface extends Module {
   io.sample := accumulator
 
   when(io.LRCLK && io.BCLK) {
+    // Need to use temp variable, because accumulator of type RegNext can't infer width when shifting
+    // This should be changed to make the accumulator have explicit width
     val temp = Wire(UInt(16.W))
     temp := accumulator << 1
     accumulator := temp + io.bit
