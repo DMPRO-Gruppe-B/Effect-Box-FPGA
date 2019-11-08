@@ -7,8 +7,20 @@ import chisel3.core.withReset
 
 class SPITest extends Module {
   val io = IO(new Bundle {
-    val led = Output(UInt(4.W))
-    val pinout = Output(UInt(16.W))
+    val pinout0 = Output(Bool())
+    //val pinout1 = Output(Bool())
+    //val pinout2 = Output(Bool())
+    val pinout3 = Output(Bool())
+    //val pinout4     = Output(UInt(1.W))
+    //val pinout5     = Output(UInt(1.W))
+    //val pinout6 = Output(UInt(1.W))
+    //val pinout7 = Output(UInt(1.W))
+
+    // LEDs
+    val pinout12 = Output(UInt(1.W))
+    val pinout13 = Output(UInt(1.W))
+    val pinout14 = Output(UInt(1.W))
+    //val pinout15 = Output(UInt(1.W))
 
     val spi = new SPIBus
   })
@@ -23,10 +35,14 @@ class SPITest extends Module {
     bitCrush.io.dataIn := 0.S
 
     val ledreg = RegInit(0.U(4.W))
-    when (effectControl.debug.slave_output_valid) {
+    when(effectControl.debug.slave_output_valid) {
       ledreg := effectControl.debug.slave_output(3, 0)
     }
-    io.led := ledreg
-    io.pinout := Vec(io.spi.cs_n, false.B, false.B, effectControl.debug.slave_output_valid).asUInt()
+    io.pinout12 := ledreg(0)
+    io.pinout13 := ledreg(1)
+    io.pinout14 := ledreg(2)
+    //io.pinout15 := ledreg(3)
+    io.pinout0 := io.spi.cs_n
+    io.pinout3 := effectControl.debug.slave_output_valid
   }
 }

@@ -36,24 +36,23 @@ set_property -dict {PACKAGE_PIN M14 IOSTANDARD LVCMOS33} [get_ports { io_adcIn }
 set_property -dict {PACKAGE_PIN K13 IOSTANDARD LVCMOS33} [get_ports { io_dacOut }];
 
 
-## Pinout
 # Test pins
-set_property -dict {PACKAGE_PIN P14  IOSTANDARD LVCMOS33} [get_ports { io_pinout[0] }];
-set_property -dict {PACKAGE_PIN N11  IOSTANDARD LVCMOS33} [get_ports { io_pinout[1] }];
-set_property -dict {PACKAGE_PIN N12  IOSTANDARD LVCMOS33} [get_ports { io_pinout[2] }];
-set_property -dict {PACKAGE_PIN P10  IOSTANDARD LVCMOS33} [get_ports { io_pinout[3] }];
-set_property -dict {PACKAGE_PIN P11  IOSTANDARD LVCMOS33} [get_ports { io_pinout[4] }];
-set_property -dict {PACKAGE_PIN R12  IOSTANDARD LVCMOS33} [get_ports { io_pinout[5] }];
-set_property -dict {PACKAGE_PIN T12  IOSTANDARD LVCMOS33} [get_ports { io_pinout[6] }];
-set_property -dict {PACKAGE_PIN R13  IOSTANDARD LVCMOS33} [get_ports { io_pinout[7] }];
-set_property -dict {PACKAGE_PIN T13  IOSTANDARD LVCMOS33} [get_ports { io_pinout[8] }];
-set_property -dict {PACKAGE_PIN R10  IOSTANDARD LVCMOS33} [get_ports { io_pinout[9] }];
-set_property -dict {PACKAGE_PIN R11  IOSTANDARD LVCMOS33} [get_ports { io_pinout[10] }];
-set_property -dict {PACKAGE_PIN N9   IOSTANDARD LVCMOS33} [get_ports { io_pinout[11] }];
-set_property -dict {PACKAGE_PIN P9   IOSTANDARD LVCMOS33} [get_ports { io_pinout[12] }];
-set_property -dict {PACKAGE_PIN M6   IOSTANDARD LVCMOS33} [get_ports { io_pinout[13] }];
-set_property -dict {PACKAGE_PIN N6   IOSTANDARD LVCMOS33} [get_ports { io_pinout[14] }];
-set_property -dict {PACKAGE_PIN P8   IOSTANDARD LVCMOS33} [get_ports { io_pinout[15] }];
+set_property -dict {PACKAGE_PIN P14  IOSTANDARD LVCMOS33} [get_ports { io_pinout0 }];
+set_property -dict {PACKAGE_PIN N11  IOSTANDARD LVCMOS33} [get_ports { io_pinout1 }];
+set_property -dict {PACKAGE_PIN N12  IOSTANDARD LVCMOS33} [get_ports { io_pinout2 }];
+set_property -dict {PACKAGE_PIN P10  IOSTANDARD LVCMOS33} [get_ports { io_pinout3 }];
+set_property -dict {PACKAGE_PIN P11  IOSTANDARD LVCMOS33} [get_ports { io_pinout4 }];
+set_property -dict {PACKAGE_PIN R12  IOSTANDARD LVCMOS33} [get_ports { io_pinout5 }];
+set_property -dict {PACKAGE_PIN T12  IOSTANDARD LVCMOS33} [get_ports { io_pinout6 }];
+set_property -dict {PACKAGE_PIN R13  IOSTANDARD LVCMOS33} [get_ports { io_pinout7 }];
+set_property -dict {PACKAGE_PIN T13  IOSTANDARD LVCMOS33} [get_ports { io_pinout8 }];
+set_property -dict {PACKAGE_PIN R10  IOSTANDARD LVCMOS33} [get_ports { io_pinout9 }];
+set_property -dict {PACKAGE_PIN R11  IOSTANDARD LVCMOS33} [get_ports { io_pinout10 }];
+set_property -dict {PACKAGE_PIN N9   IOSTANDARD LVCMOS33} [get_ports { io_pinout11 }];
+set_property -dict {PACKAGE_PIN P9   IOSTANDARD LVCMOS33} [get_ports { io_pinout12 }];
+set_property -dict {PACKAGE_PIN M6   IOSTANDARD LVCMOS33} [get_ports { io_pinout13 }];
+set_property -dict {PACKAGE_PIN N6   IOSTANDARD LVCMOS33} [get_ports { io_pinout14 }];
+#set_property -dict {PACKAGE_PIN P8   IOSTANDARD LVCMOS33} [get_ports { io_pinout15 }];
 
 # MCU spi
 set_property -dict {PACKAGE_PIN T14  IOSTANDARD LVCMOS33} [get_ports { io_spi_clk }];
