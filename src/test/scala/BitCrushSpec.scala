@@ -10,6 +10,11 @@ class BitCrushSpec extends FlatSpec with Matchers {
 
   behavior of "BitCrush"
 
+  it should "Signed 0x0 should be 0x0" in {
+    chisel3.iotesters.Driver(() => new BitCrush) { b =>
+      new ZeroCrushed(b)
+    } should be(true)
+  }
   it should "Set least segnificat 4 bits to 0" in {
     chisel3.iotesters.Driver(() => new BitCrush) { b => 
       new CrushesBits(b)
@@ -29,6 +34,19 @@ class BitCrushSpec extends FlatSpec with Matchers {
 }
 
 object BitCrushTest {
+
+  class ZeroCrushed(b: BitCrush) extends PeekPokeTester(b) {
+
+    poke(b.io.bypass, false.B)
+    poke(b.io.nCrushBits, 8)
+
+    for (_ <- 0 until 100) {
+      poke(b.io.dataIn, 0.S)
+      step(1)
+      expect(b.io.dataOut, 0.S)
+    }
+
+  }
   class CrushesBits(b: BitCrush) extends PeekPokeTester(b) {
     val inputs          = List(0x044f, 0x0218, 0x0eef, 0x5ace, -4)
     val expectedOutput  = List(0x0440, 0x0210, 0x0ee0, 0x5ac0, -16)
