@@ -1,8 +1,8 @@
 package EffectBox
 
-import blackboxes._
 import chisel3._
 import chisel3.core.withReset
+import io.SPIBus
 
 
 class SPITest extends Module {

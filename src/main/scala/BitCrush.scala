@@ -3,6 +3,10 @@ package EffectBox
 import chisel3._
 import chisel3.experimental.MultiIOModule
 
+class BitCrushControl extends Bundle {
+  val nCrushBits = Input(UInt(4.W))
+  val bypass = Input(Bool())
+}
 
 class BitCrush extends MultiIOModule {
   val io = IO(

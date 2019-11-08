@@ -2,9 +2,8 @@ package EffectBox
 
 import chisel3._
 import chisel3.core.withClock
-import blackboxes.{MMCME2, ClockConfig, BRAM}
-import chisel3.internal.firrtl.Width
-import chisel3.util.MuxLookup
+import blackboxes.{ClockConfig, MMCME2}
+import io.SPIBus
 
 /**
   * A test for using multiple clocks at the same time
@@ -21,11 +20,20 @@ class Top extends Module {
     val pinout7     = Output(UInt(1.W))
     //val pinout8     = Output(UInt(1.W))
     //val pinout9     = Output(UInt(1.W))
+
+    // LEDs on devkit
+    //val pinout12 = Output(UInt(1.W))
+    //val pinout13 = Output(UInt(1.W))
+    //val pinout14 = Output(UInt(1.W))
+    //val pinout15 = Output(UInt(1.W))
+
     val sysClock    = Output(Clock())
     val bitClock    = Output(Bool())
     val sampleClock = Output(Bool())
     val adcIn       = Input(UInt(1.W))
     val dacOut     = Output(UInt(1.W))
+
+    //val spi = new SPIBus
   })
 
 
@@ -88,4 +96,6 @@ class Top extends Module {
     //io.pinout8 := io.adcIn
     //io.pinout9 := io.dacOut
   }
+
+
 }

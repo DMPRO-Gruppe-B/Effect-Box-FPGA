@@ -1,15 +1,8 @@
 package EffectBox
 
-import blackboxes.{SPIBus, SPISlave}
 import chisel3._
 import chisel3.experimental.MultiIOModule
-import chisel3.util._
-
-
-class BitCrushControl extends Bundle {
-  val nCrushBits = Input(UInt(4.W))
-  val bypass = Input(Bool())
-}
+import io.{SPIBus, SPISlave}
 
 class EffectControl extends MultiIOModule {
   val spi = IO(new SPIBus)

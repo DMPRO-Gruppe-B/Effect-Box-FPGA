@@ -2,8 +2,8 @@
 #TOP_MODULE  := BRAMTest
 TOP_MODULE  := FPGATest
 TOP_MODULE  := BRAMTest
-TOP_MODULE  := Top
 TOP_MODULE  := SPITest
+TOP_MODULE  := Top
 XILINX_PART := xc7a100tftg256-1# the chip on our pcb
 
 CFGMEM_PART := s25fl128sxxxxxx0-spi-x1_x2_x4
