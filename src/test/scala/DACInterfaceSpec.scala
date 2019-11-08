@@ -29,13 +29,22 @@ object DACTest {
     val filename = "sound.txt"
 
       for (line <- FileUtils.getLines(filename)) {
-        poke(b.io.LRCLK, true)
-        poke(b.io.sample, line.toInt)
+        poke(b.io.sample, line.toInt.asUInt(16.W))
 
+        var first = true
+<<<<<<< HEAD
         for (bit <- (TestUtils.toBinaryString(line.toInt, 16))) {
-            //println(bit.toInt.toString)
+          
+            if(first == true){
+              expect(b.io.enable,true)
+              first = !first
+            }
+            else{
+              expect(b.io.enable,false)
+            }
+
             step(1)
-            expect(b.io.enable,true)
+            
             expect(b.io.bit_left,bit.toString.toInt)
         }
         
@@ -44,7 +53,34 @@ object DACTest {
           poke(b.io.sample, 0.S)
           step(1)
           expect(b.io.enable,false)
+=======
+
+        var dacString = ""
+        var bitString = ""
+        
+        for (bit <- (TestUtils.toBinaryString(line.toInt, 16))) {
+            if(first == true){
+              poke(b.io.enable,true.B)
+              first = false
+            }
+            else{
+              poke(b.io.enable,false.B)
+            }
+            poke(b.io.BCLK, false.B)
+            step(1)
+
+            bitString = bitString + bit
+            dacString = dacString + peek(b.io.bit).toString
+
+            //println(peek(b.io.bit).toString)
+            poke(b.io.BCLK,true.B)
+            step(1)
+>>>>>>> adc-dac-16
         }
+
+        println("bit: " + bitString)
+        println("dac: " + dacString)
+        println("")
     }
   }
 }

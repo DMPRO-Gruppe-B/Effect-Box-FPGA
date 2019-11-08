@@ -30,7 +30,7 @@ object DelayTest{
     val delayTime = 0.5
     val bufferSize = sampleRate*delayTime
 
-    val fbFractionReduce = new FractionReduce(0.9)
+    val fbFractionReduce = new FractionReduce(0.5)
     val mixFractionReduce = new FractionReduce(0.5)
 
     poke(b.io.fbNum,fbFractionReduce.numUInt)

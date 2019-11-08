@@ -7,20 +7,36 @@ set_property CFGBVS VCCO [current_design]
 
 ## Clock
 
-set_property -dict {PACKAGE_PIN E3  IOSTANDARD LVCMOS33} [get_ports { clock }];
+set_property -dict {PACKAGE_PIN N14  IOSTANDARD LVCMOS33} [get_ports { clock }];
 create_clock -add -name sys_clk_pin -period 62.5 \
     -waveform {0 5} [get_ports { clock }];
 
+set_property -dict {PACKAGE_PIN L15  IOSTANDARD LVCMOS33} [get_ports { io_sysClock }];
+create_clock -add -name dac_sys_clk_pin -period 122.1 \
+    -waveform {0 5} [get_ports { io_sysClock }];
+
+set_property -dict {PACKAGE_PIN L14  IOSTANDARD LVCMOS33} [get_ports { io_bitClock }];
+create_generated_clock -master_clock sys_clk_pin -add -name dac_bit_clk_pin -divide_by 4 \
+    -source [get_ports { io_sysClock }] [get_ports { io_bitClock }];
+
+set_property -dict {PACKAGE_PIN M15  IOSTANDARD LVCMOS33} [get_ports { io_sampleClock }];
+create_generated_clock -master_clock sys_clk_pin -add -name dac_sample_clk_pin -divide_by 32 \
+    -source [get_ports { io_bitClock }] [get_ports { io_sampleClock }];
 
 ## Reset (use the one that works for you)
 
-#set_property -dict {PACKAGE_PIN C2  IOSTANDARD LVCMOS33} [get_ports { reset }];
+set_property -dict {PACKAGE_PIN P8  IOSTANDARD LVCMOS33} [get_ports { reset }];
+set_property DRIVE 8 [get_ports { reset }];
+
+
+## DAC/ADC
+
+set_property -dict {PACKAGE_PIN M14 IOSTANDARD LVCMOS33} [get_ports { io_adcIn }];
+
+set_property -dict {PACKAGE_PIN K13 IOSTANDARD LVCMOS33} [get_ports { io_dacOut }];
+
 
 ## Pinout
-
-# Test pin
-#set_property -dict {PACKAGE_PIN P14 IOSTANDARD LVCMOS33} [get_ports { io_test }];
-
 # Test pins
 set_property -dict {PACKAGE_PIN P14  IOSTANDARD LVCMOS33} [get_ports { io_pinout[0] }];
 set_property -dict {PACKAGE_PIN N11  IOSTANDARD LVCMOS33} [get_ports { io_pinout[1] }];

@@ -32,21 +32,15 @@ object ADCTest {
       poke(b.io.LRCLK, true)
       for (bit <- (TestUtils.toBinaryString(line.toInt, 16))) {
         poke(b.io.bit, bit.toInt)
-        val sample = peek(b.io.sample)
-        val enable = peek(b.io.enable)
-        //println(s"bit: $bit, sample: $sample, enable: $enable")
+        poke(b.io.BCLK,false)
+        step(1)
+
+        poke(b.io.BCLK,true)
         step(1)
       }
-      poke(b.io.LRCLK, false)
-      val bit = 0
-      for (i <- 1 to 16) {
-        poke(b.io.bit, 0.U)
-        val sample = peek(b.io.sample)
-        val enable = peek(b.io.enable)
-        //println(s"bit: $bit, sample: $sample, enable: $enable")
-        step(1)
-      }
-      expect(b.io.sample, line.toInt)
+      expect(b.io.sample,line.toInt)
+      poke(b.io.LRCLK,false)
+      step(32)
     }
   }
 }

@@ -31,9 +31,15 @@ class FirFilterSpec extends FlatSpec with Matchers {
 //    } should be(true)
 //  }
 
-  it should "Should generate sine wave" in {
-    chisel3.iotesters.Driver(() => new SineWave) { b =>
-      new GeneratesSineWave(b)
+//  it should "Should generate sine wave" in {
+//    chisel3.iotesters.Driver(() => new SineWave) { b =>
+//      new GeneratesSineWave(b)
+//    } should be(true)
+//  }
+
+  it should "Do tremolo" in {
+    chisel3.iotesters.Driver(() => new Tremolo) { b =>
+      new TremoloTest(b)
     } should be(true)
   }
 
@@ -42,34 +48,48 @@ class FirFilterSpec extends FlatSpec with Matchers {
       new BypassSignal(b)
     } should be(true)
   }
-
 }
 
 object FirFilerTest {
   class GeneratesSineWave(b: SineWave) extends PeekPokeTester(b) {
+    import scala.sys.process._
 //    val wav = "bi"
 //    val n = python("../software_prototype/music.py", "-p 1", )
     val pw = new PrintWriter("sine.txt")
-    for (ii <- 0 until 720) {
-      poke(b.io.inc, true.B)
-      poke(b.io.w.numerator, 1.U)
-      poke(b.io.w.denominator, 180.U)
+    for (ii <- 0 until 6480) {
+      poke(b.io.inc, (ii % 18 == 0).B)
       val top = peek(b.io.signal.numerator)
       val bot = peek(b.io.signal.denominator)
       val value = top.toDouble / bot.toDouble
 
-      val sineVal = Math.sin(ii * Math.PI / 180)
-//      assert (Math.abs(value - sineVal) < 0.00163) // Max error with 16 bit should be 0.001629936871670068
       pw.write(f"$value\n")
-//      println(f"Success!  ${value}")
       step(1)
-
-
     }
     pw.close()
 
-
+    Process("python3 plotsine.py").run()
+//    Process("open sine.png").run()
   }
+
+  class TremoloTest(b: Tremolo) extends PeekPokeTester(b) {
+
+    TestUtils.wrapInScript((source, pw) => {
+      poke(b.io.periodMultiplier, 18.U)
+      for (line <- source.getLines()) {
+        val sample = line.toInt
+
+        poke(b.io.in, sample)
+
+        step(1)
+        val out = peek(b.io.out)
+        pw.write(f"$out\n")
+
+
+      }
+
+    })
+  }
+
   class Delay(b: DelayFilter) extends PeekPokeTester(b) {
     val inputs          = List(0x444f, 0x8218, 0xbeef, 0xcace)
     val expectedOutput  = List(0x4440, 0x8210, 0xbee0, 0xcac0)

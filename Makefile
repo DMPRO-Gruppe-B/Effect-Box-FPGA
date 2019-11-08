@@ -2,9 +2,10 @@
 #TOP_MODULE  := BRAMTest
 TOP_MODULE  := FPGATest
 TOP_MODULE  := BRAMTest
+TOP_MODULE  := Top
 TOP_MODULE  := SPITest
+XILINX_PART := xc7a100tftg256-1# the chip on our pcb
 
-XILINX_PART := xc7a100tftg256-1# the chip on out pcb
 CFGMEM_PART := s25fl128sxxxxxx0-spi-x1_x2_x4
 CONSTRAINTS_FILE := constraints.xdc
 
@@ -15,6 +16,7 @@ VHDL_TARGETS     := $(shell find src/main/resources/vhdl/ -mindepth 1 -maxdepth 
 VHDL_DESTS       := $(patsubst src/main/resources/vhdl/%,$(BUILD_DIR)/include/%.v,$(VHDL_TARGETS))
 
 ifdef DEVKIT
+	TOP_MODULE  := FPGATest
 	CFGMEM_PART := mt25ql128-spi-x1_x2_x4
 	XILINX_PART := xc7a35ticsg324-1L# the arty 7 dev kit
 	CONSTRAINTS_FILE := constraints-devkit.xdc

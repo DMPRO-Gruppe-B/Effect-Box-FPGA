@@ -9,8 +9,9 @@ object main {
       val out_path = args(1)
       val f = new File(out_path)
       chisel3.Driver.dumpFirrtl(args(0) match {
-        case "EffectBox"       => chisel3.Driver.elaborate(() => new EffectBox)
+        case "Top"             => chisel3.Driver.elaborate(() => new Top)
         case "FPGATest"        => chisel3.Driver.elaborate(() => new FPGATest)
+        case "MultiClockTest"  => chisel3.Driver.elaborate(() => new MultiClockTest)
         case "BRAMTest"        => chisel3.Driver.elaborate(() => new BRAMTest)
         case "SPITest"         => chisel3.Driver.elaborate(() => new SPITest)
       }, Option(f))
