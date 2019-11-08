@@ -3,6 +3,7 @@ package EffectBox
 import chisel3._
 import chisel3.iotesters.PeekPokeTester
 import org.scalatest.{Matchers, FlatSpec}
+import chisel3.experimental._
 
 
 class BitCrushSpec extends FlatSpec with Matchers {
@@ -35,8 +36,8 @@ object BitCrushTest {
     println(inputs.mkString("[", "] [", "]"))
     println(expectedOutput.mkString("[", "] [", "]"))
 
-    poke(b.io.ctrl.bypass, false.B)
-    poke(b.io.ctrl.nCrushBits, 4)
+    poke(b.ctrl.bypass, false.B)
+    poke(b.ctrl.nCrushBits, 4)
 
     for (ii <- 0 until inputs.length) {
       poke(b.io.dataIn, inputs(ii))
@@ -47,8 +48,8 @@ object BitCrushTest {
 
   class CrushBitsFromFile(b: BitCrush) extends PeekPokeTester(b) {
    
-      poke(b.io.ctrl.bypass, false.B)
-      poke(b.io.ctrl.nCrushBits, 4)
+      poke(b.ctrl.bypass, false.B)
+      poke(b.ctrl.nCrushBits, 4)
 
       FileUtils.readWrite("sound.txt", "new_sound.txt", 
         poke(b.io.dataIn, _),
@@ -64,8 +65,8 @@ object BitCrushTest {
     println("Not Crush Bits...")
     println(inputs.mkString("[", "] [", "]"))
 
-    poke(b.io.ctrl.bypass, true.B)
-    poke(b.io.ctrl.nCrushBits, 4)
+    poke(b.ctrl.bypass, true.B)
+    poke(b.ctrl.nCrushBits, 4)
 
     for (ii <- 0 until inputs.length) {
       poke(b.io.dataIn, inputs(ii))

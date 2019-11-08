@@ -2,20 +2,21 @@ package EffectBox
 
 import chisel3._
 import chisel3.util._
+import chisel3.experimental._
 
 class DelayControl extends Bundle {
-  val fbFraction = Input(new Fraction)
-  val mixFraction = Input(new Fraction)
-  val emptyBuffer = Input(Bool())
+  val fbFraction = new Fraction
+  val mixFraction = new Fraction
+  val emptyBuffer = Bool()
 }
 
-class Delay() extends Module {
+class Delay() extends MultiIOModule {
 
   val io = IO(new Bundle {
     val in          = Input(SInt(32.W))
     val out = Output(SInt(32.W))
   })
-  val ctrl = IO(new DelayControl)
+  val ctrl = IO(Input(new DelayControl))
   val delayBuffer = Module(new DelayBuffer).io
   val inDec = Wire(Flipped(Decoupled(SInt(32.W))))
   val outDec = Wire(Decoupled(SInt(32.W)))
