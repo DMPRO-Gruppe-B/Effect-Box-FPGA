@@ -22,24 +22,24 @@ class SPISlave extends Module {
 
   val buf = RegInit(0.U(24.W))
   val bits_left = RegInit(24.U(7.W))
-  val prev_clk = RegNext(io.spi.clk) //Reg(Bool()) // RegInit(false.B)
+  val prev_clk = RegNext(io.spi.clk)
 
   when(io.spi.cs_n) {
     bits_left := 24.U
     buf := 0x0.U
+    prev_clk := false.B
   }.otherwise {
-    //buf := 0xAAAA.U
     when(io.spi.clk && !prev_clk) {
       val bl = bits_left - 1.U
       // Rising edge
       buf := buf | (io.spi.mosi.asUInt() << bl).asUInt()
       bits_left := bl
+    }.elsewhen(!io.spi.clk && prev_clk) {
+      //
     }
   }
-  //prev_clk := io.spi.clk
 
-  io.output_valid := io.spi.cs_n
+  io.output_valid := (bits_left === 0.U)
   io.output := buf
-  //io.debug := bits_read | (prev_clk << 5).asUInt()
   io.debug := io.spi.cs_n | (io.spi.mosi << 1).asUInt() | (io.spi.clk << 2).asUInt() | (prev_clk << 3).asUInt()
 }
