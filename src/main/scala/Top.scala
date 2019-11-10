@@ -2,6 +2,7 @@ package EffectBox
 
 import chisel3._
 import chisel3.core.withClock
+import freechips.asyncqueue.{AsyncQueue, AsyncQueueParams}
 import blackboxes.{ClockConfig, MMCME2}
 import io.SPIBus
 
@@ -33,9 +34,15 @@ class Top extends Module {
     val adcIn       = Input(UInt(1.W))
     val dacOut     = Output(UInt(1.W))
 
-    //val spi = new SPIBus
+    val spi = new SPIBus
   })
 
+  /*
+   * Effects
+   */
+
+  val effectbox = Module(new EffectBox)
+  effectbox.spi <> io.spi
 
   /*
    * SETUP CLOCKS
@@ -74,16 +81,37 @@ class Top extends Module {
     * Clock domain comClock = 2 x bitClock
     */
 
+  val codec = withClock(comClock) { Module(new Codec).io }
+  codec.adc_in := io.adcIn
+  io.dacOut := codec.dac_out
+
+  // Async queues, for communication across clock domains
+  val adc_sample_queue = Module(new AsyncQueue(SInt(32.W), AsyncQueueParams.singleton()))
+  val dac_sample_queue = Module(new AsyncQueue(SInt(32.W), AsyncQueueParams.singleton()))
+
+  adc_sample_queue.io.enq_clock := comClock
+  adc_sample_queue.io.enq <> codec.adc_sample
+  adc_sample_queue.io.deq_clock := clock
+  adc_sample_queue.io.deq <> effectbox.io.in
+  adc_sample_queue.io.enq_reset := DontCare
+  adc_sample_queue.io.deq_reset := DontCare
+
+  dac_sample_queue.io.enq_clock := comClock
+  dac_sample_queue.io.enq <> effectbox.io.out
+  dac_sample_queue.io.deq_clock := clock
+  dac_sample_queue.io.deq <> codec.dac_sample
+  dac_sample_queue.io.enq_reset := DontCare
+  dac_sample_queue.io.deq_reset := DontCare
+
+  /*
+   * Debug
+   */
+
   withClock(comClock) {
-
-    val codec = Module(new Codec).io
-    codec.adc_in := io.adcIn
-    io.dacOut := codec.dac_out
-
     // Clock outputs to codec
     io.sampleClock := codec.LRCLK
     io.bitClock := codec.BCLK
-    
+
     // Pinouts
     io.pinout0 := sysClock
     io.pinout1 := codec.BCLK
@@ -96,6 +124,4 @@ class Top extends Module {
     //io.pinout8 := io.adcIn
     //io.pinout9 := io.dacOut
   }
-
-
 }

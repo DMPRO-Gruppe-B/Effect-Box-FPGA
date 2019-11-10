@@ -2,6 +2,7 @@ package EffectBox
 
 import chisel3._
 import chisel3.experimental.MultiIOModule
+import chisel3.util.Decoupled
 
 class BitCrushControl extends Bundle {
   val nCrushBits = Input(UInt(4.W))
@@ -9,19 +10,16 @@ class BitCrushControl extends Bundle {
 }
 
 class BitCrush extends MultiIOModule {
-  val io = IO(
-    new Bundle {
-      val dataIn      = Input(SInt(16.W))
-      val dataOut     = Output(SInt(16.W))
-    }
-  )
+  val io = IO(new EffectBundle)
   val ctrl = IO(new BitCrushControl)
 
-  when (ctrl.bypass) {
-    io.dataOut := io.dataIn
-  } .otherwise {
+  io.in.ready := true.B
+  io.out.valid := io.in.valid
 
+  when (ctrl.bypass) {
+    io.out.bits := io.in.bits
+  } .otherwise {
     val mask = 0xffff.S << ctrl.nCrushBits
-    io.dataOut := io.dataIn & mask.toSInt
+    io.out.bits := io.in.bits & mask
   }
 }

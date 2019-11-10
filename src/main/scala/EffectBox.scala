@@ -1,6 +1,15 @@
 package EffectBox
 
 import chisel3._
+import chisel3.util.Decoupled
+import chisel3.experimental.MultiIOModule
+import io.SPIBus
+
+
+class EffectBundle() extends Bundle {
+  val in = Flipped(Decoupled(Input(SInt(32.W))))
+  val out = Decoupled(Output(SInt(32.W)))
+}
 
 
 /**
@@ -8,34 +17,28 @@ import chisel3._
   * It takes input from the outside, puts it
   * through the effect modules, and outputs it.
   */
-class EffectBox() extends Module {
-  val io = IO(new Bundle {
-    val in = Input(SInt(32.W))
-    val fbNum = Input(UInt(8.W))
-    val fbDenom = Input(UInt(8.W))
+class EffectBox() extends MultiIOModule {
+  val spi = IO(new SPIBus)
+  val io = IO(new EffectBundle)
 
-    val mixNum = Input(UInt(8.W))
-    val mixDenom = Input(UInt(8.W))
+  /*
+   * Setup the SPI control module
+   */
 
-    val emptyBuffer = Input(Bool())
+  val control = Module(new EffectControl)
+  control.spi <> spi
 
-    val out = Output(SInt(32.W))
-  })
-  val fbFraction = Wire(new Fraction)
-  val mixFraction = Wire(new Fraction)
+  /*
+   * Initialize effects
+   */
 
-  fbFraction.numerator := io.fbNum
-  fbFraction.denominator := io.fbDenom
+  val bitcrush = Module(new BitCrush)
+  bitcrush.ctrl <> control.bitcrush
 
-  mixFraction.numerator := io.mixNum
-  mixFraction.denominator := io.mixDenom
+  /*
+   * Order effects
+   */
 
-  val delay = Module(new Delay).io
-
-  delay.in := io.in
-  delay.fbFraction := fbFraction
-  delay.mixFraction := mixFraction
-  delay.emptyBuffer := io.emptyBuffer
-
-  io.out := delay.out
+  EffectBuffer(io.in, bitcrush.io.in)
+  EffectBuffer(bitcrush.io.out, io.out)
 }
