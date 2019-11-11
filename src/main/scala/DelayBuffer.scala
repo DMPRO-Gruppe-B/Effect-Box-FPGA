@@ -22,5 +22,6 @@ class DelayBuffer(val addr_width: Int) extends Module {
     mem.data_in       := io.in
     mem.data_out      := io.out
 
+    // By ab(using) overflow we don't need to reset the head value
     writeHead := writeHead + 16.U
   }
