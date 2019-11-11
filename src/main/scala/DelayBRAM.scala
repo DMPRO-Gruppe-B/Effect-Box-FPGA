@@ -4,7 +4,7 @@ import blackboxes.BRAM
 import chisel3._
 import chisel3.util._
 
-class Delay(maxDelaySamples: Int = 8192) extends Module {
+class DelayBRAM(maxDelaySamples: Int = 8192) extends Module {
 
   // Alternatively let constructor set maxDelaySamples
   val delay_bits = log2Ceil(maxDelaySamples)

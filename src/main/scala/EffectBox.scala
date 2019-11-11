@@ -34,7 +34,7 @@ class EffectBox() extends Module {
   mixFraction.numerator := io.mixNum
   mixFraction.denominator := io.mixDenom
 
-  val delay = Module(new Delay).io
+  val delay = Module(new DelayBRAM).io
 
   delay.data_in := io.in
   delay.fbFraction := fbFraction
