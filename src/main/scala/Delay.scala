@@ -3,7 +3,7 @@ package EffectBox
 import chisel3._
 import chisel3.util._
 
-class Delay() extends Module {
+class Delay(val addr_width: Int) extends Module {
 
   val io = IO(new Bundle {
     val in          = Input(SInt(32.W))
@@ -14,43 +14,13 @@ class Delay() extends Module {
 
     val out = Output(SInt(32.W))
   })
-  val delayBuffer = Module(new DelayBuffer).io
-  val inDec = Wire(Flipped(Decoupled(SInt(32.W))))
-  val outDec = Wire(Decoupled(SInt(32.W)))
+  val delayBuffer = Module(new DelayBuffer(addr_width)).io
   val delayedSignal = Wire(SInt(32.W))
 
-  inDec.valid  := true.B
-  inDec.ready  := true.B
-  inDec.bits   := WeightedSum(io.fbFraction.numerator, io.fbFraction.denominator, delayedSignal, io.in)
-
-  outDec.valid := true.B
-  outDec.ready := false.B
-  outDec.bits  := delayBuffer.out.bits
-
-  io.out := 0.S
-  delayedSignal := 0.S
-
-  delayBuffer.in <> inDec
-
-  outDec <> delayBuffer.out
-
-  when(io.emptyBuffer){
-      outDec.ready := true.B
-      delayedSignal := outDec.bits
-  }
+  delayBuffer.in := WeightedSum(io.fbFraction.numerator, io.fbFraction.denominator, delayedSignal, io.in)
+  delayedSignal := delayBuffer.out
 
   //Output = delayedSignal*mix + cleanSignal*(1-mix)
   io.out := WeightedSum(io.mixFraction.numerator, io.mixFraction.denominator, delayedSignal, io.in)
 }
 
-class DelayBuffer() extends Module {
-  
-    val io = IO(new Bundle {
-      val in = Flipped(Decoupled(SInt(32.W)))
-      val out = Decoupled(SInt(32.W))
-    })
-    val queue = Module(new Queue(SInt(32.W),2000))
-  
-    queue.io.enq <> io.in
-    io.out <> queue.io.deq
-  }
