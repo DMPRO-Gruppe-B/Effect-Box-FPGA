@@ -13,10 +13,10 @@ class DelayBuffer(val addr_width: Int) extends Module {
     })
 
     val mem  = Module(new BRAM(UInt(16.W),addr_width)).io
-    val writeHead = RegInit(0.U(UInt(addr_width.W)))
-    val maxValue : Int = scala.math.pow(2,addr_width.toDouble).toInt - 1
+    val writeHead = RegNext(0.U(UInt(addr_width.W)))
 
     mem.write_enable  := true.B
+    // Read address should (hopefully) wrap around when writeHead < delaySamples
     mem.read_addr     := writeHead - io.delaySamples*0xFFFF.U
     mem.write_addr    := writeHead
     mem.data_in       := io.in
