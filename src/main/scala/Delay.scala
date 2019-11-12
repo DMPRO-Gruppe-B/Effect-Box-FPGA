@@ -19,7 +19,7 @@ class Delay(val addr_width: Int) extends MultiIOModule {
   val delayBuffer = Module(new DelayBuffer(addr_width)).io
   val delayedSignal = Wire(SInt(32.W))
   
-  delayBuffer.in := InverseMultiply(ctrl.fbFraction, delayedSignal, io.in.bits)
+  delayBuffer.in := io.in.bits
   delayBuffer.delaySamples := ctrl.delaySamples
   delayBuffer.write_enable := io.in.valid
   delayedSignal := delayBuffer.out
@@ -28,6 +28,7 @@ class Delay(val addr_width: Int) extends MultiIOModule {
   io.out.valid := io.in.valid
 
   //Output = delayedSignal*mix + cleanSignal*(1-mix)
-  io.out.bits := InverseMultiply(ctrl.mixFraction, delayedSignal, io.in.bits)
+  //io.out.bits := InverseMultiply(ctrl.mixFraction, delayedSignal, io.in.bits)
+  io.out.bits := delayedSignal
 }
 
