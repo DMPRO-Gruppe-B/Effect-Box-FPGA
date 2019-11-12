@@ -12,8 +12,8 @@ class Codec extends Module {
       val adc_in = Input(UInt(1.W))
       val dac_out = Output(UInt(1.W))
 
-      val adc_sample = Decoupled(SInt(32.W))
-      val dac_sample = Flipped(Decoupled(SInt(32.W)))
+      val adc_sample = Decoupled(Sample())
+      val dac_sample = Flipped(Decoupled(Sample()))
     }
   )
 
@@ -41,8 +41,7 @@ class Codec extends Module {
   val dac = Module(new DACInterface).io
 
   val enable = Wire(Bool())
-  enable := Mux(bit_count === 0.U, true.B, false.B)
-  // when(bit_count === 0.U) { enable := true.B }.otherwise{ enable := false.B }
+  enable := bit_count === 0.U
 
   adc.BCLK := BCLK
   adc.LRCLK := LRCLK
@@ -50,7 +49,7 @@ class Codec extends Module {
 
   dac.BCLK := BCLK
   dac.enable := enable
-  dac.sample := DontCare
+  dac.sample := 0.U
   io.dac_out := dac.bit
 
   io.BCLK := BCLK
@@ -62,17 +61,13 @@ class Codec extends Module {
   io.dac_sample.ready := true.B
 
   when (io.dac_sample.valid) {
-    dac_sample := (io.dac_sample.bits >> 16).asUInt()
+    dac_sample := io.dac_sample.bits.asUInt()
   }
 
   when (enable) {
-    io.adc_sample.bits := (adc.sample << 16).asSInt()
+    io.adc_sample.bits := adc.sample.asSInt()
     io.adc_sample.valid := true.B
 
     dac.sample := dac_sample
   }
-
-// Alternative method using a buffer between ADC and DAC should be unnecessary
-// val sample_buffer = RegInit(UInt(16.W), 0.U)
-
 }
