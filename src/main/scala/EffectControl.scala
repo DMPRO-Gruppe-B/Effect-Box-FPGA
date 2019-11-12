@@ -39,7 +39,7 @@ class EffectControl extends MultiIOModule {
 
   delay.fbFraction := fbFraction
   delay.mixFraction := mixFraction
-  delay.delaySamples := 32000.U
+  delay.delaySamples := 10000.U
 
   debug.slave_output := slave.io.output
   debug.slave_output_valid := slave.io.output_valid
