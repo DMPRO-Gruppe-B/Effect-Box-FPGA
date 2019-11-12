@@ -32,13 +32,17 @@ class EffectBox() extends MultiIOModule {
    * Initialize effects
    */
 
-  val bitcrush = Module(new BitCrush)
-  bitcrush.ctrl <> control.bitcrush
+  //val bitcrush = Module(new BitCrush)
+  //bitcrush.ctrl <> control.bitcrush
+
+  val delay = Module(new Delay(16))
+  delay.ctrl <> control.delay
 
   /*
    * Order effects
    */
 
-  EffectBuffer(io.in, bitcrush.io.in)
-  EffectBuffer(bitcrush.io.out, io.out)
+
+  EffectBuffer(io.in, delay.io.in)
+  EffectBuffer(delay.io.out, io.out)
 }
