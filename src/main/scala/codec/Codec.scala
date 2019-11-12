@@ -61,11 +61,11 @@ class Codec extends Module {
   io.dac_sample.ready := true.B
 
   when (io.dac_sample.valid) {
-    dac_sample := io.dac_sample.bits.asUInt()
+    dac_sample := io.dac_sample.bits.asUInt
   }
 
   when (enable) {
-    io.adc_sample.bits := adc.sample.asSInt()
+    io.adc_sample.bits := adc.sample.asSInt
     io.adc_sample.valid := true.B
 
     dac.sample := dac_sample

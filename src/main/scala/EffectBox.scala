@@ -7,7 +7,7 @@ import io.SPIBus
 
 
 object Sample {
-  def apply() = SInt(32.W)
+  def apply() = SInt(16.W)
 }
 
 
@@ -40,7 +40,7 @@ class EffectBox() extends MultiIOModule {
   //val bitcrush = Module(new BitCrush)
   //bitcrush.ctrl <> control.bitcrush
 
-  val delay = Module(new Delay(16))
+  val delay = Module(new Delay)
   delay.ctrl <> control.delay
 
   /*
@@ -50,4 +50,6 @@ class EffectBox() extends MultiIOModule {
 
   EffectBuffer(io.in, delay.io.in)
   EffectBuffer(delay.io.out, io.out)
+
+  //EffectBuffer(io.in, io.out)
 }

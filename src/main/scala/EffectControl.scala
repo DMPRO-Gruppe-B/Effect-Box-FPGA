@@ -37,9 +37,12 @@ class EffectControl extends MultiIOModule {
   mixFraction.denominator := 1.U
   mixFraction.numerator := 2.U
 
+  val sampled = Wire(UInt(16.W))
+  sampled := 32000.U
+
   delay.fbFraction := fbFraction
   delay.mixFraction := mixFraction
-  delay.delaySamples := 10000.U
+  delay.delaySamples := sampled
 
   debug.slave_output := slave.io.output
   debug.slave_output_valid := slave.io.output_valid

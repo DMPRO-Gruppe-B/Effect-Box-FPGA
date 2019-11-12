@@ -4,27 +4,25 @@ import chisel3._
 import chisel3.util._
 import blackboxes.BRAM
 
-class DelayBuffer(val addr_width: Int) extends Module {
+class DelayBuffer extends Module {
     val io = IO(new Bundle {
-      val in = Input(SInt(32.W))
-      val delaySamples = Input(UInt(addr_width.W))
-      val write_enable = Input(Bool())
+      val in = Flipped(Decoupled(Input(Sample())))
+      val delaySamples = Input(UInt(16.W))
 
-      val out = Output(SInt(32.W))
+      val out = Output(SInt(16.W))
     })
 
-    val mem  = Module(new BRAM(UInt(32.W),addr_width)).io
-    val writeHead = RegNext(0.U(addr_width.W))
+    val mem  = Module(new BRAM(UInt(16.W),16)).io
+    val writeHead = Reg(t=UInt(16.W), init=0.U)
+
+    io.in.ready := true.B
     
-    mem.write_enable  := io.write_enable
-    mem.read_addr     := Mux(writeHead < io.delaySamples, 65535.U-io.delaySamples+writeHead, writeHead - io.delaySamples)
+    mem.write_enable  := io.in.valid
+    mem.read_addr     := Mux(writeHead < io.delaySamples,65536.U + writeHead-io.delaySamples,writeHead)
     mem.write_addr    := writeHead
-    mem.data_in       := io.in.asUInt
+    mem.data_in       := io.in.bits.asUInt
 
-    io.out := mem.data_out.asSInt
+    io.out := Mux(io.in.valid,mem.data_out.asSInt,0.S)
 
-    // By ab(using) overflow we don't need to reset the head value
-
-    //writeHead := Mux(io.write_enable, Mux(writeHead === 65535.U,0.U,writeHead + 1.U), writeHead)
-    writeHead := writeHead + 1.U
+    writeHead := Mux(io.in.valid,writeHead + 1.U,writeHead)
   }
