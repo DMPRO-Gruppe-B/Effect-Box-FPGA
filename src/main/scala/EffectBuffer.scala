@@ -10,7 +10,7 @@ import chisel3.util.Decoupled
 class EffectBuffer() extends Module {
   val io = IO(new EffectBundle)
 
-  val reg = Reg(SInt(32.W))
+  val reg = Reg(Sample())
   val valid = Reg(Bool())
   val ready = Reg(Bool())
 

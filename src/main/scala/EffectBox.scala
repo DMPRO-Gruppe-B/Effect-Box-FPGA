@@ -6,9 +6,14 @@ import chisel3.experimental.MultiIOModule
 import io.SPIBus
 
 
+object Sample {
+  def apply() = SInt(32.W)
+}
+
+
 class EffectBundle() extends Bundle {
-  val in = Flipped(Decoupled(Input(SInt(32.W))))
-  val out = Decoupled(Output(SInt(32.W)))
+  val in = Flipped(Decoupled(Input(Sample())))
+  val out = Decoupled(Output(Sample()))
 }
 
 
