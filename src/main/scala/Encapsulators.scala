@@ -63,9 +63,9 @@ class OneMinusMultiply extends Module{
     io.out := result.asSInt()
 }
 
-object WeightedSum{
+object InverseMultiply{
     def apply(numerator: UInt,denominator: UInt, number: SInt, numberInverse: SInt) : SInt = {
-        val m = Module(new WeightedSum)
+        val m = Module(new InverseMultiply)
         m.io.numerator := numerator
         m.io.denominator := denominator
         m.io.number    := number
@@ -75,7 +75,7 @@ object WeightedSum{
     }
 }
 
-class WeightedSum extends Module {
+class InverseMultiply extends Module {
     val io = IO(new Bundle {
         val numerator     = Input(UInt(8.W))
         val denominator   = Input(UInt(8.W))
@@ -101,6 +101,23 @@ class WeightedSum extends Module {
     //print("\n Width of intermidiate result: " + result.getWidth + " bits\n")
 
     io.out := mul.io.out + invMul.io.out
+}
+
+object WeightedSum{
+    def apply(values: Vec[SInt], numberOfElements : Int, fraction : Fraction) : SInt = {
+
+        val sum = Wire(SInt(32.W))
+        sum := 0.S
+        for(value <- values){
+            val mul = Module(new Multiply).io
+            mul.numerator := fraction.numerator
+            mul.denominator := fraction.denominator
+            mul.number := value
+
+            sum := sum + mul.out
+        }
+        sum
+    }
 }
 
 object RisingEdge{
