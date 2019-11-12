@@ -41,7 +41,7 @@ class Codec extends Module {
   val dac = Module(new DACInterface).io
 
   val enable = Wire(Bool())
-  enable := Mux(bit_count === 0.U, true.B, false.B)
+  enable := bit_count === 0.U
 
   adc.BCLK := BCLK
   adc.LRCLK := LRCLK
@@ -49,7 +49,7 @@ class Codec extends Module {
 
   dac.BCLK := BCLK
   dac.enable := enable
-  dac.sample := DontCare
+  dac.sample := 0.U
   io.dac_out := dac.bit
 
   io.BCLK := BCLK
