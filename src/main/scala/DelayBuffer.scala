@@ -13,16 +13,18 @@ class DelayBuffer extends Module {
     })
 
     val mem  = Module(new BRAM(UInt(16.W),16)).io
-    val writeHead = Reg(t=UInt(16.W), init=0.U)
+    val writeHead = RegNext(0.U)
+    val temp = Wire(UInt(16.W))
+    temp := writeHead
 
     io.in.ready := true.B
     
     mem.write_enable  := io.in.valid
-    mem.read_addr     := Mux(writeHead < io.delaySamples,65536.U + writeHead-io.delaySamples,writeHead)
+    mem.read_addr     := writeHead - io.delaySamples
     mem.write_addr    := writeHead
     mem.data_in       := io.in.bits.asUInt
 
     io.out := Mux(io.in.valid,mem.data_out.asSInt,0.S)
 
-    writeHead := Mux(io.in.valid,writeHead + 1.U,writeHead)
+    writeHead := Mux(io.in.valid,Mux(writeHead === 65535.U,0.U,temp +1.U),temp)
   }
