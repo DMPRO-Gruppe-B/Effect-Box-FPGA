@@ -16,12 +16,11 @@ class DelayBuffer(val addr_width: Int) extends Module {
     val writeHead = RegNext(0.U(UInt(addr_width.W)))
 
     mem.write_enable  := true.B
-    // Read address should (hopefully) wrap around when writeHead < delaySample
-    mem.read_addr     := writeHead - io.delaySamples*16.U
+    mem.read_addr     := writeHead - io.delaySamples
     mem.write_addr    := writeHead
     mem.data_in       := io.in
     mem.data_out      := io.out
 
     // By ab(using) overflow we don't need to reset the head value
-    writeHead := writeHead + 16.U
+    writeHead := writeHead + 1.U
   }
