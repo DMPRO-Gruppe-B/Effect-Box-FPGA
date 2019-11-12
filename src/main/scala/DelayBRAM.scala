@@ -24,7 +24,7 @@ class DelayBRAM(maxDelaySamples: Int = 8192) extends Module {
   })
 
   // Initiate BRAM
-  val delayBuffer = Module(new DelayBuffer(maxDelaySamples)).io
+  val delayBuffer = Module(new DelayBufferBRAM(maxDelaySamples)).io
 
   // Register to check if in reset mode. Reset mode default at startup.
   var reset_in_progress = RegInit(true.B)
@@ -74,7 +74,7 @@ class DelayBRAM(maxDelaySamples: Int = 8192) extends Module {
 
 }
 
-class DelayBuffer(maxSize : Int) extends Module {
+class DelayBufferBRAM(maxSize : Int) extends Module {
 
   // Find the number of bits needed to represent the address.
   val delay_bits = log2Ceil(maxSize)
