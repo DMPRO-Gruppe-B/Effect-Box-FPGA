@@ -64,10 +64,10 @@ class OneMinusMultiply extends Module{
 }
 
 object InverseMultiply{
-    def apply(numerator: UInt,denominator: UInt, number: SInt, numberInverse: SInt) : SInt = {
+    def apply(fraction : Fraction, number: SInt, numberInverse: SInt) : SInt = {
         val m = Module(new InverseMultiply)
-        m.io.numerator := numerator
-        m.io.denominator := denominator
+        m.io.numerator := fraction.numerator
+        m.io.denominator := fraction.denominator
         m.io.number    := number
         m.io.numberInverse := numberInverse
 
