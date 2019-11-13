@@ -12,9 +12,22 @@ class Tremolo extends Module{
   })
 
   val sine = Module(new SineWave).io
-  val (n, _) = Counter(true.B, 0xff)
+  val counter = RegNext(0.U(16.W))
 
-  sine.inc := (n % io.periodMultiplier === 0.U)
+  val wrap = WireInit(false.B)
+
+
+  when (counter >= io.periodMultiplier - 1.U) {
+    counter := 0.U
+    wrap := true.B
+  }.otherwise {
+    counter := counter + 1.U
+    wrap := false.B
+  }
+
+
+
+  sine.inc := wrap
 
   val top = Wire(SInt(40.W))
   top := sine.signal.numerator

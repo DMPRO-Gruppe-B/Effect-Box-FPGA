@@ -78,7 +78,7 @@ set_property -dict {PACKAGE_PIN A10 IOSTANDARD LVCMOS33} [get_ports { io_sw[3] }
 #set_property -dict {PACKAGE_PIN K2  IOSTANDARD LVCMOS33} [get_ports { io_rgbled_3[2] }];  #IO_L23P_T3_35 Sch=led3_b
 
 ## pinout compatible with custom PCB
-## same pins as tricolor LEDs plus 4 pins from header JA
+## x
 set_property -dict {PACKAGE_PIN G6  IOSTANDARD LVCMOS33} [get_ports { io_pinout0 }];
 set_property -dict {PACKAGE_PIN F6  IOSTANDARD LVCMOS33} [get_ports { io_pinout1 }];
 set_property -dict {PACKAGE_PIN E1  IOSTANDARD LVCMOS33} [get_ports { io_pinout2 }];
@@ -91,6 +91,12 @@ set_property -dict {PACKAGE_PIN H4  IOSTANDARD LVCMOS33} [get_ports { io_pinout8
 set_property -dict {PACKAGE_PIN K1  IOSTANDARD LVCMOS33} [get_ports { io_pinout9 }];
 set_property -dict {PACKAGE_PIN H6  IOSTANDARD LVCMOS33} [get_ports { io_pinout10 }];
 set_property -dict {PACKAGE_PIN K2  IOSTANDARD LVCMOS33} [get_ports { io_pinout11 }];
+
+## devkit header JA
+#set_property -dict {PACKAGE_PIN G13  IOSTANDARD LVCMOS33} [get_ports { io_pinout8 }];
+#set_property -dict {PACKAGE_PIN B11  IOSTANDARD LVCMOS33} [get_ports { io_pinout9 }];
+#set_property -dict {PACKAGE_PIN A11  IOSTANDARD LVCMOS33} [get_ports { io_pinout10 }];
+#set_property -dict {PACKAGE_PIN D12  IOSTANDARD LVCMOS33} [get_ports { io_pinout11 }];
 
 ## Last 4 go to single-color leds
 set_property -dict {PACKAGE_PIN H5  IOSTANDARD LVCMOS33} [get_ports { io_pinout12 }];       #IO_L24N_T3_35 Sch=led[4]

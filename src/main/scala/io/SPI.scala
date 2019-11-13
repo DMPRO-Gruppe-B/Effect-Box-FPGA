@@ -27,7 +27,6 @@ class SPISlave extends Module {
   when(io.spi.cs_n) {
     bits_left := 24.U
     buf := 0x0.U
-    prev_clk := false.B
   }.otherwise {
     when(io.spi.clk && !prev_clk) {
       val bl = bits_left - 1.U
