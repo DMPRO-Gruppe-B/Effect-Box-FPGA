@@ -16,10 +16,18 @@ class BitCrush extends MultiIOModule {
   io.in.ready := true.B
   io.out.valid := io.in.valid
 
-  when (ctrl.bypass) {
-    io.out.bits := io.in.bits
+  when (!ctrl.bypass) {
+    // Harder to smoother transitions
+    //val mask = ~0L.U(32.W) << ctrl.nCrushBits
+    val mask = 0xFFFFFFFDL.U(32.W) << ctrl.nCrushBits
+    //val mask = 0xFFFFFFF4L.U(32.W) << ctrl.nCrushBits
+    // Truncate "towards" signed zero
+    when (io.in.bits >= 0.S) {
+      io.out.bits := (io.in.bits.asUInt() & mask).asSInt()
+    } .otherwise {
+      io.out.bits := (io.in.bits.asUInt() | ~mask).asSInt()
+    }
   } .otherwise {
-    val mask = 0xFFFFFFFFl.U(32.W) << (ctrl.nCrushBits)
-    io.out.bits := (io.in.bits.asUInt() & mask.asUInt()).asSInt()
+    io.out.bits := io.in.bits
   }
 }
