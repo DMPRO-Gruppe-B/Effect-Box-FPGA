@@ -19,7 +19,7 @@ class BitCrush extends MultiIOModule {
   when (ctrl.bypass) {
     io.out.bits := io.in.bits
   } .otherwise {
-    val mask = 0xffff.S << ctrl.nCrushBits
-    io.out.bits := io.in.bits & mask
+    val mask = 0xFFFFFFFFl.U(32.W) << (ctrl.nCrushBits)
+    io.out.bits := (io.in.bits.asUInt() & mask.asUInt()).asSInt()
   }
 }
