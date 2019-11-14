@@ -35,7 +35,7 @@ class SPITest extends Module {
 
     val bitCrush = Module(new BitCrush)
     bitCrush.ctrl <> effectControl.bitcrush
-    bitCrush.io.dataIn := 0.S
+    bitCrush.io.in := 0.S
 
     val ledreg = RegInit(0.U(7.W))
     when(effectControl.debug.slave_output_valid) {

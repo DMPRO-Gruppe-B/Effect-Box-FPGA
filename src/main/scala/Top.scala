@@ -33,9 +33,15 @@ class Top extends Module {
     val adcIn       = Input(UInt(1.W))
     val dacOut     = Output(UInt(1.W))
 
-    //val spi = new SPIBus
+    val spi = new SPIBus
   })
 
+  /*
+   * Effects
+   */
+
+  val effectbox = Module(new EffectBox)
+  effectbox.spi <> io.spi
 
   /*
    * SETUP CLOCKS
@@ -74,16 +80,23 @@ class Top extends Module {
     * Clock domain comClock = 2 x bitClock
     */
 
+  val codec = withClock(comClock) { Module(new Codec).io }
+  codec.adc_in := io.adcIn
+  io.dacOut := codec.dac_out
+
+  // Async queues, for communication across clock domains
+  SingleAsyncQueue(Sample(), comClock, clock, codec.adc_sample, effectbox.io.in)
+  SingleAsyncQueue(Sample(), clock, comClock, effectbox.io.out, codec.dac_sample)
+
+  /*
+   * Debug
+   */
+
   withClock(comClock) {
-
-    val codec = Module(new Codec).io
-    codec.adc_in := io.adcIn
-    io.dacOut := codec.dac_out
-
     // Clock outputs to codec
     io.sampleClock := codec.LRCLK
     io.bitClock := codec.BCLK
-    
+
     // Pinouts
     io.pinout0 := sysClock
     io.pinout1 := codec.BCLK
@@ -96,6 +109,4 @@ class Top extends Module {
     //io.pinout8 := io.adcIn
     //io.pinout9 := io.dacOut
   }
-
-
 }

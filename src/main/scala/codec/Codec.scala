@@ -1,28 +1,34 @@
 package EffectBox
 
 import chisel3._
+import chisel3.util.Decoupled
 
 class Codec extends Module {
   val io = IO(
     new Bundle {
-      val adc_in = Input(UInt(1.W))
-
       val BCLK    = Output(Bool())
       val LRCLK   = Output(Bool())
+
+      val adc_in = Input(UInt(1.W))
       val dac_out = Output(UInt(1.W))
+
+      val adc_sample = Decoupled(Sample())
+      val dac_sample = Flipped(Decoupled(Sample()))
     }
   )
 
   val BCLK = RegNext(false.B)
   val LRCLK = RegNext(true.B)
 
-  // Bør være 4.W, men whatever, tør ikke endre uten å teste
-  val bit_count = RegNext(0.U(6.W))   // Every other clock cycle = bit index in sample from MSB
-  
+  val dac_sample = Reg(UInt(16.W))
+
+  // Every other clock cycle = bit index in sample from MSB
+  val bit_count = RegNext(0.U(4.W))
+
   BCLK := !BCLK
   LRCLK := LRCLK
   bit_count := bit_count
-  
+
   when(BCLK) {
     bit_count := bit_count + 1.U
     when(bit_count === 15.U) {
@@ -35,8 +41,7 @@ class Codec extends Module {
   val dac = Module(new DACInterface).io
 
   val enable = Wire(Bool())
-  enable := Mux(bit_count === 0.U, true.B, false.B)
-  // when(bit_count === 0.U) { enable := true.B }.otherwise{ enable := false.B }
+  enable := bit_count === 0.U
 
   adc.BCLK := BCLK
   adc.LRCLK := LRCLK
@@ -44,14 +49,25 @@ class Codec extends Module {
 
   dac.BCLK := BCLK
   dac.enable := enable
+  dac.sample := 0.U
   io.dac_out := dac.bit
-
-  dac.sample := adc.sample
 
   io.BCLK := BCLK
   io.LRCLK := LRCLK
 
-// Alternative method using a buffer between ADC and DAC should be unnecessary 
-// val sample_buffer = RegInit(UInt(16.W), 0.U)
+  io.adc_sample.bits := 0.S
+  io.adc_sample.valid := false.B
 
+  io.dac_sample.ready := true.B
+
+  when (io.dac_sample.valid) {
+    dac_sample := io.dac_sample.bits.asUInt()
+  }
+
+  when (enable) {
+    io.adc_sample.bits := adc.sample.asSInt()
+    io.adc_sample.valid := true.B
+
+    dac.sample := dac_sample
+  }
 }
