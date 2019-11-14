@@ -3,7 +3,7 @@ package EffectBox
 import chisel3._
 
 
-class DelayFilter(bitWidth: Int) extends Module {
+/*class DelayFilter(bitWidth: Int) extends Module {
   val io = IO(new Bundle {
     val bypass = Input(Bool())
     val in = Input(SInt(bitWidth.W))
@@ -14,4 +14,4 @@ class DelayFilter(bitWidth: Int) extends Module {
   delayFilter.bypass := io.bypass
   delayFilter.in := io.in
   io.out := delayFilter.out
-}
+}*/

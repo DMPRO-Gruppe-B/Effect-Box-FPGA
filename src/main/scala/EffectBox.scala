@@ -44,10 +44,21 @@ class EffectBox() extends MultiIOModule {
   bitcrush.ctrl <> control.bitcrush
   debug.bitcrushCtrl <> control.bitcrush
 
+  //val highpass = Module(new FirFilter(32, Seq(1.U, 1.U, 1.U)))
+  //highpass.ctrl <> control.fir_filter
+
+  val tremolo = Module(new Tremolo)
+  tremolo.ctrl <> control.tremolo
+
   /*
    * Order effects
    */
 
+  //EffectBuffer(io.in, bitcrush.io.in)
+  //EffectBuffer(bitcrush.io.out, io.out)
+
   EffectBuffer(io.in, bitcrush.io.in)
-  EffectBuffer(bitcrush.io.out, io.out)
+  EffectBuffer(bitcrush.io.out, tremolo.io.in)
+  EffectBuffer(tremolo.io.out, io.out)
+
 }

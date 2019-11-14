@@ -3,7 +3,7 @@ package EffectBox
 import chisel3._
 
 
-class Combiner(bitWidth: Int) extends Module {
+/*class Combiner(bitWidth: Int) extends Module {
   val io = IO(
     new Bundle {
       val in = Input(SInt(bitWidth.W))
@@ -26,4 +26,4 @@ class Combiner(bitWidth: Int) extends Module {
   bitCrush.io.in := io.in
   delay.in := bitCrush.io.out
   io.out := delay.out
-}
+}*/

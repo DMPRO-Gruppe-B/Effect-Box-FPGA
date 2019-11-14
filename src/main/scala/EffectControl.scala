@@ -30,10 +30,18 @@ class EffectControl extends MultiIOModule {
   }
 
   val bitcrush = IO(Flipped(new BitCrushControl))
-  bitcrush.bypass := config(ADDR_BITCRUSH_BYPASS) & 1.U(1.W)
+  bitcrush.bypass := true.B
   bitcrush.bitReduction := config(ADDR_BITCRUSH_BITS) & 0xF.U(4.W)
   bitcrush.rateReduction := config(ADDR_BITCRUSH_RATE) & 0xF.U(4.W)
 
   debug.slave_output := slave.io.output
   debug.slave_output_valid := slave.io.output_valid
+
+  //val fir_filter = IO(Flipped(new FirFilterControl))
+  //fir_filter.bypass := config(ADDR_BITCRUSH_BYPASS) & 1.U(1.W)
+
+  val tremolo = IO(Flipped(new TremoloControl))
+  tremolo.bypass := config(ADDR_BITCRUSH_BYPASS) & 1.U(1.W)
+  tremolo.periodMultiplier := 1000.U
+
 }
