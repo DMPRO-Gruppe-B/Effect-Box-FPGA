@@ -3,6 +3,10 @@ package EffectBox
 import chisel3._
 import chisel3.MultiIOModule
 
+/*
+ * Bitcrush effect: Reduce quality by reducing bit depth or sample rate.
+ */
+
 class BitCrushControl extends Bundle {
   val bypass = Input(Bool())
   val bitReduction = Input(UInt(4.W))

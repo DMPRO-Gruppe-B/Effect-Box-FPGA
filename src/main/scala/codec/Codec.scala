@@ -22,8 +22,8 @@ class Codec extends Module {
 
   val dac_sample = Reg(UInt(16.W))
 
-  // Bør være 4.W, men whatever, tør ikke endre uten å teste
-  val bit_count = RegNext(0.U(6.W))   // Every other clock cycle = bit index in sample from MSB
+  // Every other clock cycle = bit index in sample from MSB
+  val bit_count = RegNext(0.U(4.W))
 
   BCLK := !BCLK
   LRCLK := LRCLK
