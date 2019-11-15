@@ -17,17 +17,8 @@ class Delay() extends MultiIOModule {
   val ctrl = IO(new DelayControl)
 
   val delayBuffer = Module(new DelayBuffer).io
-  //val delayedSignal = Wire(SInt(16.W))
 
-  io.in.ready := true.B
   delayBuffer.in <> io.in
+  delayBuffer.out <> io.out
   delayBuffer.delaySamples := ctrl.delaySamples
-  //delayedSignal := delayBuffer.out
-
-  io.out.valid := io.in.valid
-
-  //Output = delayedSignal*mix + cleanSignal*(1-mix)
-  //io.out.bits := InverseMultiply(ctrl.mixFraction, delayedSignal, io.in.bits)
-  io.out.bits := delayBuffer.out
 }
-

@@ -21,52 +21,37 @@ class BRAM[T <: Data](val t: T, val addr_width: Int) extends Module {
     val data_out      = Output(t)
   })
 
-  // We only use 16 bits, so we only need one port A for reading and writing
-  val bram = Module(new BRAMV_Dual_Port(t.getWidth, addr_width))
+  val bram = Module(new RAMV_Dual_Port(t, addr_width))
 
-  // Always enable both ports
-  bram.ena    := true.B
-  bram.enb    := true.B
+  bram.a      := io.write_addr
+  bram.we     := io.write_enable
+  bram.di     := io.data_in
 
-  // Disable write on port B
-  bram.wea    := io.write_enable
-  bram.web    := false.B
-  bram.dib    := 0.U
+  bram.dpra   := io.read_addr
+  io.data_out := bram.dpo
 
-  bram.addra  := io.write_addr
-  bram.dia    := io.data_in
-
-  bram.addrb  := io.read_addr
-  io.data_out := bram.dob
-
-  bram.clka   := clock
-  bram.clkb   := clock
+  bram.clk    := clock
 }
 
 
 /**
-  * A blackbox for the Dual-Port Block RAM With Two Write Ports verilog module.
+  * A blackbox for the Dual-Port RAM With Asynchronous Read
   *
   * Full documentation on the parameters and functionality can be found here:
-  * https://www.xilinx.com/support/documentation/sw_manuals/xilinx10/books/docs/xst/xst.pdf#G5.418134
+  * https://www.xilinx.com/support/documentation/sw_manuals/xilinx10/books/docs/xst/xst.pdf
   */
-class BRAMV_Dual_Port(val data_width: Int, val addr_width: Int) extends ExtModule(Map(
-  "DATA_WIDTH" -> IntParam(data_width),
+class RAMV_Dual_Port[T <: Data](val t: T, val addr_width: Int) extends ExtModule(Map(
+  "DATA_WIDTH" -> IntParam(t.getWidth),
   "ADDR_WIDTH" -> IntParam(addr_width)
 )) {
   // The name in the verilog file
-  override def desiredName: String = "v_rams_16"
+  override def desiredName: String = "v_rams_11"
 
-  val clka  = IO(Input(Clock()))
-  val clkb  = IO(Input(Clock()))
-  val ena   = IO(Input(Bool()))
-  val enb   = IO(Input(Bool()))
-  val wea   = IO(Input(Bool()))
-  val web   = IO(Input(Bool()))
-  val addra = IO(Input(UInt(addr_width.W)))
-  val addrb = IO(Input(UInt(addr_width.W)))
-  val dia   = IO(Input(UInt(data_width.W)))
-  val dib   = IO(Input(UInt(data_width.W)))
-  val doa   = IO(Output(UInt(data_width.W)))
-  val dob   = IO(Output(UInt(data_width.W)))
+  val clk   = IO(Input(Clock()))
+  val we    = IO(Input(Bool()))
+  val a     = IO(Input(UInt(addr_width.W)))
+  val dpra  = IO(Input(UInt(addr_width.W)))
+  val di    = IO(Input(t))
+  val spo   = IO(Output(t))
+  val dpo   = IO(Output(t))
 }
