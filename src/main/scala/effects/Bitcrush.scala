@@ -14,26 +14,31 @@ class BitCrushControl extends Bundle {
 }
 
 class BitCrush extends MultiIOModule {
-  val RATE_RED_MULT = 500.U
+  val RATE_RED_MULT = 2.U
+  val RATE_RED_SQUARE = true
 
   val io = IO(new EffectBundle)
   val ctrl = IO(new BitCrushControl)
 
-  val counter = Reg(UInt(32.W))
-  val sample = Reg(SInt(32.W))
+  val counter = RegInit(0.U(32.W))
+  val sample = RegInit(0.S(32.W))
 
   io.in.ready := true.B
   io.out.valid := io.in.valid
 
+  val sampleDelay = ctrl.rateReduction * RATE_RED_MULT
+
+  when (io.in.valid) {
+    when (counter >= sampleDelay || counter < 0.U) {
+      counter := 0.U
+      sample := io.in.bits
+    } .otherwise {
+      counter := counter + 1.U
+    }
+  }
+
   // Rightmost 0xD for soft transition
   val mask = 0xFFFFFFFDL.U(32.W) << ctrl.bitReduction
-
-  when (counter >= ctrl.rateReduction * RATE_RED_MULT || counter < 0.U) {
-    counter := 0.U
-    sample := io.in.bits
-  } .otherwise {
-    counter := counter + 1.U
-  }
 
   when (!ctrl.bypass) {
     // Truncate towards zero from both sides
