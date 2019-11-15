@@ -8,7 +8,7 @@ class TremoloControl extends Bundle {
   val bypass = Input(Bool())
 }
 
-class Tremolo extends Module{
+class Tremolo extends MultiIOModule {
 
   val io = IO(new EffectBundle)
   val ctrl = IO(new TremoloControl)
