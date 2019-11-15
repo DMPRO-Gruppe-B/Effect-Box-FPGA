@@ -1,6 +1,7 @@
 package EffectBox
 
 import chisel3._
+import chisel3.experimental.MultiIOModule
 import chisel3.util._
 
 class TremoloControl extends Bundle {
@@ -21,7 +22,7 @@ class Tremolo extends MultiIOModule {
 
   val wrap = WireInit(false.B)
 
-  when (io.in.valid) {
+//  when (io.in.valid) {
     when(counter >= ctrl.periodMultiplier - 1.U) {
       counter := 0.U
       wrap := true.B
@@ -30,18 +31,24 @@ class Tremolo extends MultiIOModule {
       wrap := false.B
     }
 
-  }
-  sine.inc := wrap && io.in.valid
+//  }
+  sine.inc := wrap //&& io.in.valid
 
-  when (ctrl.bypass) {
+  when (!ctrl.bypass) {
     val top = Wire(SInt(40.W))
     top := sine.signal.numerator
-    val bot = Wire(SInt(40.W))
-    bot := sine.signal.denominator.asSInt()
+    val bot = Wire(UInt(40.W))
+    bot := sine.signal.denominator
     val input = Wire(SInt(40.W))
     input := io.in.bits
 
-    io.out.bits := input * (top + (3.S * bot)) / (4.S * bot) // ehh, glemte å dokumentere de magiske tallene her... :sad_face:
+    val res = Wire(SInt(40.W))
+
+    res := (input * top) >> 15
+//    res := input * top / bot.asSInt()
+
+    //(top + (3.S * bot)) / (4.S * bot)
+    io.out.bits := res// ehh, glemte å dokumentere de magiske tallene her... :sad_face:
   } .otherwise {
     io.out.bits := io.in.bits
   }
