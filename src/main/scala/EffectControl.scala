@@ -42,6 +42,6 @@ class EffectControl extends MultiIOModule {
 
   val tremolo = IO(Flipped(new TremoloControl))
   tremolo.bypass := config(ADDR_BITCRUSH_BYPASS) & 1.U(1.W)
-  tremolo.periodMultiplier := 1000.U
+  tremolo.periodMultiplier := 16.U
 
 }
