@@ -31,23 +31,27 @@ class FirFilterSpec extends FlatSpec with Matchers {
 //    } should be(true)
 //  }
 
-//  it should "Should generate sine wave" in {
-//    chisel3.iotesters.Driver(() => new SineWave) { b =>
-//      new GeneratesSineWave(b)
-//    } should be(true)
-//  }
-
+  it should "Should generate sine wave" in {
+    chisel3.iotesters.Driver(() => new SineWave) { b =>
+      new GeneratesSineWave(b)
+    } should be(true)
+  }
+  it should "Should generate tremolo wave" in {
+    chisel3.iotesters.Driver(() => new Tremolo) { b =>
+      new DrawTremolo(b)
+    } should be(true)
+  }
   it should "Do tremolo" in {
     chisel3.iotesters.Driver(() => new Tremolo) { b =>
       new TremoloTest(b)
     } should be(true)
   }
 
-  it should "Bypass signal" in {
-    chisel3.iotesters.Driver(() => new DelayFilter(32)) { b =>
-      new BypassSignal(b)
-    } should be(true)
-  }
+//  it should "Bypass signal" in {
+//    chisel3.iotesters.Driver(() => new DelayFilter(32)) { b =>
+//      new BypassSignal(b)
+//    } should be(true)
+//  }
 }
 
 object FirFilerTest {
@@ -71,17 +75,51 @@ object FirFilerTest {
 //    Process("open sine.png").run()
   }
 
+  class DrawTremolo(b: Tremolo) extends PeekPokeTester(b) {
+
+    import scala.sys.process._
+
+    poke(b.io.in.valid, true.B)
+    poke(b.io.in.ready, true.B)
+    //    val wav = "bi"
+    //    val n = python("../software_prototype/music.py", "-p 1", )
+    val pw = new PrintWriter("sine.txt")
+    for (ii <- 0 until 6480) {
+
+      poke(b.ctrl.periodMultiplier, 18)
+      poke(b.ctrl.bypass, false.B)
+      poke(b.io.in.bits, 1000)
+//      val top = peek(b.io.signal.numerator)
+//      val bot = peek(b.io.signal.denominator)
+//      val value = top.toDouble / bot.toDouble
+
+      val value = peek(b.io.out.bits)
+      assert(value <= 1000 && value >= -1000)
+      pw.write(f"$value\n")
+      step(1)
+    }
+    pw.close()
+
+    Process("python3 plotsine.py").run()
+    //    Process("open sine.png").run()
+  }
+
   class TremoloTest(b: Tremolo) extends PeekPokeTester(b) {
 
     TestUtils.wrapInScript((source, pw) => {
-      poke(b.io.periodMultiplier, 18.U)
+      poke(b.ctrl.bypass, false.B)
+      poke(b.ctrl.periodMultiplier, 18.U)
+
       for (line <- source.getLines()) {
         val sample = line.toInt
 
-        poke(b.io.in, sample)
+        poke(b.io.in.valid, true.B)
+        poke(b.io.in.ready, true.B)
+
+        poke(b.io.in.bits, sample)
 
         step(1)
-        val out = peek(b.io.out)
+        val out = peek(b.io.out.bits)
         pw.write(f"$out\n")
 
 
@@ -124,17 +162,17 @@ object FirFilerTest {
     )
   }
 
- class CrushBitsFromFile(b: BitCrush, bypass: Boolean, outname: String) extends PeekPokeTester(b) {
-
-    poke(b.io.bypass, bypass.B)
-    poke(b.io.bitReduction, 4)
-
-    FileUtils.readWrite("sound.txt", outname,
-      poke(b.io.dataIn, _),
-      () => peek(b.io.dataOut),
-      step
-    )
-  }
+// class CrushBitsFromFile(b: BitCrush, bypass: Boolean, outname: String) extends PeekPokeTester(b) {
+//
+//    poke(b.io.bypass, bypass.B)
+//    poke(b.io.bitReduction, 4)
+//
+//    FileUtils.readWrite("sound.txt", outname,
+//      poke(b.io.dataIn, _),
+//      () => peek(b.io.dataOut),
+//      step
+//    )
+//  }
 
   class BypassSignal(b: DelayFilter) extends PeekPokeTester(b) {
 
