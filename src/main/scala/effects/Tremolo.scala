@@ -21,24 +21,29 @@ class Tremolo extends MultiIOModule {
 
   val wrap = WireInit(false.B)
 
+  when (io.in.valid) {
+    when(counter >= ctrl.periodMultiplier - 1.U) {
+      counter := 0.U
+      wrap := true.B
+    }.otherwise {
+      counter := counter + 1.U
+      wrap := false.B
+    }
 
-  when (counter >= ctrl.periodMultiplier - 1.U) {
-    counter := 0.U
-    wrap := true.B
-  }.otherwise {
-    counter := counter + 1.U
-    wrap := false.B
   }
+  sine.inc := wrap && io.in.valid
 
-  sine.inc := wrap
+  when (ctrl.bypass) {
+    val top = Wire(SInt(40.W))
+    top := sine.signal.numerator
+    val bot = Wire(SInt(40.W))
+    bot := sine.signal.denominator.asSInt()
+    val input = Wire(SInt(40.W))
+    input := io.in.bits
 
-  val top = Wire(SInt(40.W))
-  top := sine.signal.numerator
-  val bot = Wire(SInt(40.W))
-  bot := sine.signal.denominator.asSInt()
-  val input = Wire(SInt(40.W))
-  input := io.in.bits
-
-  io.out.bits := input * (top + (3.S*bot)) / (4.S*bot)  // ehh, glemte å dokumentere de magiske tallene her... :sad_face:
+    io.out.bits := input * (top + (3.S * bot)) / (4.S * bot) // ehh, glemte å dokumentere de magiske tallene her... :sad_face:
+  } .otherwise {
+    io.out.bits := io.in.bits
+  }
 
 }
