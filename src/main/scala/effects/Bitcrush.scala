@@ -15,7 +15,6 @@ class BitCrushControl extends Bundle {
 
 class BitCrush extends MultiIOModule {
   val RATE_RED_MULT = 2.U
-  val RATE_RED_SQUARE = true
 
   val io = IO(new EffectBundle)
   val ctrl = IO(new BitCrushControl)
