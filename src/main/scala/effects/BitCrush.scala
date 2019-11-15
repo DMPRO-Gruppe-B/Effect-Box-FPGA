@@ -1,7 +1,8 @@
 package EffectBox
 
 import chisel3._
-import chisel3.MultiIOModule
+import chisel3.experimental.MultiIOModule
+import chisel3.util.Decoupled
 
 /*
  * Bitcrush effect: Reduce quality by reducing bit depth or sample rate.

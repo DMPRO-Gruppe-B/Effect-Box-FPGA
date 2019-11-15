@@ -1,7 +1,7 @@
 package EffectBox
 
 import chisel3._
-import chisel3.MultiIOModule
+import chisel3.experimental.MultiIOModule
 import io.{SPIBus, SPISlave}
 
 class EffectControl extends MultiIOModule {

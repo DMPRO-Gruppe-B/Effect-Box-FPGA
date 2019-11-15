@@ -2,7 +2,7 @@ package EffectBox
 
 import chisel3._
 import scala.collection.BitSet
-import chisel3.Wire
+import chisel3.core.Wire
 
 object Multiply{
     def apply(numerator: UInt,denominator: UInt, number: SInt) : SInt = {
