@@ -8,19 +8,18 @@ class TremoloControl extends Bundle {
   val bypass = Input(Bool())
 }
 
-class Tremolo extends Module{
+class Tremolo extends MultiIOModule {
 
   val io = IO(new EffectBundle)
   val ctrl = IO(new TremoloControl)
 
-  io.in.ready := true.B
-  io.out.valid := io.in.valid
-
   val sine = Module(new SineWave).io
   val counter = RegNext(0.U(16.W))
 
-  val wrap = WireInit(false.B)
+  io.in.ready := true.B
+  io.out.valid := io.in.valid
 
+  val wrap = WireInit(false.B)
 
   when (counter >= ctrl.periodMultiplier - 1.U) {
     counter := 0.U
