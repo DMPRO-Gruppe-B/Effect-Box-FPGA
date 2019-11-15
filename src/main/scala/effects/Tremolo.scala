@@ -3,13 +3,15 @@ package EffectBox
 import chisel3._
 import chisel3.util._
 
+class TremoloControl extends Bundle {
+  val periodMultiplier = Input(UInt(16.W))
+  val bypass = Input(Bool())
+}
+
 class Tremolo extends Module{
 
-  val io = IO(new Bundle {
-    val in = Input(SInt(32.W))
-    val out = Output(SInt(32.W))
-    val periodMultiplier = Input(UInt(16.W))
-  })
+  val io = IO(new EffectBundle)
+  val ctrl = IO(new TremoloControl)
 
   val sine = Module(new SineWave).io
   val counter = RegNext(0.U(16.W))
@@ -17,7 +19,7 @@ class Tremolo extends Module{
   val wrap = WireInit(false.B)
 
 
-  when (counter >= io.periodMultiplier - 1.U) {
+  when (counter >= ctrl.periodMultiplier - 1.U) {
     counter := 0.U
     wrap := true.B
   }.otherwise {
