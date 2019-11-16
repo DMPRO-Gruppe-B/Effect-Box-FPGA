@@ -20,10 +20,12 @@ class Tremolo extends MultiIOModule {
   io.in.ready := true.B
   io.out.valid := io.in.valid
 
-  val wrap = WireInit(false.B)
+//  val wrap = WireInit(false.B)
 
-  val periodChanged = ctrl.periodMultiplier === RegNext(ctrl.periodMultiplier)
+//  val periodEqual = ctrl.periodMultiplier === RegNext(ctrl.periodMultiplier)
 
+
+  val (count, wrap) = Counter(io.in.valid, 0xffff)
 
   when (ctrl.bypass) {
     io.out.bits := io.in.bits
@@ -31,17 +33,20 @@ class Tremolo extends MultiIOModule {
 
   }.otherwise {
     //  val periodChanged = false.B
-    when (!io.in.valid || periodChanged) {
-
-      when(counter >= ctrl.periodMultiplier - 1.U) {
-        counter := 0.U
-        wrap := true.B // io.in.valid
-      }.otherwise {
-        counter := counter + 1.U
-        wrap := false.B
-      }
-
-    }
+//    when (io.in.valid || periodEqual) {
+//
+//
+//      when(counter >= ctrl.periodMultiplier - 1.U) {
+//        counter := 0.U
+//        wrap := true.B // io.in.valid
+//      }.otherwise {
+//        counter := counter + 1.U
+//        wrap := false.B
+//      }
+//
+//    }.otherwise {
+//      wrap := false.B
+//    }
 
 
     sine.inc := wrap
@@ -50,8 +55,9 @@ class Tremolo extends MultiIOModule {
     val numerator = WireInit(SInt(9.W), sine.signal.numerator >> 8)
     val res = Wire(SInt(32.W))
 
+
 //    res := (io.in.bits * sine.signal.numerator) >> 15
-    res := io.in.bits * (numerator.asSInt() + 3.S * denominator.asSInt()) / (4.S*denominator.asSInt())
+    res := io.in.bits * (numerator.asSInt() + denominator.asSInt()) / (denominator << 1).asSInt()
 
     //(top + (3.S * bot)) / (4.S * bot)
     io.out.bits := res
