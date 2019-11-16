@@ -7,6 +7,8 @@ import chisel3._
 import chisel3.iotesters.PeekPokeTester
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.sys.process.Process
+
 
 class FirFilterSpec extends FlatSpec with Matchers {
   import FirFilerTest._
@@ -83,10 +85,14 @@ object FirFilerTest {
     poke(b.io.in.ready, true.B)
     //    val wav = "bi"
     //    val n = python("../software_prototype/music.py", "-p 1", )
+    var p = 36
     val pw = new PrintWriter("sine.txt")
     for (ii <- 0 until 6480) {
 
-      poke(b.ctrl.periodMultiplier, 18)
+      if (ii == 6480 / 3) {
+        p = 8
+      }
+      poke(b.ctrl.periodMultiplier, p)
       poke(b.ctrl.bypass, false.B)
       poke(b.io.in.bits, 1000)
 //      val top = peek(b.io.signal.numerator)
@@ -106,26 +112,36 @@ object FirFilerTest {
 
   class TremoloTest(b: Tremolo) extends PeekPokeTester(b) {
 
+    val sineWriter = new PrintWriter("sine.txt")
     TestUtils.wrapInScript((source, pw) => {
       poke(b.ctrl.bypass, false.B)
-      poke(b.ctrl.periodMultiplier, 18.U)
-
-      for (line <- source.getLines()) {
+      poke(b.io.in.valid, true.B)
+      poke(b.io.in.ready, true.B)
+      var p = 12
+      val lines = source.getLines()
+      for ((line, i) <- lines.zipWithIndex) {
         val sample = line.toInt
 
-        poke(b.io.in.valid, true.B)
-        poke(b.io.in.ready, true.B)
+        if (i== 4000) {
+           p = 2
+        }
+
+        poke(b.ctrl.periodMultiplier, p)
 
         poke(b.io.in.bits, sample)
 
         step(1)
         val out = peek(b.io.out.bits)
         pw.write(f"$out\n")
+        val sine = if (sample != 0) out / sample else out
+        sineWriter.write(f"$out\n")
 
 
       }
 
     })
+    sineWriter.close()
+    Process("python3 plotsine.py").run()
   }
 
   class Delay(b: DelayFilter) extends PeekPokeTester(b) {
