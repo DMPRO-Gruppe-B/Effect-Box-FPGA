@@ -24,25 +24,26 @@ class EffectControl extends MultiIOModule {
   }
 
   val bitcrush = IO(Flipped(new BitCrushControl))
-  bitcrush.bypass := config(0) & 1.U(1.W)
+  bitcrush.bypass := false.B //config(0) & 1.U(1.W)
   bitcrush.nCrushBits := config(1) & 0xF.U(4.W)
 
   val delay = IO(Flipped(new DelayControl))
 
   val fbFraction = Wire(new Fraction)
-  fbFraction.denominator := 1.U
-  fbFraction.numerator := 2.U
+  fbFraction.numerator := 1.U
+  fbFraction.denominator := 3.U
 
   val mixFraction = Wire(new Fraction)
-  mixFraction.denominator := 1.U
-  mixFraction.numerator := 2.U
+  mixFraction.numerator := 1.U
+  mixFraction.denominator := 2.U
 
   val sampled = Wire(UInt(16.W))
-  sampled := 32000.U
+  sampled := 9600.U
 
   delay.fbFraction := fbFraction
   delay.mixFraction := mixFraction
   delay.delaySamples := sampled
+  delay.bypass :=  config(0) & 1.U(1.W)
 
   debug.slave_output := slave.io.output
   debug.slave_output_valid := slave.io.output_valid

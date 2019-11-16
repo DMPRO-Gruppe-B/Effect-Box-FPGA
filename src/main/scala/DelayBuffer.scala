@@ -5,7 +5,7 @@ import blackboxes.BRAM
 
 class DelayBuffer extends Module {
   val io = IO(new EffectBundle {
-    val delaySamples = Input(UInt(16.W))
+    val delaySamples = Input(UInt(32.W))
   })
 
   val addr_width = 17
