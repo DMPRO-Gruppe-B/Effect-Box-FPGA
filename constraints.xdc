@@ -25,7 +25,11 @@ create_generated_clock -master_clock sys_clk_pin -add -name dac_sample_clk_pin -
 
 ## Reset (use the one that works for you)
 
-set_property -dict {PACKAGE_PIN P8  IOSTANDARD LVCMOS33} [get_ports { reset }];
+# pinout15
+#set_property -dict {PACKAGE_PIN P8  IOSTANDARD LVCMOS33} [get_ports { reset }];
+
+# GPIO_0 from MCU
+set_property -dict {PACKAGE_PIN P15  IOSTANDARD LVCMOS33} [get_ports { reset }];
 set_property DRIVE 8 [get_ports { reset }];
 
 
@@ -52,7 +56,7 @@ set_property -dict {PACKAGE_PIN N9   IOSTANDARD LVCMOS33} [get_ports { io_pinout
 set_property -dict {PACKAGE_PIN P9   IOSTANDARD LVCMOS33} [get_ports { io_pinout12 }];
 set_property -dict {PACKAGE_PIN M6   IOSTANDARD LVCMOS33} [get_ports { io_pinout13 }];
 set_property -dict {PACKAGE_PIN N6   IOSTANDARD LVCMOS33} [get_ports { io_pinout14 }];
-#set_property -dict {PACKAGE_PIN P8   IOSTANDARD LVCMOS33} [get_ports { io_pinout15 }];
+set_property -dict {PACKAGE_PIN P8   IOSTANDARD LVCMOS33} [get_ports { io_pinout15 }];
 
 # MCU spi
 set_property -dict {PACKAGE_PIN T14  IOSTANDARD LVCMOS33} [get_ports { io_spi_clk }];
