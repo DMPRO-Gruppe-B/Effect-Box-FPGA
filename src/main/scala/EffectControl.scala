@@ -5,14 +5,14 @@ import chisel3.experimental.MultiIOModule
 import io.{SPIBus, SPISlave}
 
 class EffectControl extends MultiIOModule {
-  val CONFIG_SIZE = 5
+  val CONFIG_SIZE = 7
 
   val ADDR_BITCRUSH_BYPASS = 0
   val ADDR_BITCRUSH_BITS = 1
   val ADDR_BITCRUSH_RATE = 2
 
-  val ADDR_TREMOLO_BYPASS = 3
-  val ADDR_TREMOLO_PERIODMULT = 4
+  val ADDR_TREMOLO_BYPASS = 5
+  val ADDR_TREMOLO_PERIODMULT = 6
 
   val spi = IO(new SPIBus)
   val debug = IO(new Bundle {
