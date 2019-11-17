@@ -85,22 +85,31 @@ object FirFilerTest {
     poke(b.io.in.ready, true.B)
     //    val wav = "bi"
     //    val n = python("../software_prototype/music.py", "-p 1", )
-    var p = 36
+    var p = 8
+    var d = false
+    var top = 1
+    var bot = 2
     val pw = new PrintWriter("sine.txt")
-    for (ii <- 0 until 6480) {
+    for (ii <- 0 until 6480 * 2) {
 
-      if (ii == 6480 / 3) {
-        p = 8
+
+      if (ii == 6480 / 2) {
+        bot = 3
+      }
+      if (ii == 6480) {
+        bot = 4
       }
       poke(b.ctrl.periodMultiplier, p)
       poke(b.ctrl.bypass, false.B)
       poke(b.io.in.bits, 1000)
-//      val top = peek(b.io.signal.numerator)
+      poke(b.ctrl.depth.numerator, top)
+      poke(b.ctrl.depth.denominator, bot)
+      //      val top = peek(b.io.signal.numerator)
 //      val bot = peek(b.io.signal.denominator)
 //      val value = top.toDouble / bot.toDouble
 
       val value = peek(b.io.out.bits)
-      assert(value <= 1000 && value >= -1000)
+      assert(value <= 1000 && value >= 0)
       pw.write(f"$value\n")
       step(1)
     }
@@ -114,20 +123,24 @@ object FirFilerTest {
 
     val sineWriter = new PrintWriter("sine.txt")
     TestUtils.wrapInScript((source, pw) => {
-      poke(b.ctrl.bypass, false.B)
       poke(b.io.in.valid, true.B)
       poke(b.io.in.ready, true.B)
       var p = 12
+      var d = false
+      var bot = 2
+
       val lines = source.getLines()
       for ((line, i) <- lines.zipWithIndex) {
         val sample = line.toInt
 
         if (i== 4000) {
-           p = 2
+           bot = 3
         }
 
         poke(b.ctrl.periodMultiplier, p)
-
+        poke(b.ctrl.depth.numerator, 1)
+        poke(b.ctrl.depth.denominator, bot)
+//        poke(b.ctrl.bypass, d)
         poke(b.io.in.bits, sample)
 
         step(1)
