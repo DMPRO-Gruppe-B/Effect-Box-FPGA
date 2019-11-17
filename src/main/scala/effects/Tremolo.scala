@@ -45,24 +45,11 @@ class Tremolo extends MultiIOModule {
     val numerator = WireInit(SInt(9.W), (sine.signal.numerator >> 8).asSInt())
     val res = Wire(SInt(32.W))
 
-    // shift to move sine wave above y-axis, equivalent to 0.5 sin(x) + 0.5
-    //    res := ctrl.depth.numerator * io.in.bits * (numerator.asSInt() + denominator.asSInt()) /
-    //      (ctrl.depth.denominator * (denominator << 1).asSInt()) + io.in.bits * (ctrl.depth.denominator - ctrl.depth.numerator) / ctrl.depth.denominator.asSInt()
-
-//    res := io.in.bits * numerator * ctrl.depth.numerator / (denominator * ctrl.depth.denominator).asSInt() +
-//     io.in.bits * (ctrl.depth.denominator - ctrl.depth.numerator) / ctrl.depth.denominator.asSInt()
-
-    res := io.in.bits * ( (numerator * ctrl.depth.numerator).asSInt() + (ctrl.depth.denominator - ctrl.depth.numerator).asSInt() * denominator) /
-      (denominator * ctrl.depth.denominator).asSInt()
-
-    // a* r* (n + d) / (b * 2d) + r (b - a) / b
-    // (r *  (n * t + (b - t) * d)   ) / (d * b)
-    //    when (!ctrl.bypass) {
-    //
-    //    }.otherwise {
-    //      res := io.in.bits * (numerator.asSInt() + 3.S * denominator.asSInt()) / (denominator << 2).asSInt()
-    //
-    //    }
+    // equivalent to depth* sin(x) + (1 - depth)
+    res := io.in.bits *
+      ( (numerator * ctrl.depth.numerator).asSInt() +
+        (ctrl.depth.denominator - ctrl.depth.numerator).asSInt() * denominator) /
+        (denominator * ctrl.depth.denominator).asSInt()
 
     io.out.bits := res
 
