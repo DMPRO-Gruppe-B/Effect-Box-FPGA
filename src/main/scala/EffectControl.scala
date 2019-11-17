@@ -24,9 +24,13 @@ class EffectControl extends MultiIOModule {
 
   when(slave.io.output_valid) {
     val bytes = slave.io.output
-    val addr: UInt = bytes(23, 16)
-    val data: UInt = bytes(15, 0)
-    config(addr) := data
+    val addr: UInt = bytes(31, 24)
+    val data1 = bytes(23, 16)
+    val data2 = bytes(15, 8)
+    val checksum: UInt = bytes(7, 0)
+    when(((addr + data1 + data2) & 0xFF.U) === checksum) {
+      config(addr) := bytes(23, 8)
+    }
   }
 
   val bitcrush = IO(Flipped(new BitCrushControl))
