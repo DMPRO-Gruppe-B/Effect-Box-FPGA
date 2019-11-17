@@ -5,11 +5,11 @@ import blackboxes.BRAM
 
 class DelayBuffer extends Module {
   val io = IO(new EffectBundle {
-    val delaySamples = Input(UInt(32.W))
+    val delaySamples = Input(UInt(16.W))
   })
 
   val addr_width = 17
-  val mem  = Module(new BRAM(SInt(32.W), addr_width)).io
+  val mem  = Module(new BRAM(Sample(), addr_width)).io
   val writeHead = RegNext(0.U(addr_width.W))
 
   io.in.ready := true.B

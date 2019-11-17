@@ -5,11 +5,16 @@ import chisel3.experimental.MultiIOModule
 import io.{SPIBus, SPISlave}
 
 class EffectControl extends MultiIOModule {
-  val CONFIG_SIZE = 7
+  val CONFIG_SIZE = 9
 
   val ADDR_BITCRUSH_ENABLE = 0
   val ADDR_BITCRUSH_BITS = 1
   val ADDR_BITCRUSH_RATE = 2
+
+  val ADDR_DELAY_ENABLE = 3
+  val ADDR_DELAY_MILLISECONDS = 4
+  val ADDR_DELAY_FEEDBACK = 7
+  val ADDR_DELAY_MIX = 8
 
   val ADDR_TREMOLO_BYPASS = 5
   val ADDR_TREMOLO_PERIODMULT = 6
@@ -50,21 +55,14 @@ class EffectControl extends MultiIOModule {
   /* Delay */
   val delay = IO(Flipped(new DelayControl))
 
-  val fbFraction = Wire(new Fraction)
-  fbFraction.numerator := 1.U
-  fbFraction.denominator := 3.U
+  delay.bypass := !(config(ADDR_DELAY_ENABLE) & 1.U(1.W))
+  delay.delaySamples := config(ADDR_DELAY_MILLISECONDS) * 64.U
 
-  val mixFraction = Wire(new Fraction)
-  mixFraction.numerator := 1.U
-  mixFraction.denominator := 2.U
-
-  val sampled = Wire(UInt(16.W))
-  sampled := 9600.U
-
-  delay.fbFraction := fbFraction
-  delay.mixFraction := mixFraction
-  delay.delaySamples := sampled
-  delay.bypass :=  config(0) & 1.U(1.W)
+  // Feedback and mix is sent as 0-10, representing 0-100%
+  delay.fbFraction.numerator := config(ADDR_DELAY_FEEDBACK)
+  delay.fbFraction.denominator := 10.U
+  delay.mixFraction.numerator := config(ADDR_DELAY_MIX)
+  delay.mixFraction.denominator := 10.U
 
   /* Debug */
   debug.slave_output := slave.io.output
