@@ -1,15 +1,18 @@
 package EffectBox
 
 import chisel3._
-import chisel3.MultiIOModule
+import chisel3.experimental.MultiIOModule
 import io.{SPIBus, SPISlave}
 
 class EffectControl extends MultiIOModule {
-  val CONFIG_SIZE = 3
+  val CONFIG_SIZE = 7
 
   val ADDR_BITCRUSH_ENABLE = 0
   val ADDR_BITCRUSH_BITS = 1
   val ADDR_BITCRUSH_RATE = 2
+
+  val ADDR_TREMOLO_BYPASS = 5
+  val ADDR_TREMOLO_PERIODMULT = 6
 
   val spi = IO(new SPIBus)
   val debug = IO(new Bundle {
@@ -37,6 +40,10 @@ class EffectControl extends MultiIOModule {
   bitcrush.bypass := !(config(ADDR_BITCRUSH_ENABLE) & 1.U(1.W))
   bitcrush.bitReduction := config(ADDR_BITCRUSH_BITS) & 0xF.U(4.W)
   bitcrush.rateReduction := config(ADDR_BITCRUSH_RATE) & 0x3F.U(6.W)
+
+  val tremolo = IO(Flipped(new TremoloControl))
+  tremolo.bypass := config(ADDR_TREMOLO_BYPASS) //false.B
+  tremolo.periodMultiplier := config(ADDR_TREMOLO_PERIODMULT) //18.U
 
   debug.slave_output := slave.io.output
   debug.slave_output_valid := slave.io.output_valid

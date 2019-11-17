@@ -2,7 +2,7 @@ package EffectBox
 
 import chisel3._
 import chisel3.util.Decoupled
-import chisel3.MultiIOModule
+import chisel3.experimental.MultiIOModule
 import io.SPIBus
 
 
@@ -44,10 +44,14 @@ class EffectBox() extends MultiIOModule {
   bitcrush.ctrl <> control.bitcrush
   debug.bitcrushCtrl <> control.bitcrush
 
+  val tremolo = Module(new Tremolo)
+  tremolo.ctrl <> control.tremolo
+
   /*
    * Order effects
    */
 
-  EffectBuffer(io.in, bitcrush.io.in)
+  EffectBuffer(io.in, tremolo.io.in)
+  EffectBuffer(tremolo.io.out, bitcrush.io.in)
   EffectBuffer(bitcrush.io.out, io.out)
 }
