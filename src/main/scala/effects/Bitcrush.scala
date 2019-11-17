@@ -10,12 +10,10 @@ import chisel3.MultiIOModule
 class BitCrushControl extends Bundle {
   val bypass = Input(Bool())
   val bitReduction = Input(UInt(4.W))
-  val rateReduction = Input(UInt(4.W))
+  val rateReduction = Input(UInt(6.W))
 }
 
 class BitCrush extends MultiIOModule {
-  val RATE_RED_MULT = 2.U
-
   val io = IO(new EffectBundle)
   val ctrl = IO(new BitCrushControl)
 
@@ -25,7 +23,7 @@ class BitCrush extends MultiIOModule {
   io.in.ready := true.B
   io.out.valid := io.in.valid
 
-  val sampleDelay = ctrl.rateReduction * RATE_RED_MULT
+  val sampleDelay = ctrl.rateReduction
 
   when (io.in.valid) {
     when (counter >= sampleDelay || counter < 0.U) {

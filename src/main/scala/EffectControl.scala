@@ -7,7 +7,7 @@ import io.{SPIBus, SPISlave}
 class EffectControl extends MultiIOModule {
   val CONFIG_SIZE = 3
 
-  val ADDR_BITCRUSH_BYPASS = 0
+  val ADDR_BITCRUSH_ENABLE = 0
   val ADDR_BITCRUSH_BITS = 1
   val ADDR_BITCRUSH_RATE = 2
 
@@ -24,15 +24,19 @@ class EffectControl extends MultiIOModule {
 
   when(slave.io.output_valid) {
     val bytes = slave.io.output
-    val addr: UInt = bytes(23, 16)
-    val data: UInt = bytes(15, 0)
-    config(addr) := data
+    val addr: UInt = bytes(31, 24)
+    val data1 = bytes(23, 16)
+    val data2 = bytes(15, 8)
+    val checksum: UInt = bytes(7, 0)
+    when(((addr + data1 + data2) & 0xFF.U) === checksum) {
+      config(addr) := bytes(23, 8)
+    }
   }
 
   val bitcrush = IO(Flipped(new BitCrushControl))
-  bitcrush.bypass := config(ADDR_BITCRUSH_BYPASS) & 1.U(1.W)
+  bitcrush.bypass := !(config(ADDR_BITCRUSH_ENABLE) & 1.U(1.W))
   bitcrush.bitReduction := config(ADDR_BITCRUSH_BITS) & 0xF.U(4.W)
-  bitcrush.rateReduction := config(ADDR_BITCRUSH_RATE) & 0xF.U(4.W)
+  bitcrush.rateReduction := config(ADDR_BITCRUSH_RATE) & 0x3F.U(6.W)
 
   debug.slave_output := slave.io.output
   debug.slave_output_valid := slave.io.output_valid
