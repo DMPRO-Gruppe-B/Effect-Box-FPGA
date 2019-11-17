@@ -25,6 +25,9 @@ class EffectBundle() extends Bundle {
 class EffectBox() extends MultiIOModule {
   val spi = IO(new SPIBus)
   val io = IO(new EffectBundle)
+  val debug = IO(new Bundle {
+    val bitcrushCtrl = Output(new BitCrushControl)
+  })
 
   /*
    * Setup the SPI control module
@@ -37,8 +40,12 @@ class EffectBox() extends MultiIOModule {
    * Initialize effects
    */
 
-  //val bitcrush = Module(new BitCrush)
-  //bitcrush.ctrl <> control.bitcrush
+  val bitcrush = Module(new BitCrush)
+  bitcrush.ctrl <> control.bitcrush
+  debug.bitcrushCtrl <> control.bitcrush
+
+  val tremolo = Module(new Tremolo)
+  tremolo.ctrl <> control.tremolo
 
   val delay = Module(new Delay)
   delay.ctrl <> control.delay
@@ -47,9 +54,8 @@ class EffectBox() extends MultiIOModule {
    * Order effects
    */
 
-
   EffectBuffer(io.in, delay.io.in)
-  EffectBuffer(delay.io.out, io.out)
-
-  //EffectBuffer(io.in, io.out)
+  EffectBuffer(delay.io.out, tremolo.io.in)
+  EffectBuffer(tremolo.io.out, bitcrush.io.in)
+  EffectBuffer(bitcrush.io.out, io.out)
 }

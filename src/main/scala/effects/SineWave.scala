@@ -13,8 +13,10 @@ class SineWave extends Module{
   val (x, wrap) = Counter(io.inc, 180)
   val (n, _) = Counter(wrap, 2)
 
-  val top = WireInit(4.U * x * (180.U - x))
-  val bot = WireInit(40500.U - x * (180.U - x))
+  val top = Wire(UInt(16.W))
+  top := 4.U * x * (180.U - x)
+  val bot = Wire(UInt(16.W))
+  bot := 40500.U - x * (180.U - x)
 
   io.signal.denominator := bot
   when (n === 0.U) {
