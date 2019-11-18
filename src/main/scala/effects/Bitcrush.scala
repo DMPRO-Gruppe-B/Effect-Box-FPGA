@@ -35,7 +35,7 @@ class BitCrush extends MultiIOModule {
   }
 
   // Rightmost 0xD for soft transition
-  val mask = 0xFFFFFFFDL.U(32.W) << ctrl.bitReduction
+  val mask = 0xffffffffL.U(32.W) << ctrl.bitReduction
 
   when (!ctrl.bypass) {
     // Truncate towards zero from both sides
@@ -45,7 +45,7 @@ class BitCrush extends MultiIOModule {
     } .otherwise {
       truncatedSample = (sample.asUInt() | ~mask).asSInt()
     }
-    io.out.bits := (truncatedSample * ctrl.mix + sample * (10.U - ctrl.mix)) / 10.S
+    io.out.bits := (truncatedSample * ctrl.mix + sample * (100.U - ctrl.mix)) / 100.S
   } .otherwise {
     io.out.bits := io.in.bits
   }
