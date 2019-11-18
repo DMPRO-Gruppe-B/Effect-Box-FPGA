@@ -25,11 +25,9 @@ class BitCrush extends MultiIOModule {
   io.in.ready := true.B
   io.out.valid := io.in.valid
 
-  val sampleDelay = ctrl.rateReduction
-
   when (io.in.valid) {
-    when (counter >= sampleDelay || counter < 0.U) {
-      counter := 0.U
+    when (counter >= ctrl.rateReduction) {
+      counter := 1.U
       sample := io.in.bits
     } .otherwise {
       counter := counter + 1.U
