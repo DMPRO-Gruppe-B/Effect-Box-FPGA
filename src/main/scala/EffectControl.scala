@@ -11,7 +11,7 @@ class EffectControl extends MultiIOModule {
   val ADDR_BITCRUSH_BITS = 1
   val ADDR_BITCRUSH_RATE = 2
 
-  val ADDR_TREMOLO_BYPASS = 5
+  val ADDR_TREMOLO_ENABLE = 5
   val ADDR_TREMOLO_PERIODMULT = 6
 
   val ADDR_TREMOLO_DEPTH = 9
@@ -44,7 +44,7 @@ class EffectControl extends MultiIOModule {
   bitcrush.rateReduction := config(ADDR_BITCRUSH_RATE) & 0x3F.U(6.W)
 
   val tremolo = IO(Flipped(new TremoloControl))
-  tremolo.bypass := config(ADDR_TREMOLO_BYPASS) //false.B
+  tremolo.bypass := !(config(ADDR_TREMOLO_ENABLE) & 1.U(1.W))
   tremolo.periodMultiplier := config(ADDR_TREMOLO_PERIODMULT) //18.U
   tremolo.depth := config(ADDR_TREMOLO_DEPTH)
 
