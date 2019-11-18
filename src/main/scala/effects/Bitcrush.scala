@@ -10,7 +10,8 @@ import chisel3.util.Decoupled
 
 class BitCrushControl extends Bundle {
   val bypass = Input(Bool())
-  val mix = Input(UInt(4.W))
+  // 0-100
+  val mix = Input(UInt(7.W))
   val bitReduction = Input(UInt(4.W))
   val rateReduction = Input(UInt(6.W))
 }
