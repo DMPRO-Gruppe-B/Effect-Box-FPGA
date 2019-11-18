@@ -46,8 +46,7 @@ class EffectControl extends MultiIOModule {
   val tremolo = IO(Flipped(new TremoloControl))
   tremolo.bypass := config(ADDR_TREMOLO_BYPASS) //false.B
   tremolo.periodMultiplier := config(ADDR_TREMOLO_PERIODMULT) //18.U
-  tremolo.depth.numerator := 1.U // maybe have to configs??
-  tremolo.depth.denominator := config(ADDR_TREMOLO_DEPTH)
+  tremolo.depth := config(ADDR_TREMOLO_DEPTH)
 
   debug.slave_output := slave.io.output
   debug.slave_output_valid := slave.io.output_valid

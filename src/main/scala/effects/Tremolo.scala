@@ -7,7 +7,7 @@ import chisel3.util._
 class TremoloControl extends Bundle {
   val periodMultiplier = Input(UInt(16.W))
   val bypass = Input(Bool())
-  val depth = Input(new Fraction)
+  val depth = Input(SInt(8.W))
 }
 
 class Tremolo extends MultiIOModule {
@@ -15,6 +15,7 @@ class Tremolo extends MultiIOModule {
   val io = IO(new EffectBundle)
   val ctrl = IO(new TremoloControl)
 
+  val TREMOLO_DENOMINATOR = 20
   val sine = Module(new SineWave).io
   val counter = Reg(UInt(16.W))
 
@@ -47,9 +48,9 @@ class Tremolo extends MultiIOModule {
 
     // equivalent to depth* sin(x) + (1 - depth)
     res := io.in.bits *
-      ( (numerator * ctrl.depth.numerator).asSInt() +
-        (ctrl.depth.denominator - ctrl.depth.numerator).asSInt() * denominator) /
-        (denominator * ctrl.depth.denominator).asSInt()
+      ( (numerator * ctrl.depth).asSInt() +
+        (TREMOLO_DENOMINATOR.S - ctrl.depth) * denominator) /
+      (denominator * TREMOLO_DENOMINATOR.S)
 
     io.out.bits := res
 
