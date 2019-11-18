@@ -49,8 +49,8 @@ class EffectControl extends MultiIOModule {
 
   val distortion = IO(Flipped(new DistortionControl))
   distortion.bypass := !(config(ADDR_DISTORTION_ENABLE) & 1.U(1.W))
-  distortion.mix := config(ADDR_DISTORTION_MIX) & 0xF.U(4.W)
-  distortion.amplitude := config(ADDR_DISTORTION_AMPLITUDE) & 0xF.U(4.W)
+  distortion.mix := config(ADDR_DISTORTION_MIX) & 0x7F.U(7.W)
+  distortion.amplitude := config(ADDR_DISTORTION_AMPLITUDE) & 0x7F.U(7.W)
 
   val tremolo = IO(Flipped(new TremoloControl))
   tremolo.bypass := config(ADDR_TREMOLO_BYPASS) //false.B
