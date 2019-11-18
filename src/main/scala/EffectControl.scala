@@ -5,12 +5,16 @@ import chisel3.experimental.MultiIOModule
 import io.{SPIBus, SPISlave}
 
 class EffectControl extends MultiIOModule {
-  val CONFIG_SIZE = 8
+  val CONFIG_SIZE = 11
 
   val ADDR_BITCRUSH_ENABLE = 0
   val ADDR_BITCRUSH_MIX = 7
   val ADDR_BITCRUSH_BITS = 1
   val ADDR_BITCRUSH_RATE = 2
+
+  val ADDR_DISTORTION_ENABLE = 8
+  val ADDR_DISTORTION_MIX = 9
+  val ADDR_DISTORTION_AMPLITUDE = 10
 
   val ADDR_TREMOLO_BYPASS = 5
   val ADDR_TREMOLO_PERIODMULT = 6
@@ -42,6 +46,11 @@ class EffectControl extends MultiIOModule {
   bitcrush.mix := config(ADDR_BITCRUSH_MIX) & 0xF.U(4.W)
   bitcrush.bitReduction := config(ADDR_BITCRUSH_BITS) & 0xF.U(4.W)
   bitcrush.rateReduction := config(ADDR_BITCRUSH_RATE) & 0x3F.U(6.W)
+
+  val distortion = IO(Flipped(new DistortionControl))
+  distortion.bypass := !(config(ADDR_DISTORTION_ENABLE) & 1.U(1.W))
+  distortion.mix := config(ADDR_DISTORTION_MIX) & 0xF.U(4.W)
+  distortion.amplitude := config(ADDR_DISTORTION_AMPLITUDE) & 0xF.U(4.W)
 
   val tremolo = IO(Flipped(new TremoloControl))
   tremolo.bypass := config(ADDR_TREMOLO_BYPASS) //false.B
