@@ -15,7 +15,7 @@ class Tremolo extends MultiIOModule {
   val io = IO(new EffectBundle)
   val ctrl = IO(new TremoloControl)
 
-  val TREMOLO_DENOMINATOR = 8
+  val TREMOLO_DENOMINATOR = 20
   val sine = Module(new SineWave).io
   val counter = Reg(UInt(16.W))
 
