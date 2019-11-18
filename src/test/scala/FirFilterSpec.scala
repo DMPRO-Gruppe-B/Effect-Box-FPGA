@@ -88,28 +88,29 @@ object FirFilerTest {
     var p = 8
     var d = false
     var top = 1
-    var bot = 2
+    var bot = 0
     val pw = new PrintWriter("sine.txt")
-    for (ii <- 0 until 6480 * 2) {
+    for (ii <- 0 until 6480 * 5) {
 
 
-      if (ii == 6480 / 2) {
-        bot = 3
+
+      if (ii % 3240 == 0) {
+        bot += 1
+        println(f"$ii $bot")
       }
-      if (ii == 6480) {
-        bot = 4
-      }
+
+
       poke(b.ctrl.periodMultiplier, p)
       poke(b.ctrl.bypass, false.B)
       poke(b.io.in.bits, 1000)
-      poke(b.ctrl.depth.numerator, top)
-      poke(b.ctrl.depth.denominator, bot)
+      poke(b.ctrl.depth, bot)
+//      poke(b.ctrl.depth.denominator, bot)
       //      val top = peek(b.io.signal.numerator)
 //      val bot = peek(b.io.signal.denominator)
 //      val value = top.toDouble / bot.toDouble
 
       val value = peek(b.io.out.bits)
-      assert(value <= 1000 && value >= 0)
+//      assert(value <= 1000 && value >= -1000)
       pw.write(f"$value\n")
       step(1)
     }
@@ -138,8 +139,8 @@ object FirFilerTest {
         }
 
         poke(b.ctrl.periodMultiplier, p)
-        poke(b.ctrl.depth.numerator, 1)
-        poke(b.ctrl.depth.denominator, bot)
+        poke(b.ctrl.depth, bot)
+//        poke(b.ctrl.depth.denominator, bot)
 //        poke(b.ctrl.bypass, d)
         poke(b.io.in.bits, sample)
 
