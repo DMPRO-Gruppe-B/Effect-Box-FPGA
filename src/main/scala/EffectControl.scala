@@ -5,15 +5,22 @@ import chisel3.experimental.MultiIOModule
 import io.{SPIBus, SPISlave}
 
 class EffectControl extends MultiIOModule {
-  val CONFIG_SIZE = 8
+  val CONFIG_SIZE = 10
 
   val ADDR_BITCRUSH_ENABLE = 0
   val ADDR_BITCRUSH_MIX = 7
   val ADDR_BITCRUSH_BITS = 1
   val ADDR_BITCRUSH_RATE = 2
 
-  val ADDR_TREMOLO_BYPASS = 5
+  val ADDR_DELAY_ENABLE = 3
+  val ADDR_DELAY_MILLISECONDS = 4
+  val ADDR_DELAY_FEEDBACK = 7
+  val ADDR_DELAY_MIX = 8
+
+  val ADDR_TREMOLO_ENABLE = 5
   val ADDR_TREMOLO_PERIODMULT = 6
+
+  val ADDR_TREMOLO_DEPTH = 9
 
   val spi = IO(new SPIBus)
   val debug = IO(new Bundle {
@@ -37,16 +44,32 @@ class EffectControl extends MultiIOModule {
     }
   }
 
+  /* Bitcrush */
   val bitcrush = IO(Flipped(new BitCrushControl))
   bitcrush.bypass := !(config(ADDR_BITCRUSH_ENABLE) & 1.U(1.W))
   bitcrush.mix := config(ADDR_BITCRUSH_MIX) & 0x7F.U(7.W)
   bitcrush.bitReduction := config(ADDR_BITCRUSH_BITS) & 0xF.U(4.W)
   bitcrush.rateReduction := config(ADDR_BITCRUSH_RATE) & 0x3F.U(6.W)
 
+  /* Tremolo */
   val tremolo = IO(Flipped(new TremoloControl))
-  tremolo.bypass := config(ADDR_TREMOLO_BYPASS) //false.B
+  tremolo.bypass := !(config(ADDR_TREMOLO_ENABLE) & 1.U(1.W))
   tremolo.periodMultiplier := config(ADDR_TREMOLO_PERIODMULT) //18.U
+  tremolo.depth := config(ADDR_TREMOLO_DEPTH)
 
+  /* Delay */
+  val delay = IO(Flipped(new DelayControl))
+
+  delay.bypass := !(config(ADDR_DELAY_ENABLE) & 1.U(1.W))
+  delay.delaySamples := config(ADDR_DELAY_MILLISECONDS) * 64.U
+
+  // Feedback and mix is sent as 0-10, representing 0-100%
+  delay.fbFraction.numerator := config(ADDR_DELAY_FEEDBACK)
+  delay.fbFraction.denominator := 10.U
+  delay.mixFraction.numerator := config(ADDR_DELAY_MIX)
+  delay.mixFraction.denominator := 10.U
+
+  /* Debug */
   debug.slave_output := slave.io.output
   debug.slave_output_valid := slave.io.output_valid
 }
