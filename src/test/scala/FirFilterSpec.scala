@@ -34,8 +34,8 @@ class FirFilterSpec extends FlatSpec with Matchers {
 //  }
 
   it should "Should generate sine wave" in {
-    chisel3.iotesters.Driver(() => new SineWave) { b =>
-      new GeneratesSineWave(b)
+    chisel3.iotesters.Driver(() => new SquareWave) { b =>
+      new GeneratesSineWave(b).asInstanceOf[PeekPokeTester[SquareWave]]
     } should be(true)
   }
   it should "Should generate tremolo wave" in {
@@ -57,14 +57,14 @@ class FirFilterSpec extends FlatSpec with Matchers {
 }
 
 object FirFilerTest {
-  class GeneratesSineWave(b: SineWave) extends PeekPokeTester(b) {
+  class GeneratesSineWave(b: Wave) extends PeekPokeTester(b) {
     import scala.sys.process._
 //    val wav = "bi"
 //    val n = python("../software_prototype/music.py", "-p 1", )
     val pw = new PrintWriter("sine.txt")
 
-    for (ii <- 0 until 6480) {
-      poke(b.io.inc, (ii % 18 == 0).B)
+    for (ii <- 0 until 360 * 2) {
+      poke(b.io.inc, true)
       val top = peek(b.io.signal.numerator)
       val bot = peek(b.io.signal.denominator)
       val value = top.toDouble / bot.toDouble
@@ -74,7 +74,7 @@ object FirFilerTest {
     }
     pw.close()
 
-    Process("python3 plotsine.py").run()
+    Process("python3 plotsine.py sine.txt").run()
 //    Process("open sine.png").run()
   }
 
@@ -86,18 +86,18 @@ object FirFilerTest {
     poke(b.io.in.ready, true.B)
     //    val wav = "bi"
     //    val n = python("../software_prototype/music.py", "-p 1", )
-    var p = 8
+    var p = 1
     var d = false
     var top = 1
-    var bot = -1
+    var bot = 10
+    var w = 0
     val pw = new PrintWriter("sine.txt")
-    for (ii <- 0 until 6480 * 5) {
+    for (ii <- 0 until 6480) {
 
 
 
-      if (ii % 3240 == 0) {
-        bot += 1
-        println(f"$ii $bot")
+      if (ii == 3240) {
+        w = 1
       }
 
 
@@ -105,6 +105,7 @@ object FirFilerTest {
       poke(b.ctrl.bypass, false.B)
       poke(b.io.in.bits, 1000)
       poke(b.ctrl.depth, bot)
+      poke(b.ctrl.waveSelect, w)
 //      poke(b.ctrl.depth.denominator, bot)
       //      val top = peek(b.io.signal.numerator)
 //      val bot = peek(b.io.signal.denominator)
@@ -117,20 +118,19 @@ object FirFilerTest {
     }
     pw.close()
 
-    Process("python3 plotsine.py").run()
-    //    Process("open sine.png").run()
+    Process("python3 plotsine.py sine.txt").run()
+
   }
 
   class TremoloTest(b: Tremolo) extends PeekPokeTester(b) {
-
-    val sineWriter = new PrintWriter("sine.txt")
 
     TestUtils.wrapInScript((source, pw) => {
       poke(b.io.in.valid, true.B)
       poke(b.io.in.ready, true.B)
       var p = 12
       var d = false
-      var bot = 10
+      var bot = 8
+      poke(b.ctrl.bypass, false)
 
       val lines = source.getLines()
       for ((line, i) <- lines.zipWithIndex) {
@@ -149,13 +149,10 @@ object FirFilerTest {
         step(1)
         val out = peek(b.io.out.bits)
         pw.write(f"$out\n")
-        sineWriter.write(f"$out\n")
-
       }
 
     })
-    sineWriter.close()
-    Process("python3 plotsine.py").run()
+    Process("python3 plotsine.py sound.txt new_sound.txt").run()
   }
 
   class Delay(b: DelayFilter) extends PeekPokeTester(b) {
