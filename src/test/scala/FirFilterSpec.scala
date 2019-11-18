@@ -62,6 +62,7 @@ object FirFilerTest {
 //    val wav = "bi"
 //    val n = python("../software_prototype/music.py", "-p 1", )
     val pw = new PrintWriter("sine.txt")
+
     for (ii <- 0 until 6480) {
       poke(b.io.inc, (ii % 18 == 0).B)
       val top = peek(b.io.signal.numerator)
@@ -88,7 +89,7 @@ object FirFilerTest {
     var p = 8
     var d = false
     var top = 1
-    var bot = 0
+    var bot = -1
     val pw = new PrintWriter("sine.txt")
     for (ii <- 0 until 6480 * 5) {
 
@@ -123,20 +124,21 @@ object FirFilerTest {
   class TremoloTest(b: Tremolo) extends PeekPokeTester(b) {
 
     val sineWriter = new PrintWriter("sine.txt")
+
     TestUtils.wrapInScript((source, pw) => {
       poke(b.io.in.valid, true.B)
       poke(b.io.in.ready, true.B)
       var p = 12
       var d = false
-      var bot = 2
+      var bot = 10
 
       val lines = source.getLines()
       for ((line, i) <- lines.zipWithIndex) {
         val sample = line.toInt
 
-        if (i== 4000) {
-           bot = 3
-        }
+//        if (i== 4000) {
+//           bot = 3
+//        }
 
         poke(b.ctrl.periodMultiplier, p)
         poke(b.ctrl.depth, bot)
@@ -147,9 +149,7 @@ object FirFilerTest {
         step(1)
         val out = peek(b.io.out.bits)
         pw.write(f"$out\n")
-        val sine = if (sample != 0) out / sample else out
         sineWriter.write(f"$out\n")
-
 
       }
 
