@@ -5,10 +5,10 @@ import chisel3.experimental.MultiIOModule
 import io.{SPIBus, SPISlave}
 
 class EffectControl extends MultiIOModule {
-  val CONFIG_SIZE = 10
+  val CONFIG_SIZE = 11
 
   val ADDR_BITCRUSH_ENABLE = 0
-  val ADDR_BITCRUSH_MIX = 7
+  val ADDR_BITCRUSH_MIX = 10
   val ADDR_BITCRUSH_BITS = 1
   val ADDR_BITCRUSH_RATE = 2
 
@@ -47,7 +47,7 @@ class EffectControl extends MultiIOModule {
   /* Bitcrush */
   val bitcrush = IO(Flipped(new BitCrushControl))
   bitcrush.bypass := !(config(ADDR_BITCRUSH_ENABLE) & 1.U(1.W))
-  bitcrush.mix := config(ADDR_BITCRUSH_MIX) & 0x7F.U(7.W)
+  bitcrush.mix := config(ADDR_BITCRUSH_MIX) & 0xF.U(4.W)
   bitcrush.bitReduction := config(ADDR_BITCRUSH_BITS) & 0xF.U(4.W)
   bitcrush.rateReduction := config(ADDR_BITCRUSH_RATE) & 0x3F.U(6.W)
 
