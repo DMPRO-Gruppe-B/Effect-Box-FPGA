@@ -7,7 +7,7 @@ import io.SPIBus
 
 
 object Sample {
-  def apply() = SInt(16.W)
+  def apply() = SInt(32.W)
 }
 
 
