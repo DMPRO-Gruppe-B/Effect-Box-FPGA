@@ -101,7 +101,6 @@ object FirFilerTest {
         w %= 4
       }
 
-
       poke(b.ctrl.periodMultiplier, p)
       poke(b.ctrl.bypass, false.B)
       poke(b.io.in.bits, 1000)
