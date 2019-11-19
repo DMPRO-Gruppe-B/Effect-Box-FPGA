@@ -18,8 +18,8 @@ class BitCrush extends MultiIOModule {
   val io = IO(new EffectBundle)
   val ctrl = IO(new BitCrushControl)
 
-  val counter = RegInit(0.U(32.W))
-  val sample = RegInit(0.S(32.W))
+  val counter = Reg(0.U(32.W))
+  val sample = Reg(0.S(32.W))
 
   io.in.ready := true.B
   io.out.valid := io.in.valid
