@@ -23,7 +23,7 @@ class BitCrushSpec extends FlatSpec with Matchers {
 object BitCrushTest {
   class CrushesBits(b: BitCrush) extends PeekPokeTester(b) {
 
-    poke(b.ctrl.bypass, false.B)
+//    poke(b.ctrl.bypass, false.B)
     poke(b.ctrl.bitReduction, 12)
     poke(b.ctrl.rateReduction, 0)
 
