@@ -42,5 +42,6 @@ class BitCrush extends MultiIOModule {
   } .otherwise {
     truncatedSample = (sample.asUInt() | ~mask).asSInt()
   }
-  io.out.bits := (truncatedSample * ctrl.mix + sample * (10.U - ctrl.mix)) / 10.S
+
+  io.out.bits := (Multiply(ctrl.mix, 10.U, truncatedSample) + OneMinusMultiply(ctrl.mix, 10.U, io.in.bits))
 }
