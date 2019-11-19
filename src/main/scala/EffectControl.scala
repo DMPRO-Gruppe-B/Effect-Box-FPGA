@@ -45,7 +45,6 @@ class EffectControl extends MultiIOModule {
 
   /* Bitcrush */
   val bitcrush = IO(Flipped(new BitCrushControl))
-  bitcrush.mix := config(ADDR_BITCRUSH_MIX) & 0xF.U(4.W)
   bitcrush.bitReduction := config(ADDR_BITCRUSH_BITS) & 0xF.U(4.W)
   bitcrush.rateReduction := config(ADDR_BITCRUSH_RATE) & 0x3F.U(6.W)
 
