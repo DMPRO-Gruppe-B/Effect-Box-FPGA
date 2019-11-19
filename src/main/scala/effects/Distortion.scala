@@ -14,8 +14,8 @@ class DistortionControl extends Bundle {
 }
 
 class Distortion extends MultiIOModule {
-  val MAX_POS_AMPLITUDE = 0x7fff.S(32.W)
-  val MAX_NEG_AMPLITUDE = -0x8000.S(32.W)
+  val MAX_POS_AMPLITUDE = 0x7fffL.S(32.W)
+  val MAX_NEG_AMPLITUDE = -0x8000L.S(32.W)
 
   val io = IO(new EffectBundle)
   val ctrl = IO(new DistortionControl)
@@ -25,14 +25,14 @@ class Distortion extends MultiIOModule {
   
   val sample = io.in.bits
   when (sample >= 0.S) {
-    val maxSample = ctrl.amplitude * MAX_POS_AMPLITUDE / 10.S
+    val maxSample = Multiply(ctrl.amplitude, 10.U, MAX_POS_AMPLITUDE)
     when (sample > maxSample) {
       io.out.bits := maxSample
     } .otherwise {
       io.out.bits := sample
     }
   } .otherwise {
-    val maxSample = ctrl.amplitude * MAX_NEG_AMPLITUDE / 10.S
+    val maxSample = Multiply(ctrl.amplitude, 10.U, MAX_NEG_AMPLITUDE)
     when (sample < maxSample) {
       io.out.bits := maxSample
     } .otherwise {
