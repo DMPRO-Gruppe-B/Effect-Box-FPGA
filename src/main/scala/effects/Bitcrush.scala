@@ -9,6 +9,7 @@ import chisel3.util.Decoupled
  */
 
 class BitCrushControl extends Bundle {
+  val bypass = Input(Bool())
   val bitReduction = Input(UInt(4.W))
   val rateReduction = Input(UInt(6.W))
 }
@@ -33,11 +34,16 @@ class BitCrush extends MultiIOModule {
   }
 
   val mask = 0xffffffffL.U(32.W) << ctrl.bitReduction
-  var truncatedSample = SInt(32.W)
-  // Truncate towards zero from both sides
-  when (sample >= 0.S) {
-    io.out.bits := (sample.asUInt() & mask).asSInt()
+
+  when (ctrl.bypass) {
+    var truncatedSample = SInt(32.W)
+    // Truncate towards zero from both sides
+    when (sample >= 0.S) {
+      io.out.bits := (sample.asUInt() & mask).asSInt()
+    } .otherwise {
+      io.out.bits := (sample.asUInt() | ~mask).asSInt()
+    }
   } .otherwise {
-    io.out.bits := (sample.asUInt() | ~mask).asSInt()
+    io.out.bits := io.in.bits
   }
 }
