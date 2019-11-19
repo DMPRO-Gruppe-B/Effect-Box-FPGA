@@ -46,9 +46,9 @@ class EffectControl extends MultiIOModule {
   }
 
   /* Distortion */
-  val distortion = IO(Flipped(new DistortionControl))
-  distortion.bypass := (config(ADDR_BITCRUSH_BYPASS) & 1.U(1.W))
-  distortion.amplitude := config(ADDR_DISTORTION_AMPLITUDE) & 0xF.U(4.W)
+//  val distortion = IO(Flipped(new DistortionControl))
+//  distortion.bypass := (config(ADDR_BITCRUSH_BYPASS) & 1.U(1.W))
+//  distortion.amplitude := config(ADDR_DISTORTION_AMPLITUDE) & 0xF.U(4.W)
 
   /* Bitcrush */
   val bitcrush = IO(Flipped(new BitCrushControl))

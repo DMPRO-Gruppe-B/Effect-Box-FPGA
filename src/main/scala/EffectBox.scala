@@ -40,8 +40,8 @@ class EffectBox() extends MultiIOModule {
   val bitcrush = Module(new BitCrush)
   bitcrush.ctrl <> control.bitcrush
 
-  val distortion = Module(new Distortion)
-  distortion.ctrl <> control.distortion
+//  val distortion = Module(new Distortion)
+//  distortion.ctrl <> control.distortion
 
   val tremolo = Module(new Tremolo)
   tremolo.ctrl <> control.tremolo

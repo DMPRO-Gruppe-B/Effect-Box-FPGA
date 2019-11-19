@@ -68,7 +68,7 @@ class Tremolo extends MultiIOModule {
 
   when (!ctrl.bypass) {
     io.out.bits := res
-  ] .otherwise {
+  } .otherwise {
     io.out.bits := io.in.bits
   }
 }
