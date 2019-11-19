@@ -55,7 +55,8 @@ class EffectBox() extends MultiIOModule {
 
   EffectBuffer(io.in, delay.io.in)
   EffectBuffer(delay.io.out, tremolo.io.in)
-  EffectBuffer(tremolo.io.out, distortion.io.in)
-  EffectBuffer(distortion.io.out, bitcrush.io.in)
+  //EffectBuffer(tremolo.io.out, distortion.io.in)
+  //EffectBuffer(distortion.io.out, bitcrush.io.in)
+  EffectBuffer(tremolo.io.out, bitcrush.io.in)
   EffectBuffer(bitcrush.io.out, io.out)
 }
