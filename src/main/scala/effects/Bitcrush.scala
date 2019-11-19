@@ -35,8 +35,7 @@ class BitCrush extends MultiIOModule {
 
   val mask = 0xffffffffL.U(32.W) << ctrl.bitReduction
 
-  when (ctrl.bypass) {
-    var truncatedSample = SInt(32.W)
+  when (!ctrl.bypass) {
     // Truncate towards zero from both sides
     when (sample >= 0.S) {
       io.out.bits := (sample.asUInt() & mask).asSInt()
