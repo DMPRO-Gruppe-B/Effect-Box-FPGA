@@ -5,6 +5,7 @@ import chisel3.experimental.MultiIOModule
 import chisel3.util._
 
 class TremoloControl extends Bundle {
+  val bypass = Input(Bool())
   val periodMultiplier = Input(UInt(16.W))
   val depth = Input(UInt(8.W))
   val waveSelect = Input(UInt(2.W))
@@ -65,5 +66,9 @@ class Tremolo extends MultiIOModule {
       (TREMOLO_DENOMINATOR.S - ctrl.depth.asSInt()) * denominator) /
     (denominator * TREMOLO_DENOMINATOR.S)
 
-  io.out.bits := res
+  when (!ctrl.bypass) {
+    io.out.bits := res
+  ] .otherwise {
+    io.out.bits := io.in.bits
+  }
 }

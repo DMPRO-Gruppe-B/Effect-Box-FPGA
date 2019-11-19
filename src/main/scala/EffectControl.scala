@@ -18,6 +18,7 @@ class EffectControl extends MultiIOModule {
   val ADDR_DELAY_FEEDBACK = 7
   val ADDR_DELAY_MIX = 8
 
+  val ADDR_TREMOLO_BYPASS = 5
   val ADDR_TREMOLO_PERIODMULT = 6
   val ADDR_TREMOLO_DEPTH = 9
   val ADDR_TREMOLO_WAVE = 14
@@ -57,6 +58,7 @@ class EffectControl extends MultiIOModule {
 
   /* Tremolo */
   val tremolo = IO(Flipped(new TremoloControl))
+  tremolo.bypass := (config(ADDR_TREMOLO_BYPASS) & 1.U(1.W))
   tremolo.periodMultiplier := config(ADDR_TREMOLO_PERIODMULT) //18.U
   tremolo.depth := config(ADDR_TREMOLO_DEPTH)
   tremolo.waveSelect := config(ADDR_TREMOLO_WAVE) // & 0x3.U(2.W)
