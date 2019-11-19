@@ -1,11 +1,8 @@
-from numpy import *
 import matplotlib.pyplot as plt
-from time import time
+import sys
 
-with open("sine.txt", "r") as f:
-    nums = [float(n) for n in f.readlines()]
-    
+for arg in sys.argv[1:]:
+    data = [float(s) for s in open(arg).readlines()]
+    plt.plot(data)
 
-plt.plot(nums)
 plt.show()
-# plt.savefig(f"sine.png")
