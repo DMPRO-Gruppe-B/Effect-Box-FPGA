@@ -5,7 +5,7 @@ import chisel3.experimental.MultiIOModule
 import io.{SPIBus, SPISlave}
 
 class EffectControl extends MultiIOModule {
-  val CONFIG_SIZE = 11
+  val CONFIG_SIZE = 14
 
   val ADDR_DISTORTION_ENABLE = 11
   val ADDR_DISTORTION_MIX = 12
@@ -50,9 +50,7 @@ class EffectControl extends MultiIOModule {
 
   /* Distortion */
   val distortion = IO(Flipped(new DistortionControl))
-  distortion.bypass := !(config(ADDR_DISTORTION_ENABLE) & 1.U(1.W))
-  distortion.mix := config(ADDR_DISTORTION_MIX) & 0x7F.U(7.W)
-  distortion.amplitude := config(ADDR_DISTORTION_AMPLITUDE) & 0x7F.U(7.W)
+  distortion.amplitude := config(ADDR_DISTORTION_AMPLITUDE) & 0xF.U(4.W)
 
   /* Bitcrush */
   val bitcrush = IO(Flipped(new BitCrushControl))

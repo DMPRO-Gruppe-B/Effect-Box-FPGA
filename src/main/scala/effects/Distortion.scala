@@ -9,11 +9,8 @@ import chisel3.util.Decoupled
  */
 
 class DistortionControl extends Bundle {
-  val bypass = Input(Bool())
-  // 0-100
-  val mix = Input(UInt(7.W))
-  // 0-100
-  val amplitude = Input(UInt(7.W))
+  // 0-10
+  val amplitude = Input(UInt(4.W))
 }
 
 class Distortion extends MultiIOModule {
@@ -27,26 +24,19 @@ class Distortion extends MultiIOModule {
   io.out.valid := io.in.valid
   
   val sample = io.in.bits
-
-  when (!ctrl.bypass) {
-    var clippedSample = SInt(32.W)
-    when (sample >= 0.S) {
-      val maxSample = ctrl.amplitude * MAX_POS_AMPLITUDE / 100.S
-      when (sample > maxSample) {
-        clippedSample = maxSample
-      } .otherwise {
-        clippedSample = sample
-      }
+  when (sample >= 0.S) {
+    val maxSample = ctrl.amplitude * MAX_POS_AMPLITUDE / 10.S
+    when (sample > maxSample) {
+      io.out.bits := maxSample
     } .otherwise {
-      val maxSample = ctrl.amplitude * MAX_NEG_AMPLITUDE / 100.S
-      when (sample < maxSample) {
-        clippedSample = maxSample
-      } .otherwise {
-        clippedSample = sample
-      }
+      io.out.bits := sample
     }
-    io.out.bits := (clippedSample * ctrl.mix + sample * (100.U - ctrl.mix)) / 100.S
   } .otherwise {
-    io.out.bits := io.in.bits
+    val maxSample = ctrl.amplitude * MAX_NEG_AMPLITUDE / 10.S
+    when (sample < maxSample) {
+      io.out.bits := maxSample
+    } .otherwise {
+      io.out.bits := sample
+    }
   }
 }
