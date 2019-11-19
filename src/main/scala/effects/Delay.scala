@@ -27,7 +27,6 @@ class Delay() extends MultiIOModule {
     + OneMinusMultiply(ctrl.mixFraction.numerator, ctrl.mixFraction.denominator, io.in.bits))
 
   // Write samples to BRAM, even when the delay is bypassed
-  delayBuffer.in           := feedback
   delayBuffer.enable       := io.in.valid && io.in.ready
   delayBuffer.delaySamples := ctrl.delaySamples
 
@@ -36,7 +35,9 @@ class Delay() extends MultiIOModule {
 
   when(ctrl.bypass) {
     io.out <> io.in
+    delayBuffer.in := io.in.bits
   }.otherwise {
-    io.out.bits := mix
+    delayBuffer.in := feedback
+    io.out.bits    := mix
   }
 }
