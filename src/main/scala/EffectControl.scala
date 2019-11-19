@@ -5,7 +5,7 @@ import chisel3.experimental.MultiIOModule
 import io.{SPIBus, SPISlave}
 
 class EffectControl extends MultiIOModule {
-  val CONFIG_SIZE = 14
+  val CONFIG_SIZE = 15
 
   val ADDR_DISTORTION_ENABLE = 11
   val ADDR_DISTORTION_MIX = 12
@@ -22,8 +22,8 @@ class EffectControl extends MultiIOModule {
 
   val ADDR_TREMOLO_ENABLE = 5
   val ADDR_TREMOLO_PERIODMULT = 6
-
   val ADDR_TREMOLO_DEPTH = 9
+  val ADDR_TREMOLO_WAVE = 14
 
   val spi = IO(new SPIBus)
   val debug = IO(new Bundle {
@@ -59,9 +59,10 @@ class EffectControl extends MultiIOModule {
 
   /* Tremolo */
   val tremolo = IO(Flipped(new TremoloControl))
-  tremolo.bypass := !(config(ADDR_TREMOLO_ENABLE) & 1.U(1.W))
+  tremolo.bypass := false.B //!(config(ADDR_TREMOLO_ENABLE) & 1.U(1.W))
   tremolo.periodMultiplier := config(ADDR_TREMOLO_PERIODMULT) //18.U
   tremolo.depth := config(ADDR_TREMOLO_DEPTH)
+  tremolo.waveSelect := config(ADDR_TREMOLO_WAVE) // & 0x3.U(2.W)
 
   /* Delay */
   val delay = IO(Flipped(new DelayControl))
