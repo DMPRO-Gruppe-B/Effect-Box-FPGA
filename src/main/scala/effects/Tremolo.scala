@@ -22,17 +22,13 @@ class Tremolo extends MultiIOModule {
 
   val sine = Module(new SineWave).io
   val square = Module(new SquareWave).io
+  val triangle = Module(new TriangleWave).io
+  val sawtooth = Module(new SawtoothWave).io
+
   sine.inc := inc
   square.inc := inc
-//  val wave = Mux(ctrl.waveSelect === 0.U, sine, square)
-//  val wave = sine.io
-//  when (ctrl.waveSelect === 0.U) {
-//    wave := sine.io
-//  }.otherwise {
-//    wave := square.io
-//  }
-
-//  val wave = Module(new SineWave).io
+  triangle.inc := inc
+  sawtooth.inc := inc
 
   val counter = Reg(UInt(16.W))
 
@@ -48,7 +44,6 @@ class Tremolo extends MultiIOModule {
 
       when(counter >= ctrl.periodMultiplier - 1.U || counter < 0.U) {
         counter := 0.U
-//        wave.inc := true.B
         inc := true.B
       }.otherwise {
         counter := counter + 1.U
@@ -59,7 +54,14 @@ class Tremolo extends MultiIOModule {
       inc := false.B
     }
 
-    val signal = Mux(ctrl.waveSelect === 0.U, sine.signal, square.signal)
+    val signal = MuxLookup(ctrl.waveSelect, sine.signal, Array(
+      0.U -> sine.signal,
+      1.U -> square.signal,
+      2.U -> triangle.signal,
+      3.U -> sawtooth.signal
+    ))
+
+//    val signal = Mux(ctrl.waveSelect === 0.U, sine, Mux(ctrl.waveSelect === 1.U, square, triangle)).signal
     val denominator = WireInit(UInt(8.W), signal.denominator)
     val numerator = WireInit(SInt(8.W), signal.numerator)
     val res = Wire(SInt(32.W))

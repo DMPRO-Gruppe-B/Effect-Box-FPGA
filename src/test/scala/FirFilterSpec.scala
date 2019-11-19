@@ -96,8 +96,9 @@ object FirFilerTest {
 
 
 
-      if (ii == 3240) {
-        w = 1
+      if (ii % 360 == 0) {
+        w += 1
+        w %= 4
       }
 
 

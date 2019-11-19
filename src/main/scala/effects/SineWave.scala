@@ -40,18 +40,18 @@ class TriangleWave extends Wave {
   val (n, _) = Counter(wrap, 2)
 
   when(n === 0.U) {
-    io.signal.numerator := 2.S * (x.asSInt() - 90.S)
+    io.signal.numerator := (x.asSInt() - 90.S)
   }.otherwise {
-    io.signal.numerator := 2.S * (90.S - x.asSInt())
+    io.signal.numerator := (90.S - x.asSInt())
   }
-  io.signal.denominator := 180.U
+  io.signal.denominator := 90.U
 }
 
 class SawtoothWave extends Wave {
   val (x, _) = Counter(io.inc, 360)
 
-  io.signal.numerator := x.asSInt() - 180.S
-  io.signal.denominator := 180.U
+  io.signal.numerator := (x.asSInt() - 180.S) >> 1
+  io.signal.denominator := 90.U
 }
 
 class SineWave extends Wave{
