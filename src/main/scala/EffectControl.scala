@@ -7,13 +7,13 @@ import io.{SPIBus, SPISlave}
 class EffectControl extends MultiIOModule {
   val CONFIG_SIZE = 15
 
-  val ADDR_BITCRUSH_ENABLE = 0
+  val ADDR_BITCRUSH_BYPASS = 0
   val ADDR_BITCRUSH_BITS = 1
   val ADDR_BITCRUSH_RATE = 2
 
   val ADDR_DISTORTION_AMPLITUDE = 13
 
-  val ADDR_DELAY_ENABLE = 3
+  val ADDR_DELAY_BYPASS = 3
   val ADDR_DELAY_MILLISECONDS = 4
   val ADDR_DELAY_FEEDBACK = 7
   val ADDR_DELAY_MIX = 8
@@ -46,12 +46,12 @@ class EffectControl extends MultiIOModule {
 
   /* Distortion */
   val distortion = IO(Flipped(new DistortionControl))
-  distortion.bypass := !(config(ADDR_BITCRUSH_ENABLE) & 1.U(1.W))
+  distortion.bypass := (config(ADDR_BITCRUSH_BYPASS) & 1.U(1.W))
   distortion.amplitude := config(ADDR_DISTORTION_AMPLITUDE) & 0xF.U(4.W)
 
   /* Bitcrush */
   val bitcrush = IO(Flipped(new BitCrushControl))
-  bitcrush.bypass := !(config(ADDR_BITCRUSH_ENABLE) & 1.U(1.W))
+  bitcrush.bypass := (config(ADDR_BITCRUSH_BYPASS) & 1.U(1.W))
   bitcrush.bitReduction := config(ADDR_BITCRUSH_BITS) & 0xF.U(4.W)
   bitcrush.rateReduction := config(ADDR_BITCRUSH_RATE) & 0x3F.U(6.W)
 
@@ -64,7 +64,7 @@ class EffectControl extends MultiIOModule {
   /* Delay */
   val delay = IO(Flipped(new DelayControl))
 
-  delay.bypass := !(config(ADDR_DELAY_ENABLE) & 1.U(1.W))
+  delay.bypass := (config(ADDR_DELAY_BYPASS) & 1.U(1.W))
   delay.delaySamples := config(ADDR_DELAY_MILLISECONDS) * 64.U
 
   // Feedback and mix is sent as 0-10, representing 0-100%
