@@ -76,7 +76,6 @@ object DACTest {
             //println(peek(b.io.bit).toString)
             poke(b.io.BCLK,true.B)
             step(1)
->>>>>>> adc-dac-16
         }
 
         println("bit: " + bitString)
