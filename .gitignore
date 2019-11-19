@@ -46,6 +46,11 @@ test_run_dir/*
 *_usage.xml
 *_xst.xrpt
 
+#plotting
+sine.txt
+sound.txt
+new_sound.txt
+
 # project-wide generated files
 *.gise
 par_usage_statistics.html
