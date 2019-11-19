@@ -7,25 +7,23 @@ import org.scalatest.{FlatSpec, Matchers}
 import scala.sys.process.Process
 
 
-class BitCrushSpec extends FlatSpec with Matchers {
-  import BitCrushTest._
+class DistortionSpec extends FlatSpec with Matchers {
+  import DistortionTest._
 
-  behavior of "BitCrush"
+  behavior of "Distortion"
 
-  it should "Set least segnificat 4 bits to 0" in {
-    chisel3.iotesters.Driver(() => new BitCrush) { b =>
-      new CrushesBits(b)
+  it should "Limit the max amplitude" in {
+    chisel3.iotesters.Driver(() => new Distortion) { b =>
+      new Distorts(b)
     } should be(true)
   }
 
 }
 
-object BitCrushTest {
-  class CrushesBits(b: BitCrush) extends PeekPokeTester(b) {
+object DistortionTest {
+  class Distorts(b: Distortion) extends PeekPokeTester(b) {
 
-    poke(b.ctrl.mix, 10)
-    poke(b.ctrl.bitReduction, 12)
-    poke(b.ctrl.rateReduction, 0)
+    poke(b.ctrl.amplitude, 5)
 
     poke(b.io.in.valid, true.B)
     poke(b.io.in.ready, true.B)
@@ -43,7 +41,4 @@ object BitCrushTest {
     })
     Process("python3 plotsine.py sound.txt new_sound.txt").run()
   }
-
 }
-
-

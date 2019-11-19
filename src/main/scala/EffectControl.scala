@@ -7,8 +7,6 @@ import io.{SPIBus, SPISlave}
 class EffectControl extends MultiIOModule {
   val CONFIG_SIZE = 15
 
-  val ADDR_DISTORTION_ENABLE = 11
-  val ADDR_DISTORTION_MIX = 12
   val ADDR_DISTORTION_AMPLITUDE = 13
 
   val ADDR_BITCRUSH_MIX = 10
