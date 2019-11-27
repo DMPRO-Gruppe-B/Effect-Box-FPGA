@@ -40,7 +40,7 @@ class EffectControl extends MultiIOModule {
     val data1 = bytes(23, 16)
     val data2 = bytes(15, 8)
     val checksum: UInt = bytes(7, 0)
-    when(((addr + data1 + data2) & 0xFF.U) === checksum) {
+    when(((addr + data1 + data2) & 0xFF.U) === ~checksum) {
       config(addr) := bytes(23, 8)
     }
   }
