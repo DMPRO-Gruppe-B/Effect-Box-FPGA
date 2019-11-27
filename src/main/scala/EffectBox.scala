@@ -40,8 +40,8 @@ class EffectBox() extends MultiIOModule {
   val bitcrush = Module(new BitCrush)
   bitcrush.ctrl <> control.bitcrush
 
-//  val distortion = Module(new Distortion)
-//  distortion.ctrl <> control.distortion
+  val distortion = Module(new Distortion)
+  distortion.ctrl <> control.distortion
 
   val tremolo = Module(new Tremolo)
   tremolo.ctrl <> control.tremolo
@@ -53,10 +53,9 @@ class EffectBox() extends MultiIOModule {
    * Order effects
    */
 
-  EffectBuffer(io.in, delay.io.in)
-  EffectBuffer(delay.io.out, tremolo.io.in)
-  //EffectBuffer(tremolo.io.out, distortion.io.in)
-  //EffectBuffer(distortion.io.out, bitcrush.io.in)
-  EffectBuffer(tremolo.io.out, bitcrush.io.in)
-  EffectBuffer(bitcrush.io.out, io.out)
+  EffectBuffer(io.in, distortion.io.in)
+  EffectBuffer(distortion.io.out, bitcrush.io.in)
+  EffectBuffer(bitcrush.io.out, tremolo.io.in)
+  EffectBuffer(tremolo.io.out, delay.io.in)
+  EffectBuffer(delay.io.out, io.out)
 }
