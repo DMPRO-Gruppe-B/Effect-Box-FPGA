@@ -8,10 +8,9 @@ class EffectControl extends MultiIOModule {
   val CONFIG_SIZE = 15
 
   val ADDR_BITCRUSH_BYPASS = 0
+  val ADDR_BITCRUSH_DISTORTION = 13
   val ADDR_BITCRUSH_BITS = 1
   val ADDR_BITCRUSH_RATE = 2
-
-  val ADDR_DISTORTION_AMPLITUDE = 13
 
   val ADDR_DELAY_BYPASS = 3
   val ADDR_DELAY_MILLISECONDS = 4
@@ -46,13 +45,15 @@ class EffectControl extends MultiIOModule {
   }
 
   /* Distortion */
-  val distortion = IO(Flipped(new DistortionControl))
-  distortion.bypass := (config(ADDR_BITCRUSH_BYPASS) & 1.U(1.W))
-  distortion.amplitude := config(ADDR_DISTORTION_AMPLITUDE) & 0x7F.U(7.W)
+  //val distortion = IO(Flipped(new DistortionControl))
+  // Same bypass group as bitcrush
+  //distortion.bypass := (config(ADDR_BITCRUSH_BYPASS) & 1.U(1.W))
+  //distortion.distortion := config(ADDR_DISTORTION_DISTORTION) & 0xF.U(4.W)
 
   /* Bitcrush */
   val bitcrush = IO(Flipped(new BitCrushControl))
   bitcrush.bypass := (config(ADDR_BITCRUSH_BYPASS) & 1.U(1.W))
+  bitcrush.distortion := config(ADDR_BITCRUSH_DISTORTION) & 0xF.U(4.W)
   bitcrush.bitReduction := config(ADDR_BITCRUSH_BITS) & 0xF.U(4.W)
   bitcrush.rateReduction := config(ADDR_BITCRUSH_RATE) & 0x3F.U(6.W)
 

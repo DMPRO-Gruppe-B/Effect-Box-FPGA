@@ -66,9 +66,9 @@ class Tremolo extends MultiIOModule {
       (TREMOLO_DENOMINATOR.S - ctrl.depth.asSInt()) * denominator) /
     (denominator * TREMOLO_DENOMINATOR.S)
 
-  when (!ctrl.bypass) {
-    io.out.bits := res
+  when (ctrl.bypass) {
+    io.out <> io.in
   } .otherwise {
-    io.out.bits := io.in.bits
+    io.out.bits := res
   }
 }
