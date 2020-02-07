@@ -1,3 +1,4 @@
+/*
 package EffectBox
 
 import chisel3._
@@ -32,7 +33,28 @@ object DACTest {
         poke(b.io.sample, line.toInt.asUInt(16.W))
 
         var first = true
+//<<<<<<< HEAD
+        for (bit <- (TestUtils.toBinaryString(line.toInt, 16))) {
+          
+            if(first == true){
+              expect(b.io.enable,true)
+              first = !first
+            }
+            else{
+              expect(b.io.enable,false)
+            }
 
+            step(1)
+            
+            expect(b.io.bit_left,bit.toString.toInt)
+        }
+        
+        poke(b.io.LRCLK, false)
+        for (i <- 1 to 16) {
+          poke(b.io.sample, 0.S)
+          step(1)
+          expect(b.io.enable,false)
+//=======
 
         var dacString = ""
         var bitString = ""
@@ -62,3 +84,4 @@ object DACTest {
     }
   }
 }
+*/

@@ -25,9 +25,6 @@ class EffectBundle() extends Bundle {
 class EffectBox() extends MultiIOModule {
   val spi = IO(new SPIBus)
   val io = IO(new EffectBundle)
-  val debug = IO(new Bundle {
-    val bitcrushCtrl = Output(new BitCrushControl)
-  })
 
   /*
    * Setup the SPI control module
@@ -42,7 +39,6 @@ class EffectBox() extends MultiIOModule {
 
   val bitcrush = Module(new BitCrush)
   bitcrush.ctrl <> control.bitcrush
-  debug.bitcrushCtrl <> control.bitcrush
 
   val tremolo = Module(new Tremolo)
   tremolo.ctrl <> control.tremolo
@@ -54,6 +50,7 @@ class EffectBox() extends MultiIOModule {
    * Order effects
    */
 
+  // This order is the least noisy
   EffectBuffer(io.in, delay.io.in)
   EffectBuffer(delay.io.out, tremolo.io.in)
   EffectBuffer(tremolo.io.out, bitcrush.io.in)

@@ -3,6 +3,8 @@ package EffectBox
 import chisel3._
 
 
+// What even is this class?
+
 class Combiner(bitWidth: Int) extends Module {
   val io = IO(
     new Bundle {
@@ -15,7 +17,6 @@ class Combiner(bitWidth: Int) extends Module {
   val bitCrush = Module(new BitCrush)
   val delay = Module(new DelayFilter(bitWidth)).io
   delay.bypass := false.B
-  bitCrush.ctrl.bypass := false.B
   bitCrush.ctrl.bitReduction := 4.U
   bitCrush.ctrl.rateReduction := 4.U
 

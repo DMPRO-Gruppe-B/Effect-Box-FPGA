@@ -5,8 +5,8 @@ import chisel3.experimental.MultiIOModule
 import chisel3.util._
 
 class TremoloControl extends Bundle {
-  val periodMultiplier = Input(UInt(16.W))
   val bypass = Input(Bool())
+  val periodMultiplier = Input(UInt(16.W))
   val depth = Input(UInt(8.W))
   val waveSelect = Input(UInt(2.W))
 }
@@ -35,44 +35,40 @@ class Tremolo extends MultiIOModule {
   io.in.ready := true.B
   io.out.valid := io.in.valid
 
-  when(ctrl.bypass) {
-    io.out.bits := io.in.bits
-    inc := false.B
+  when(io.in.valid) {
 
-  }.otherwise {
-    when(io.in.valid) {
-
-      when(counter >= ctrl.periodMultiplier - 1.U || counter < 0.U) {
-        counter := 0.U
-        inc := true.B
-      }.otherwise {
-        counter := counter + 1.U
-        inc := false.B
-      }
-
+    when(counter >= ctrl.periodMultiplier - 1.U || counter < 0.U) {
+      counter := 0.U
+      inc := true.B
     }.otherwise {
+      counter := counter + 1.U
       inc := false.B
     }
 
-    val signal = MuxLookup(ctrl.waveSelect, sine.signal, Array(
-      0.U -> sine.signal,
-      1.U -> square.signal,
-      2.U -> triangle.signal,
-      3.U -> sawtooth.signal
-    ))
+  }.otherwise {
+    inc := false.B
+  }
 
-//    val signal = Mux(ctrl.waveSelect === 0.U, sine, Mux(ctrl.waveSelect === 1.U, square, triangle)).signal
-    val denominator = WireInit(UInt(8.W), signal.denominator)
-    val numerator = WireInit(SInt(8.W), signal.numerator)
-    val res = Wire(SInt(32.W))
+  val signal = MuxLookup(ctrl.waveSelect, sine.signal, Array(
+    0.U -> sine.signal,
+    1.U -> square.signal,
+    2.U -> triangle.signal,
+    3.U -> sawtooth.signal
+  ))
 
-    // equivalent to depth* sin(x) + (1 - depth)
-    res := io.in.bits *
-      ( (numerator * ctrl.depth).asSInt() +
-        (TREMOLO_DENOMINATOR.S - ctrl.depth.asSInt()) * denominator) /
-      (denominator * TREMOLO_DENOMINATOR.S)
+  val denominator = WireInit(UInt(8.W), signal.denominator)
+  val numerator = WireInit(SInt(8.W), signal.numerator)
+  val res = Wire(SInt(32.W))
 
+  // equivalent to depth* sin(x) + (1 - depth)
+  res := io.in.bits *
+    ( (numerator * ctrl.depth).asSInt() +
+      (TREMOLO_DENOMINATOR.S - ctrl.depth.asSInt()) * denominator) /
+    (denominator * TREMOLO_DENOMINATOR.S)
+
+  when (ctrl.bypass) {
+    io.out <> io.in
+  } .otherwise {
     io.out.bits := res
-
   }
 }

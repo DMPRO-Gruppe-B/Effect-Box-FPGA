@@ -102,7 +102,6 @@ object FirFilerTest {
       }
 
       poke(b.ctrl.periodMultiplier, p)
-      poke(b.ctrl.bypass, false.B)
       poke(b.io.in.bits, 1000)
       poke(b.ctrl.depth, bot)
       poke(b.ctrl.waveSelect, w)
@@ -130,7 +129,6 @@ object FirFilerTest {
       var p = 12
       var d = false
       var bot = 8
-      poke(b.ctrl.bypass, false)
 
       val lines = source.getLines()
       for ((line, i) <- lines.zipWithIndex) {
